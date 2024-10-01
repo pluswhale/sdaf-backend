@@ -1,0 +1,177 @@
+- actions:
+    - filters:
+        - shard: DEVNET_L1A
+          issuer:
+            FromSmartContract: '0xc2f10bc4457361925183b1a50bddbf78403962e466f0e9f71d6035e6af1384b1'
+          key:
+            first_part: '0xa748ac5ebb184874d58965b35096ff95638d7760b81a24d2a7df74a3be7ab6e2'
+            second_part: null
+      info:
+        providedCweb: '0x2710'
+        authenticated: false
+      command:
+        CustomV1:
+          calls:
+            - contract_input:
+                authenticated: false
+                cost: '0x2710'
+                data:
+                  - WAITING
+                  - name: >-
+                      0xa748ac5ebb184874d58965b35096ff95638d7760b81a24d2a7df74a3be7ab6e2
+                    parts: 3
+              contract_ref:
+                explicit: []
+                stored:
+                  - Claim:
+                      issuer:
+                        FromSmartContract: >-
+                          0xab44ac735643eb80b3780ed73984a0afc4fe13d404aa55db95b34f8dbdb80dcc
+                      key:
+                        first_part: RegistrationV0
+                        second_part: null
+      title: '[dex-app.cm v0.0.28+test] File upload for contract/onchain.js'
+    - filters:
+        - shard: DEVNET_L1A
+          issuer:
+            FromSmartContract: '0xc2f10bc4457361925183b1a50bddbf78403962e466f0e9f71d6035e6af1384b1'
+          key:
+            first_part: '0xd9dcb278281526a5e9386be25a31ba2ac2205cd5a48dc632a2e204e48026d8c4'
+            second_part: null
+      info:
+        providedCweb: '0x2710'
+        authenticated: false
+      command:
+        CustomV1:
+          calls:
+            - contract_input:
+                authenticated: false
+                cost: '0x2710'
+                data:
+                  - WAITING
+                  - name: >-
+                      0xd9dcb278281526a5e9386be25a31ba2ac2205cd5a48dc632a2e204e48026d8c4
+                    parts: 1
+              contract_ref:
+                explicit: []
+                stored:
+                  - Claim:
+                      issuer:
+                        FromSmartContract: >-
+                          0xab44ac735643eb80b3780ed73984a0afc4fe13d404aa55db95b34f8dbdb80dcc
+                      key:
+                        first_part: RegistrationV0
+                        second_part: null
+      title: '[dex-app.cm v0.0.28+test] File upload for contract/offchain.ref.js'
+  title: Bootstrap initiate contracts uploading
+- actions:
+    - filters:
+        - shard: DEVNET_L1A
+          issuer:
+            FromSmartContract: '0x1e3e9d280d6d4397835a394d1cbfb7f449f72b1582bc15cfbe93284774276e72'
+          key:
+            first_part: RegistrationV0
+            second_part: null
+      info:
+        providedCweb: '0x2710'
+        authenticated: false
+      command:
+        CustomV1:
+          calls:
+            - contract_input:
+                authenticated: false
+                cost: '0x2710'
+                data:
+                  - SELF-REGISTER
+                  - - &ref_0
+                      path:
+                        path:
+                          - contract
+                      name: onchain.js
+                    - &ref_1
+                      path:
+                        path:
+                          - contract
+                      name: offchain.ref.js
+              contract_ref:
+                stored:
+                  - Claim:
+                      issuer:
+                        FromSmartContract: >-
+                          0xa344c6003922f9e44385f6e8234a7d2567d9a676b14330ad3b42cbd1948a92bf
+                      key:
+                        first_part: RegistrationV0
+                        second_part: null
+                  - provided_description: *ref_0
+                    cweb_read:
+                      Claim:
+                        issuer:
+                          FromSmartContract: >-
+                            0xc2f10bc4457361925183b1a50bddbf78403962e466f0e9f71d6035e6af1384b1
+                        key:
+                          first_part: >-
+                            0xa748ac5ebb184874d58965b35096ff95638d7760b81a24d2a7df74a3be7ab6e2
+                          second_part: null
+                  - provided_description: *ref_1
+                    cweb_read:
+                      Claim:
+                        issuer:
+                          FromSmartContract: >-
+                            0xc2f10bc4457361925183b1a50bddbf78403962e466f0e9f71d6035e6af1384b1
+                        key:
+                          first_part: >-
+                            0xd9dcb278281526a5e9386be25a31ba2ac2205cd5a48dc632a2e204e48026d8c4
+                          second_part: null
+                explicit: []
+      title: >-
+        [dex-app.cm v0.0.28+test] Registration process, contract ID is
+        1e3e9d280d6d4397835a394d1cbfb7f449f72b1582bc15cfbe93284774276e72
+  title: Publishing templates
+- actions:
+    - filters:
+        - shard: DEVNET_L1A
+          issuer:
+            FromSmartContract: '0x55f342a715c0768bbd7088fe729e62bfb23ef4a562c20fdb87781688ad1adc35'
+          key:
+            first_part: RegistrationV0
+            second_part: null
+      info:
+        providedCweb: '0x2710'
+        authenticated: false
+      command:
+        CustomV1:
+          calls:
+            - contract_input:
+                authenticated: false
+                cost: '0x2710'
+                data:
+                  - SELF-REGISTER
+                  - - &ref_2
+                      path:
+                        path:
+                          - contract
+                      name: parameters.json
+              contract_ref:
+                stored:
+                  - Claim:
+                      issuer:
+                        FromSmartContract: >-
+                          0x1e3e9d280d6d4397835a394d1cbfb7f449f72b1582bc15cfbe93284774276e72
+                      key:
+                        first_part: RegistrationV0
+                        second_part: null
+                  - provided_description: *ref_2
+                    cweb_read:
+                      Claim:
+                        issuer:
+                          FromSmartContract: >-
+                            0xc2f10bc4457361925183b1a50bddbf78403962e466f0e9f71d6035e6af1384b1
+                        key:
+                          first_part: >-
+                            0x907abf016c3dcad2b1232a251b1910b0fc7e172cd7daf5f84e09850f242b06dc
+                          second_part: null
+                explicit: []
+      title: >-
+        [btc_offer_maker 0.0.28+devnet] Registration process, contract ID is
+        55f342a715c0768bbd7088fe729e62bfb23ef4a562c20fdb87781688ad1adc35
+  title: Publishing instances

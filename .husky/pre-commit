@@ -1,0 +1,4 @@
+yarn typecheck \
+&& yarn lint-staged .
+
+
