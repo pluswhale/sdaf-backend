@@ -2,8 +2,8 @@ FROM node:18 AS build
 WORKDIR /app
 COPY package*.json .
 RUN npm install -g typescript
-RUN yarn install
 COPY . .
+RUN yarn install
 RUN yarn build
 
 FROM node:22-alpine AS production
