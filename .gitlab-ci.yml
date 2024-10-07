@@ -11,3 +11,9 @@ variables:
   SAST_DISABLED: "true"
 
   DOCKER_HOST: "tcp://docker-dind.gitlab-managed-apps:2375"
+
+test:
+  stage: test
+  script:
+    - echo "tests disabled"
+  when: manual
