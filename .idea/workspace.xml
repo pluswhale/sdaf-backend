@@ -4,11 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ddcb7f5f-2422-4c59-8b54-5a3643cb370b" name="Changes" comment="finish porting">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="ddcb7f5f-2422-4c59-8b54-5a3643cb370b" name="Changes" comment="remove tests">
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/dex-app.cm/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/dex-app.cm/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/market-maker.cm/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/market-maker.cm/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -152,7 +149,15 @@
       <option name="project" value="LOCAL" />
       <updated>1727777233776</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="remove tests">
+      <option name="closed" value="true" />
+      <created>1728325721812</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1728325721812</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -251,7 +256,8 @@
     <MESSAGE value="redo all structure" />
     <MESSAGE value="add webstorm files" />
     <MESSAGE value="finish porting" />
-    <option name="LAST_COMMIT_MESSAGE" value="finish porting" />
+    <MESSAGE value="remove tests" />
+    <option name="LAST_COMMIT_MESSAGE" value="remove tests" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -12,6 +12,8 @@
     "build:cm": "yarn workspaces foreach -Ap --include 'packages/*.cm' run build",
     "build:non-cm": "yarn workspaces foreach -Ap --include 'packages/*' --exclude 'packages/*.cm' run build",
     "create-index": "cweb-tool create-index -c ./.cweb-config/config.yaml --profile $REGISTRATION_PROFILE",
+    "test": "yarn workspaces foreach -Ap run test",
+    "test:prepare": "yarn simulate && yarn workspaces foreach -Ap run test:prepare",
     "publish-index": "cweb-tool publish-index -c ./.cweb-config/config.yaml --profile $REGISTRATION_PROFILE",
     "deploy-contracts": "yarn publish-actions",
     "call-contracts": "yarn call-contracts:prepare && yarn call-contracts:invoke",
