@@ -23,8 +23,6 @@
     "publish-actions": "cweb-tool publish -c ./.cweb-config/config.yaml --profile $REGISTRATION_PROFILE",
     "clean": "yarn clean:me && yarn workspaces foreach -Ap run clean",
     "clean:me": "rm -rf .dapp-ecosystem-lock*.yaml .unfiltered-actions*.yaml .actions*.yaml",
-    "test": "yarn workspaces foreach -Ap run test",
-    "test:prepare": "yarn simulate && yarn workspaces foreach -Ap run test:prepare",
     "simulate": "cweb-tool simulate .dapp-ecosystem-lock-test.yaml prepared-state.json -c ./.cweb-config/config.yaml --profile $REGISTRATION_PROFILE",
     "setup-ide:vscode": "yarn dlx @yarnpkg/sdks vscode",
     "install:with-node-modules": "yarn config set nodeLinker node-modules && yarn install",
