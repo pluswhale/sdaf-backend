@@ -1,0 +1,13 @@
+include:
+  - template: Auto-DevOps.gitlab-ci.yml
+variables:
+  AUTO_DEVOPS_DEPLOY_DEBUG: "true"
+  AUTO_DEVOPS_COMMON_NAME: "false"
+  BROWSER_PERFORMANCE_DISABLED: "true"
+  CODE_QUALITY_DISABLED: "true"
+  DAST_DISABLED: "true"
+  DEPENDENCY_SCANNING_DISABLED: "true"
+  LICENSE_MANAGEMENT_DISABLED: "true"
+  SAST_DISABLED: "true"
+
+  DOCKER_HOST: "tcp://docker-dind.gitlab-managed-apps:2375"
