@@ -9,7 +9,7 @@ FROM node:22-alpine AS production
 EXPOSE 5000
 WORKDIR /app
 COPY package*.json .
-RUN npm ci --only=production
+RUN npm ci
 COPY --from=build /app/dist ./
 RUN ls -al
 CMD ["node", "index.js"]
