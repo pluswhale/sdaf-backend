@@ -1,12 +1,13 @@
 FROM node:18 AS build
 WORKDIR /app
 COPY package*.json .
+RUN apt-get update && apt-get install -y jq
 RUN npm install -g typescript
 COPY . .
 RUN yarn install
 RUN yarn build
 
-FROM node:22-alpine AS production
+FROM node:18 AS production
 EXPOSE 5000
 WORKDIR /app
 COPY package*.json .
