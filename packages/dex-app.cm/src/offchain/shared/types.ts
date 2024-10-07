@@ -17,12 +17,17 @@ export type PositionStateClaimBody = {
   funds: HexBigInt;
   chainData: ChainData;
   txId: string;
+  error: string | null;
 };
 
 export type PositionFundsClaimBody = {
   owner: User;
   baseAmount: HexBigInt;
   quoteAmount: HexBigInt;
+};
+
+export type UniquenessClaimBody = {
+  message: string;
 };
 
 export type ChainData = unknown;

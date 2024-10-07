@@ -1,8 +1,9 @@
 import { BitcoinNetworkType, GetAddressResponse } from 'sats-connect';
 import { create } from 'zustand';
 
-import { Currency } from '@/constants';
-import { BtcNetwork, NETWORK } from '@/networks/btc';
+import {BtcNetwork, NETWORK} from "../networks/btc";
+import {Currency} from "../constants";
+
 
 type BtcAddresses = GetAddressResponse['addresses'];
 
@@ -39,23 +40,23 @@ const bitcoinNet = (() => {
   }
 })();
 
-export const useTokenStore = create<TokenStore>((set) => {
+export const useTokenStore = create<TokenStore>((set: any) => {
   return {
     l1FirstToken: Currency.ETH,
     l1SecondToken: Currency.BNB,
     setL1FirstToken: (token: Currency) => set({ l1FirstToken: token }),
     setL1SecondToken: (token: Currency) => set({ l1SecondToken: token }),
     l1FirstTokenSwapAmount: BigInt(0),
-    setL1TokenSwapAmount: (value) => set({ l1FirstTokenSwapAmount: value }),
+    setL1TokenSwapAmount: (value: any) => set({ l1FirstTokenSwapAmount: value }),
     l1TokenWalletAmount: BigInt(0),
     l1SecondTokenWalletAmount: BigInt(0),
-    setL1TokenWalletAmount: (amount) => set({ l1TokenWalletAmount: amount }),
-    setL1SecondTokenWalletAmount: (amount) => set({ l1SecondTokenWalletAmount: amount }),
+    setL1TokenWalletAmount: (amount: any) => set({ l1TokenWalletAmount: amount }),
+    setL1SecondTokenWalletAmount: (amount: any) => set({ l1SecondTokenWalletAmount: amount }),
     recipientAddress: '',
-    setRecipientAddress: (address) => set({ recipientAddress: address }),
+    setRecipientAddress: (address: any) => set({ recipientAddress: address }),
     btcAdress: [],
     setBtcAdress: (addresses: BtcAddresses) => set({ btcAdress: addresses }),
     btcNetwork: bitcoinNet,
-    setBtcNetwork: (network) => set({ btcNetwork: network }),
+    setBtcNetwork: (network: any) => set({ btcNetwork: network }),
   };
 });

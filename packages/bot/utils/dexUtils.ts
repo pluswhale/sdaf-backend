@@ -1,4 +1,4 @@
-import { creteNewPositionBtcUiCommand, creteNewPositionEvmUiCommand, cancelPositionUiCommand, toHex } from 'dex-app.cm/src/offchain/index.ts';
+import { creteNewPositionBtcUiCommand, creteNewPositionEvmUiCommand, cancelPositionUiCommand, toHex } from 'dex-app.cm/src/offchain';
 import {
   createOrderUiCommand,
   deleteOrderUiCommand,
@@ -7,10 +7,10 @@ import {
 } from 'market-maker.cm';
 
 
-import { Currency, findDepositCurrency, depositAccount, getCurrencyForPair } from './const.ts';
-import {convertStringToBigInt} from "../model/swap.ts";
-import {CONTRACT_PARAMS} from "../constants/index.ts";
-import {eFix} from "./number.ts";
+import { Currency, findDepositCurrency, depositAccount, getCurrencyForPair } from './const';
+import {convertStringToBigInt} from "../model/swap";
+import {CONTRACT_PARAMS} from "../constants";
+import {eFix} from "./number";
 
 export function contractOwnerFee(OWNER_MIN_FEE: any, OWNER_PERCENTAGE_FEE: any, fromValue?: any) {
   const minFee = BigInt(OWNER_MIN_FEE || 0);
@@ -46,6 +46,8 @@ export async function convertInfoToCreateQr(symbol: string, ethDest: string, amo
       recipient: ethDest,
       contractOwnerFee: '',
     };
+
+    console.log('contractParam', contractParam)
 
     contractParam.contractOwnerFee = toHex(
         contractOwnerFee(

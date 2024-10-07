@@ -2,8 +2,8 @@ import { useCallback, useState } from 'react';
 
 import { erc20Abi } from 'viem';
 import { useReadContracts } from 'wagmi';
+import {EvmContractAddress} from "../types";
 
-import { EvmContractAddress } from '@/types';
 
 type ContractRead = {
   abi: typeof erc20Abi;

@@ -3,10 +3,10 @@ import { QueryFunction, useQuery } from '@tanstack/react-query';
 import { type Pagination } from 'dex-app.cm';
 import { REQUEST_EXECUTION_STATUS, type ExecutionRequest as MarketMakerPositionClaim } from 'market-maker.cm';
 
-import { MarketOrderAskPACT } from '@/types';
 
 import { getAllMarketClaim } from '../api';
 import { Currency } from '../constants';
+import {MarketOrderAskPACT} from "../types";
 
 type MarketUserOrdersQueryKey = ['marketUserOrders', Currency, PubKey | undefined, Pagination | undefined];
 
@@ -45,9 +45,9 @@ export const useMarketMakerOrdersL1AskClaimsPACT = (
 
     const data = await getAllMarketClaim(l1Currency, coinwebPubKey, pagination);
 
-    if ((window as CustomWindow).__MOCKS__ === true) {
-      return data.concat(mockedPositions);
-    }
+    // if ((window as CustomWindow).__MOCKS__ === true) {
+    //   return data.concat(mockedPositions);
+    // }
 
     return data;
   };

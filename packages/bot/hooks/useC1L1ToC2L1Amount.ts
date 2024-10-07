@@ -1,14 +1,11 @@
 import { QueryFunction, useQuery, useQueryClient } from '@tanstack/react-query';
-import { BtcChainData, type PositionData } from 'dex-app.cm';
 import { FEE, Order } from 'market-maker.cm';
-
-import { getMempoolTxsSpendingUtxo } from '@/networks/btc';
-import { calculateAmountFromRatio, calculateRatioFromBigInts } from '@/utils';
-
 import { Currency } from '../constants';
-
 import { useBestActiveMarketOrders } from './useBestActiveMarketOrders';
 import { useBestActivePositions } from './useBestActivePositions';
+import {BtcChainData, PositionData} from "dex-app.cm/src/offchain/index";
+import {getMempoolTxsSpendingUtxo} from "../networks/btc";
+import {calculateAmountFromRatio, calculateRatioFromBigInts} from "../utils";
 
 type C1ToC2AmountQueryKey = ['L1C1ToL1C2Amount', Currency, Currency, string];
 
@@ -23,11 +20,11 @@ export const isBtcChainData = (data: unknown): data is BtcChainData => {
   if (!data) return false;
 
   return (
-    typeof data === 'object' &&
-    'l1TxId' in data &&
-    'vout' in data &&
-    typeof data.l1TxId === 'string' &&
-    typeof data.vout === 'number'
+      typeof data === 'object' &&
+      'l1TxId' in data &&
+      'vout' in data &&
+      typeof data.l1TxId === 'string' &&
+      typeof data.vout === 'number'
   );
 };
 
@@ -44,6 +41,7 @@ const addOrderToBlackList = (currency: Currency, orderId: string) => {
 
   blackList.add(orderId);
 
+  // @ts-ignore
   sessionStorage.setItem(createBlackListKey(currency), JSON.stringify([...blackList]));
 };
 
@@ -80,7 +78,7 @@ const useCwebToL1OfferC1 = (currency: Currency, l1Amount: bigint) => {
 
       let satisfyingPositions = availablePositions.filter((position) => {
         const positionQuoteAmount =
-          position.baseAmount && (position.funds * position.quoteAmount) / position.baseAmount;
+            position.baseAmount && (position.funds * position.quoteAmount) / position.baseAmount;
 
         return positionQuoteAmount >= l1Amount;
       });
@@ -125,8 +123,10 @@ const useCwebToL1OfferC1 = (currency: Currency, l1Amount: bigint) => {
       }
 
       const bestOfferRate = calculateRatioFromBigInts(bestOffer.baseAmount, bestOffer.quoteAmount);
+
       const randomSelectThreshold =
-        (bestOfferRate * (100 - (import.meta.env.VITE_ORDER_RANDOM_SELECT_TOLERANCE ?? 0))) / 100;
+          // @ts-ignore
+          (bestOfferRate * (100 - (process.env.ORDER_RANDOM_SELECT_TOLERANCE ?? 0))) / 100;
 
       const selectedOffers = satisfyingPositions.filter((position) => {
         const positionRatioCwebToL1 = calculateRatioFromBigInts(position.baseAmount, position.quoteAmount);
@@ -159,8 +159,8 @@ const useL1toCwebOfferC2 = (currency: Currency, cwebAmount?: bigint | null) => {
   const { data: orders = [] } = useBestActiveMarketOrders(currency);
 
   cleanBlacklist(
-    currency,
-    orders.map(({ id }) => id),
+      currency,
+      orders.map(({ id }) => id),
   );
 
   if (!cwebAmount) {
@@ -181,7 +181,7 @@ const useL1toCwebOfferC2 = (currency: Currency, cwebAmount?: bigint | null) => {
     }
 
     if (
-      orderL1ToCwebRatio > calculateRatioFromBigInts(selectedOffer.offer.quoteAmount, selectedOffer.offer.baseAmount)
+        orderL1ToCwebRatio > calculateRatioFromBigInts(selectedOffer.offer.quoteAmount, selectedOffer.offer.baseAmount)
     ) {
       return { offer: order, maxOffer: availableOfferL1InOrder };
     }
@@ -206,8 +206,8 @@ export const useL1C1ToL1C2Amount = (l1CurrencyC1: Currency, l1CurrencyC2: Curren
   const { data: cwebToL1OfferC1 } = useCwebToL1OfferC1(cwebToL1CurrencyC1, BigInt(cwebToL1QuoteAmountC1));
 
   const baseAmount =
-    cwebToL1OfferC1 &&
-    (BigInt(cwebToL1QuoteAmountC1) * cwebToL1OfferC1.offer.baseAmount) / cwebToL1OfferC1.offer.quoteAmount -
+      cwebToL1OfferC1 &&
+      (BigInt(cwebToL1QuoteAmountC1) * cwebToL1OfferC1.offer.baseAmount) / cwebToL1OfferC1.offer.quoteAmount -
       FEE.HANDLE_EXECUTION_REQUEST -
       HACK_QUEUE_COST;
 
@@ -220,7 +220,7 @@ export const useL1C1ToL1C2Amount = (l1CurrencyC1: Currency, l1CurrencyC2: Curren
 
     const amount = (baseAmount * l1ToCwebOfferC2.offer.quoteAmount) / l1ToCwebOfferC2.offer.baseAmount;
     const maxAmount =
-      cwebToL1OfferC1.maxQuote < l1ToCwebOfferC2.maxOffer ? cwebToL1OfferC1.maxQuote : l1ToCwebOfferC2.maxOffer;
+        cwebToL1OfferC1.maxQuote < l1ToCwebOfferC2.maxOffer ? cwebToL1OfferC1.maxQuote : l1ToCwebOfferC2.maxOffer;
 
     return {
       amount: BigInt(amount && amount > 0 ? amount : 0),
@@ -230,18 +230,18 @@ export const useL1C1ToL1C2Amount = (l1CurrencyC1: Currency, l1CurrencyC2: Curren
   };
 
   return Object.assign(
-    useQuery<C1ToC2Offer, Error, C1ToC2Offer, C1ToC2AmountQueryKey>({
-      queryKey,
-      queryFn,
-      refetchInterval: 10000,
-    }),
-    {
-      addOrderToBlackList: (currency: Currency, orderId: string) => {
-        addOrderToBlackList(currency, orderId);
+      useQuery<C1ToC2Offer, Error, C1ToC2Offer, C1ToC2AmountQueryKey>({
+        queryKey,
+        queryFn,
+        refetchInterval: 10000,
+      }),
+      {
+        addOrderToBlackList: (currency: Currency, orderId: string) => {
+          addOrderToBlackList(currency, orderId);
 
-        queryClient.removeQueries({ queryKey });
-        queryClient.refetchQueries({ queryKey });
+          queryClient.removeQueries({ queryKey });
+          queryClient.refetchQueries({ queryKey });
+        },
       },
-    },
   );
 };

@@ -1,6 +1,6 @@
 import { useState } from 'react';
+import {CONTRACT_PARAMS, Currency} from "../constants";
 
-import { CONTRACT_PARAMS, Currency } from '@/constants';
 
 const useL1TokenContractParams = () => {
   const [contractParams] = useState(CONTRACT_PARAMS);

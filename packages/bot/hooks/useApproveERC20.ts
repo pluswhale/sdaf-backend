@@ -1,10 +1,10 @@
 import { erc20Abi } from 'viem';
 import { useWriteContract } from 'wagmi';
 
-import { Currency } from '@/constants';
-import { EvmContractAddress } from '@/types';
 
 import useL1TokenContractParams from './useL1TokenContractParams';
+import {Currency} from "../constants";
+import {EvmContractAddress} from "../types";
 
 const useApproveERC20 = () => {
   const { isPending, writeContractAsync, ...rest } = useWriteContract();

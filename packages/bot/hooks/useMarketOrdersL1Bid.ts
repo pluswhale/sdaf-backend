@@ -1,13 +1,13 @@
 import { type QueryFunction, useQuery } from '@tanstack/react-query';
 import { type Pagination, type PositionData } from 'dex-app.cm';
 
-import type { UIMarketOrderBid } from '@/types';
-import { calculateAmountFromRatio, calculateRatioFromBigInts } from '@/utils';
 
 import { getAllActivePositions } from '../api';
 import { Currency } from '../constants';
 
 import { useGetAllUsersPositions } from './useGetAllUsersPositions';
+import {UIMarketOrderBid} from "../types";
+import {calculateAmountFromRatio, calculateRatioFromBigInts} from "../utils";
 
 type AllPositionsQueryKey = ['allActivePositions', Currency, Pagination | undefined];
 
@@ -46,9 +46,9 @@ export const useMarketOrdersL1Bid = (currency: Currency, pagination?: Pagination
     const [, currency, pagination] = queryKey;
 
     return getAllActivePositions(currency, pagination).then((marketPositions) => {
-      if ((window as CustomWindow).__MOCKS__ === true) {
-        return (marketPositions || []).concat(mockedPositions);
-      }
+      // if ((window as CustomWindow).__MOCKS__ === true) {
+      //   return (marketPositions || []).concat(mockedPositions);
+      // }
 
       return marketPositions;
     });

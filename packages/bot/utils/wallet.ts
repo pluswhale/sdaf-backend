@@ -13,16 +13,16 @@ import {
   get_all_utxos as getAllUtxos,
 } from '@coinweb/wallet-lib';
 
-import { mnemonicToHDKey } from './cwbBlockchain.ts';
+import { mnemonicToHDKey } from './cwbBlockchain';
 
 export const walletWithMnemonic = async (mnemonic: string, urlAddress?: string) => {
-  const address = urlAddress ? `${urlAddress}/wallet` : process.env.VITE_API_URL || 'https://api-devnet.coinweb.io/wallet';
+  const address = urlAddress ? `${urlAddress}/wallet` : process.env.API_URL;
+  //@ts-ignore
   const wsAddress = address.replace(/^https:/, 'wss:');
-
   const hdkey = mnemonicToHDKey(mnemonic);
-
   //enableLogging({ gql: true });
   const wallet = await createWallet({
+    //@ts-ignore
     address,
     ws_address: wsAddress,
     pub_key: hdkey.publicKey.toString('hex'),

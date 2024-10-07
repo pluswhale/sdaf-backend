@@ -39,6 +39,13 @@ export const handleBlockTriggered = (context: Context) => {
 
   const positionStoredAmount = positionFundsClaim?.fees_stored;
 
+  const closedBlockClaim = extractRead(contractArgs[4])?.[0]?.content;
+
+  //TODO: Check this case and then remove "&& !positionStoredAmount". I guess if the position is closed, it have no funds
+  if (closedBlockClaim && !positionStoredAmount) {
+    return handleClosed();
+  }
+
   if (!positionStoredAmount) {
     throw new Error('Position is insolvent now');
   }
@@ -109,12 +116,6 @@ export const handleBlockTriggered = (context: Context) => {
 
   if (expirationBlockClaim) {
     return handleExpiration(context, issuer, positionId, positionState, positionFundsClaim, availableCweb);
-  }
-
-  const closedBlockClaim = extractRead(contractArgs[4])?.[0]?.content;
-
-  if (closedBlockClaim) {
-    return handleClosed();
   }
 
   throw new Error(`An error has occurred while trying to process the position ${positionId}`);

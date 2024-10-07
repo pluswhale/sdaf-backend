@@ -1,6 +1,6 @@
 import { validate } from 'crypto-address-validators';
 
-import { Currency } from '../constants/index.ts';
+import { Currency } from '../constants';
 
 export const validateWalletAddress = (currency: Currency, wallet: string): boolean => {
   switch (currency) {

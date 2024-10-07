@@ -5,11 +5,11 @@ import {
   getUserPositionIds,
   getPositionById,
   type PubKey,
-} from 'dex-app.cm/src/offchain/index.ts';
+} from 'dex-app.cm/src/offchain';
 
-import { Currency } from '../constants/index.ts';
+import { Currency } from '../constants';
 
-import { baseClients } from './client.ts';
+import { baseClients } from './client';
 
 export const getAllUserPositions = async (
   currency: Currency,

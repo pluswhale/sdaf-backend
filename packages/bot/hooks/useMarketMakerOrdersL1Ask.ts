@@ -3,11 +3,11 @@ import { type QueryFunction, useQuery } from '@tanstack/react-query';
 import { type Pagination } from 'dex-app.cm';
 import { type Order } from 'market-maker.cm';
 
-import type { UIMarketOrderAsk } from '@/types';
-import { calculateAmountFromRatio, calculateRatioFromBigInts } from '@/utils';
 
 import { getMarketMakerOrders } from '../api';
 import { Currency } from '../constants';
+import {UIMarketOrderAsk} from "../types";
+import {calculateAmountFromRatio, calculateRatioFromBigInts} from "../utils";
 
 type MarketMakerOrdersQueryKey = ['marketMakerOrders', Currency, PubKey | undefined, Pagination | undefined];
 

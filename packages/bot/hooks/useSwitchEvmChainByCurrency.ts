@@ -1,11 +1,10 @@
 import { useCallback } from 'react';
 
-import { toast } from 'sonner';
 import { useAccount, useSwitchChain } from 'wagmi';
 
-import { Currency } from '@/constants';
 
 import useChainByCurrency from './useChainByCurrency';
+import {Currency} from "../constants";
 
 const useSwitchEvmChainByCurrency = () => {
   const account = useAccount();
@@ -19,7 +18,7 @@ const useSwitchEvmChainByCurrency = () => {
       if (account.isConnected) {
         if (isEvm && account.chainId !== chainData!.id) {
           return switchChainAsync({ chainId: chainData!.id }).then(() => {
-            void toast.success(`Switched to ${chainData!.name}`);
+            // void toast.success(`Switched to ${chainData!.name}`);
           });
         }
       }

@@ -7,7 +7,7 @@ import {
   createDateIndexFirstPart,
   createPositionStateKey,
   createUserIndexFirstPart,
-} from './shared/index.ts';
+} from './shared/keys';
 import { PositionStateClaimBody } from './shared/types';
 import { Client, PositionData } from './types';
 
@@ -63,5 +63,7 @@ export const getPositionById = async (client: Client, id: string) => {
     funds: BigInt(data.funds),
     chainData: data.chainData,
     txId: data.txId,
+    error: data.error,
+    expirationDate: data.expirationDate,
   } satisfies PositionData;
 };

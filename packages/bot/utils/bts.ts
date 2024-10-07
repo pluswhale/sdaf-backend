@@ -1,7 +1,7 @@
 import { hex, base64 } from '@scure/base';
 import * as btc from '@scure/btc-signer';
 import axios from 'axios';
-import {NETWORK} from "../networks/btc/index.ts";
+import {NETWORK} from "../networks/btc";
 
 type ResultUtxo = {
     status: { confirmed: boolean };
@@ -18,6 +18,7 @@ async function GetUtxo(wallet: string): Promise<Array<ResultUtxo>> {
 
 export async function getSmallUtxo(wallet: string, utxoUse: {l1TxId: string, vout: string }[]) {
     let min = Number.MAX_SAFE_INTEGER;
+    const minUtxo = 800;
     let number = -1;
     const utxos = await GetUtxo(wallet);
 
@@ -27,7 +28,8 @@ export async function getSmallUtxo(wallet: string, utxoUse: {l1TxId: string, vou
             !utxoUse.find(
                 (utxo) => utxo.l1TxId === utxos[i].txid && utxo.vout.toString() === utxos[i].vout.toString()
             ) &&
-            min > utxos[i].value
+            min > utxos[i].value &&
+            utxos[i].value >= minUtxo
         ) {
             min = utxos[i].value;
             number = i;

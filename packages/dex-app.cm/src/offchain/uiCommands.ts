@@ -1,6 +1,6 @@
 import { ContractCall, constructContractIssuer, prepareQueueContractCall } from '@coinweb/contract-kit';
 
-import { FEE, PUBLIC_METHODS } from './shared/index.ts';
+import { FEE, PUBLIC_METHODS } from './shared';
 import {
   CancelPositionRequestData,
   CreatePositionBtcRequestData,

@@ -1,6 +1,6 @@
 import { HexString } from '@coinweb/contract-kit';
 
-import { CallType, L1TxDataForAccept, L1TxDataForTransfer } from './shared/index.ts';
+import { CallType, L1TxDataForAccept, L1TxDataForTransfer } from './shared';
 
 const AMOUNT_BYTE_LENGTH = 16;
 

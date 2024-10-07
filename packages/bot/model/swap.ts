@@ -1,5 +1,5 @@
-import { Currency } from '../constants/enums.ts';
-import {round} from "../utils/index.ts";
+import { Currency } from '../constants';
+import {formatNumberWithPrecision} from "../utils";
 
 type EstimatedResult = {
   estimated: bigint;
@@ -75,13 +75,13 @@ export function convertBigIntToString(value: bigint | BigIntHexString, currency:
 }
 
 export const humanReadableStringFromTokenBigInt = (amount: bigint, token: Currency, precision = 10) => {
-  return parseFloat(parseFloat(round(Number(convertBigIntToString(amount, token)), 10)).toFixed(precision)).toString();
+  return formatNumberWithPrecision(Number(convertBigIntToString(amount, token)), precision);
 };
 
 export function estimatedToReceive(
-  inputCurrency: Currency,
-  outputCurrency: Currency,
-  inputValue: bigint,
+    inputCurrency: Currency,
+    outputCurrency: Currency,
+    inputValue: bigint,
 ): EstimatedResult {
   const key = `${inputCurrency}-${outputCurrency}`;
   const conversion = conversionRates[key];

@@ -1,19 +1,22 @@
 {
   "name": "bot",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "serve.ts",
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "start": "node --experimental-wasm-modules --loader ts-node/esm server.ts",
+    "start": "node --trace-uncaught --trace-warnings --trace-deprecation --experimental-wasm-modules --experimental-specifier-resolution=node --loader ts-node/esm server.ts",
     "build": "tsc"
   },
   "dependencies": {
+    "@ethersproject/providers": "^5.7.2",
     "@scure/base": "^1.1.9",
     "@scure/btc-signer": "^1.4.0",
+    "@tanstack/react-query": "^5.56.2",
     "@types/express": "^5.0.0",
-    "@types/node": "^22.7.3",
+    "@types/node": "^22.7.4",
     "axios": "^1.7.7",
+    "bitcoinjs-lib": "^7.0.0-rc.0",
     "clsx": "^2.1.1",
     "crypto-address-validators": "^1.0.3",
     "dotenv": "^16.4.5",
@@ -21,14 +24,19 @@
     "express": "^4.21.0",
     "fs": "^0.0.1-security",
     "hdkey": "^2.1.0",
+    "react": "^18.3.1",
+    "react-router-dom": "^6.26.2",
     "sats-connect": "^2.8.0",
     "scure-btc-signer-cjs": "1.0.1",
     "tailwind-merge": "^2.5.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2",
-    "viem": "^2.21.14"
+    "viem": "^2.21.14",
+    "wagmi": "^2.12.16",
+    "zustand": "^5.0.0-rc.2"
   },
   "devDependencies": {
-    "@types/hdkey": "^2"
+    "@types/hdkey": "^2",
+    "@types/react": "^18"
   }
 }

@@ -26,7 +26,7 @@ import {
 import { withContractCallLogger } from './utils';
 
 const addWrappers = (method: MethodCallback): MethodCallback => {
-  return withContinuations(selfCallWrapper(method));
+  return withContinuations(selfCallWrapper(withContractCallLogger(method)));
 };
 
 export const cwebMain = () => {
@@ -53,8 +53,4 @@ export const cwebMain = () => {
   ]);
 
   executeHandler(module);
-
-  Object.keys(module.handlers).forEach((handlerName) => {
-    module.handlers[handlerName] = withContractCallLogger(module.handlers[handlerName]);
-  });
 };

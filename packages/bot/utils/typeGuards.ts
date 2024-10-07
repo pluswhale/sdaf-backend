@@ -1,5 +1,5 @@
-import {BTC_TOKENS, Currency, ERC20_TOKENS, EVM_TOKENS} from "../constants/index.ts";
-import {BtcCurrency, ERC20Currency, EvmCurrency} from "../types.ts";
+import {BTC_TOKENS, Currency, ERC20_TOKENS, EVM_TOKENS} from "../constants/index";
+import {BtcCurrency, ERC20Currency, EvmCurrency} from "../types";
 
 export const isEvmCurrency = (currency: Currency): currency is EvmCurrency =>
   (EVM_TOKENS as unknown[]).includes(currency);

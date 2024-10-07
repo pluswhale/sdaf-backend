@@ -2,8 +2,8 @@ import { NetworkName } from '@coinweb/wallet-lib/enums';
 
 import { ERC20Currency, EvmCurrency } from '../types';
 
-import { Currency } from './enums.ts';
-import { ERC20_TOKENS, EVM_TOKENS } from './settings.ts';
+import { Currency } from './enums';
+import { ERC20_TOKENS, EVM_TOKENS } from './settings';
 
 type CommonNames =
   | 'NETWORK_NAME'
@@ -84,6 +84,9 @@ type ContractParams = {
 };
 
 const extractParam = (currency: Currency, name: unknown) => {
+
+  console.log('currency', currency);
+  console.log('name', name);
   const paramsMap = (() => {
     switch (true) {
       case (ERC20_TOKENS as Currency[]).includes(currency):
@@ -98,13 +101,8 @@ const extractParam = (currency: Currency, name: unknown) => {
 
   const paramName = name as keyof typeof paramsMap;
 
-  console.log('name', name);
-  console.log('currency', currency)
-  console.log('env param', `VITE_${name}_${currency}`);
 
-  const param = process.env[`VITE_${name}_${currency}`] as NetworkName || '0x0' as NetworkName;
-
-  console.log('param', param)
+  const param = process.env[`${name}_${currency}`] as NetworkName;
 
   if (paramsMap[paramName] === 'number' && !isNaN(Number(param))) {
     return Number(param);
@@ -133,8 +131,10 @@ export const CONTRACT_PARAMS = new Proxy(
         throw new Error(`Unknown token ${String(currency)}`);
       }
       if (currency in currencyParams) {
+        console.log('currency in params', currency)
         return currencyParams[currency as keyof typeof currencyParams];
       } else if ((Object.values(Currency) as (string | symbol)[]).includes(currency)) {
+        console.log('currency', currency)
         currencyParams[currency] = new Proxy(
           {},
           {

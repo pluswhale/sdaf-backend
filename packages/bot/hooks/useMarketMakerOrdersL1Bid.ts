@@ -2,11 +2,11 @@ import { type PubKey } from '@coinweb/wallet-lib';
 import { type QueryFunction, useQuery } from '@tanstack/react-query';
 import { type Pagination, type PositionData } from 'dex-app.cm';
 
-import type { UIMarketOrderBid } from '@/types';
-import { calculateAmountFromRatio, calculateRatioFromBigInts } from '@/utils';
 
 import { getAllUserPositions } from '../api';
 import { type Currency } from '../constants';
+import {UIMarketOrderBid} from "../types";
+import {calculateAmountFromRatio, calculateRatioFromBigInts} from "../utils";
 
 type UserPositionsQueryKey = ['userPositions', Currency, PubKey | undefined, Pagination | undefined];
 

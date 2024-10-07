@@ -1,6 +1,9 @@
-import type { ClaimKey, User } from '@coinweb/contract-kit';
+import type { ClaimKey, OrdJson, User } from '@coinweb/contract-kit';
 
-import { Key } from './constants.ts';
+import { Key } from './constants';
+import { BtcChainData } from './types';
+
+/* FirstPart */
 
 export const createPositionStateFirstPart = () => [Key.STATE];
 
@@ -20,6 +23,11 @@ export const createClosedIndexFirstPart = () => [Key.CLOSED_INDEX];
 
 export const createOwnerFirstPart = () => [Key.CONTRACT_OWNER];
 
+export const createUniquenessFirstPart = () => [Key.UNIQUENESS_CHECK];
+
+export const createErrorByDateFirstPart = () => [Key.ERROR_INDEX, Key.DATE_INDEX];
+
+/* Key */
 export const createPositionStateKey = (positionId: string) =>
   ({
     first_part: createPositionStateFirstPart(),
@@ -72,4 +80,22 @@ export const createOwnerKey = () =>
   ({
     first_part: createOwnerFirstPart(),
     second_part: [],
+  }) satisfies ClaimKey;
+
+export const createUniquenessKey = (data: OrdJson) =>
+  ({
+    first_part: createUniquenessFirstPart(),
+    second_part: data,
+  }) satisfies ClaimKey;
+
+export const createBtcUtxoUniquenessKey = (data: BtcChainData) =>
+  ({
+    first_part: createUniquenessFirstPart(),
+    second_part: [data.l1TxId, data.vout],
+  }) satisfies ClaimKey;
+
+export const createErrorByDateKey = (timestamp: number, positionId: string) =>
+  ({
+    first_part: createErrorByDateFirstPart(),
+    second_part: [timestamp, positionId],
   }) satisfies ClaimKey;

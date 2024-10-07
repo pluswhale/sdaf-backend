@@ -1,10 +1,13 @@
 {
   "name": "dex-app.cm",
-  "version": "0.0.29+test",
+  "version": "0.0.34+test",
   "type": "module",
   "description": "Contract to create an offer to give cweb in exchange for an specific l1-token",
   "homepage": "https://git.coinhq.store/acme/cwap/",
-  "repository": "git+https://git.coinhq.store/acme/cwap.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://git.coinhq.store/acme/cwap.git"
+  },
   "scripts": {
     "build": "yarn build:files && yarn pack:all",
     "build:files": "yarn clean && tsc -p tsconfig.build.json && NODE_ENV=production ./scripts/build.sh",
@@ -14,19 +17,19 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "pack:all": "yarn pack:cweb && yarn pack:yarn",
-    "pack:cweb": "NODE_NO_WARNINGS=1 cweb-tool pack  dist/out ../../.cweb-config/cweb-pack.yaml -c ../../.cweb-config/config.yaml --profile $REGISTRATION_PROFILE",
+    "pack:cweb": "NODE_NO_WARNINGS=1 cweb-tool pack . dist/out ../../.cweb-config/cweb-pack.yaml -c ../../.cweb-config/config.yaml --profile $REGISTRATION_PROFILE",
     "pack:yarn": "cd dist/out && touch yarn.lock && yarn pack -o my-contract-module.tgz",
-    "prepare-for-package": "scripts/make-call.sh",
+    "prepare-for-package": "./scripts/make-call.sh",
     "call-contract": "yarn call-contract:prepare && yarn call-contract:invoke",
-    "call-contract:prepare": "scripts/make-single-call.sh",
+    "call-contract:prepare": "./scripts/make-single-call.sh",
     "call-contract:invoke": "cweb-tool call deploy/calls.yaml -c ../../.cweb-config/config.yaml --profile $REGISTRATION_PROFILE",
     "clean": "rm -rf cweb_dist dist .calls.yaml",
     "typecheck": "tsc --noEmit",
     "dev": "tsc -p tsconfig.dev.json --watch",
-    "lint": "eslint  --ext js,cjs,mjs,mts,ts,tsx"
+    "lint": "eslint . --ext js,cjs,mjs,mts,ts,tsx"
   },
   "dependencies": {
-    "@coinweb/contract-kit": "0.2.1-fees",
+    "@coinweb/contract-kit": "0.2.1-block-queue",
     "@coinweb/self-register": "0.1.4",
     "@noble/hashes": "^1.4.0",
     "base58-js": "^2.0.0"
@@ -45,6 +48,5 @@
     "typescript": "^5.4.2",
     "vitest": "^1.4.0",
     "write-yaml-file": "^5.0.0"
-  },
-  "license": "MIT"
+  }
 }

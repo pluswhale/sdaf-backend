@@ -1,17 +1,17 @@
 import { force_refresh as forceRefresh, Wallet } from '@coinweb/wallet-lib';
-import { convertInfoToCancelQr, convertInfoToCreateQr, convertInfoToTransfer } from './dexUtils.ts';
-import { sentComposeTokenCommand, sentEmbed } from './wallet.ts';
+import { convertInfoToCancelQr, convertInfoToCreateQr, convertInfoToTransfer } from './dexUtils';
+import { sentComposeTokenCommand, sentEmbed } from './wallet';
 
 import { ethers } from 'ethers';
 
 
 import { erc20Abi } from 'viem';
-import { getPsbtStartTransaction } from '../utils/bts.ts';
-import {CONTRACT_PARAMS, Currency, ERC20_TOKENS} from "../constants/index.ts";
-import {convertStringToBigInt, decimalsForCurrency} from "../model/swap.ts";
-import {getAllMarketCollateralBalance} from "../api/index.ts";
-import {eFix} from "./number.ts";
-import {ERC20Currency, EvmCurrency} from "../types.ts";
+import { getPsbtStartTransaction } from './bts';
+import {CONTRACT_PARAMS, Currency, ERC20_TOKENS} from "../constants";
+import {convertStringToBigInt, decimalsForCurrency} from "../model/swap";
+import {getAllMarketCollateralBalance} from "../api";
+import {eFix} from "./number";
+import {ERC20Currency, EvmCurrency} from "../types";
 
 const GLOBAL_WRONG_PACT: string[] = [];
 
@@ -144,7 +144,7 @@ export async function chandePositions(filterData: any, projection: any, wallet: 
 export async function chandeOrders(filterData: any, projection: any, wallet: Wallet, collateralConst: number, txMonitor: any) {
   const decimals = decimalsForCurrency(Currency.CWEB); // projection[0].token);
   console.log(filterData, 'filterData chandeOrders');
-  if (filterData.length === 0) {
+  if (filterData?.length === 0) {
     const data = await getAllMarketCollateralBalance(projection[0].token, wallet.pub_key);
     let balance = data?.content?.fees_stored ? Number(data.content.fees_stored) / 10 ** decimals : 0;
     if (balance === 0) {
@@ -246,7 +246,11 @@ async function createOrder(symbol: string, amount: number, price: number, wallet
 }
 
 async function transfer(amount: number, fromAccount: string, toAccount: string, wallet: Wallet, txMonitor: any) {
-  try{
+  try {
+    console.log('transfer amount:', amount);
+    console.log('transfer from account: ', fromAccount);
+    console.log('transfer to account: ', toAccount);
+
     const transferQr = convertInfoToTransfer(fromAccount, toAccount, convertStringToBigInt(eFix(String(amount)), Currency.CWEB));//BigInt(Math.round(Number(amount) * 1e18) + 1));
     console.log(transferQr, 'transferQr transfer');
     const {l2TransactionData, newTxs} = await sentComposeTokenCommand(wallet, JSON.parse(transferQr), null, txMonitor);

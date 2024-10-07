@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { erc20Abi } from 'viem';
 import { useReadContract, type UseReadContractParameters } from 'wagmi';
+import {EvmContractAddress} from "../types";
 
-import { EvmContractAddress } from '@/types';
 
 const useReadERC20Allowance = (walletAddress: EvmContractAddress) => {
   const [contract, setContract] = useState<UseReadContractParameters>();

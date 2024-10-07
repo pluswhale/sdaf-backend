@@ -128,6 +128,7 @@ export const deactivatePosition = (context: Context) => {
                     chainData: positionState.chainData,
                     expirationDate: positionState.expirationDate,
                     txId: positionState.txId,
+                    error: positionState.error,
                   },
                 ] satisfies ClosePositionMethodArgs,
               },

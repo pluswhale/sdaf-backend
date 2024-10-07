@@ -1,7 +1,7 @@
 import { type PubKey } from '@coinweb/wallet-lib';
-import { type Client, getAllOwnClaims, type Pagination } from 'market-maker.cm';
-import { makerClients } from './client.ts';
-import {Currency} from "../constants/index.ts";
+import { type Client, getAllOwnClaims, type Pagination } from 'market-maker.cm/src/offchain';
+import { makerClients } from './client';
+import {Currency} from "../constants";
 
 export const getAllMarketClaim = async (currency: Currency, pubKey: PubKey, pagination?: Pagination) => {
   if (currency === Currency.CWEB) {

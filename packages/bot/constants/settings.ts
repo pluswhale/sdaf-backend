@@ -1,4 +1,4 @@
-import { Currency } from './enums.ts';
+import { Currency } from './enums';
 
 export const DEX_FRONTED_URL = 'https://cwap.io';
 

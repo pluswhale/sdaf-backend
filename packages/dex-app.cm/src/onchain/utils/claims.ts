@@ -1,4 +1,4 @@
-import { type Claim, constructClaim, ClaimKey, constructClaimKey, User } from '@coinweb/contract-kit';
+import { type Claim, constructClaim, ClaimKey, constructClaimKey, User, OrdJson } from '@coinweb/contract-kit';
 
 import {
   createActivePositionIndexKey,
@@ -14,6 +14,11 @@ import {
   createClosedIndexKey,
   createOwnerKey,
   createBestByQuoteActiveIndexKey,
+  createErrorByDateKey,
+  createUniquenessKey,
+  UniquenessClaimBody,
+  BtcChainData,
+  createBtcUtxoUniquenessKey,
 } from '../../offchain/shared';
 import { CONSTANTS } from '../constants';
 import { L1Types, OwnerClaimBody } from '../types';
@@ -117,3 +122,17 @@ export const createEvmEventClaimKey = (positionId: string, nonce: bigint): Claim
 
 export const createExpirationPositionClaimKey = (expirationDate: number): ClaimKey =>
   constructClaimKey('L2BlockIdToHeightFirstPart', getExpectedBlockHeight(expirationDate));
+
+export const createErrorByDateIndexClaim = ({
+  timestamp,
+  positionId,
+}: {
+  timestamp: number;
+  positionId: string;
+}): Claim => constructClaim(createErrorByDateKey(timestamp, positionId), {}, toHex(0));
+
+export const createUniquenessClaim = ({ data, message }: { data: OrdJson; message: string }): Claim =>
+  constructClaim(createUniquenessKey(data), { message } satisfies UniquenessClaimBody, toHex(0));
+
+export const createBtcUtxoUniquenessClaim = ({ data, message }: { data: BtcChainData; message: string }): Claim =>
+  constructClaim(createBtcUtxoUniquenessKey(data), { message } satisfies UniquenessClaimBody, toHex(0));

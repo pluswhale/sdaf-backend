@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { parseL1EventClaimBody } from './index';
+import { parseL1EventClaimBody } from '.';
 import { btcOutputToAddress } from './dataConversion';
 import { L1Types } from '../types';
 

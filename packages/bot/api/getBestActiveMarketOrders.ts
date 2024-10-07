@@ -1,8 +1,8 @@
-import { type Client, getBestActiveOrders, type Pagination } from 'market-maker.cm';
+import { type Client, getBestActiveOrders, type Pagination } from 'market-maker.cm/src/offchain';
 
-import { Currency } from '../constants/index.ts';
+import { Currency } from '../constants';
 
-import { makerClients } from './client.ts';
+import { makerClients } from './client';
 
 export const getBestActiveMarketOrders = async (currency: Currency, pagination?: Pagination) => {
   if (currency === Currency.CWEB) {

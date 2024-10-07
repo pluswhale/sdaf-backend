@@ -1,4 +1,5 @@
 import {
+  addContinuation,
   constructContinueTx,
   constructContractIssuer,
   constructContractRef,
@@ -50,13 +51,17 @@ export const prepareRequest = (context: Context) => {
   const existingClaim = getReadClaimByIndex<TypedClaim<RequestStateClaimBody>>(context)(2);
 
   if (existingClaim) {
-    return constructPrepareRequestCall({
-      ...initialRequestData,
-      context,
-      authInfo,
-      availableCweb,
-      nonce: requestId,
+    addContinuation(context, {
+      onSuccess: constructPrepareRequestCall({
+        ...initialRequestData,
+        context,
+        authInfo,
+        availableCweb,
+        nonce: requestId,
+      }),
     });
+
+    return [];
   }
 
   const orderClaims = extractRead(extractContractArgs(context.tx)[1])?.map(

@@ -1,4 +1,5 @@
 import {
+  ClaimKey,
   Context,
   constructContinueTx,
   constructContractIssuer,
@@ -16,11 +17,19 @@ import {
   ACTIVITY_STATUS,
   PAYMENT_STATUS,
   PositionFundsClaimBody,
+  createBtcUtxoUniquenessKey,
   createPositionFundsKey,
   toHex,
 } from '../../../../offchain/shared';
-import { TypedClaim } from '../../../types';
-import { constructSendCweb, createClosedIndexClaim, createPositionStateClaim } from '../../../utils';
+import { L1Types, TypedClaim } from '../../../types';
+import {
+  constructNonNullable,
+  constructSendCweb,
+  createClosedIndexClaim,
+  createPositionStateClaim,
+  getInstanceParameters,
+  validateBtcChainData,
+} from '../../../utils';
 
 import { ClosePositionMethodArgs } from './types';
 
@@ -52,10 +61,23 @@ export const closePosition = (context: Context) => {
     throw new Error('Cannot return funds');
   }
 
+  let uniquenessKey: null | ClaimKey;
+
+  if (getInstanceParameters().l1_type === L1Types.Btc) {
+    if (!validateBtcChainData(positionData.chainData)) {
+      throw new Error('Invalid input data');
+    }
+
+    uniquenessKey = createBtcUtxoUniquenessKey(positionData.chainData);
+  } else {
+    uniquenessKey = null;
+  }
+
   return [
     constructContinueTx(context, [
       passCwebFrom(issuer, availableCweb),
       constructTake(createPositionFundsKey(positionId)),
+      ...constructNonNullable(uniquenessKey, (uniquenessKey) => [constructTake(uniquenessKey)]),
       ...constructSendCweb(BigInt(positionStoredAmount), fundsOwner, null),
       constructStore(
         createPositionStateClaim({

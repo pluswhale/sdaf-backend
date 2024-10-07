@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 
 import { type QueryFunction, useQuery } from '@tanstack/react-query';
 import { create } from 'zustand';
+import {Currency} from "../constants";
 
-import { Currency } from '@/constants';
 
 type CoingeckoTokenSlug = string;
 

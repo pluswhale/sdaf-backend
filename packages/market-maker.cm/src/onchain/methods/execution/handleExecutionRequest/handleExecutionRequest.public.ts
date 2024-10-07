@@ -1,4 +1,4 @@
-import { Context } from '@coinweb/contract-kit';
+import { addContinuation, Context } from '@coinweb/contract-kit';
 
 import { getCallParameters, getMethodArguments } from '../../../utils';
 
@@ -11,13 +11,17 @@ export const handleExecutionRequestPublic = (context: Context) => {
   const [requestedQuoteAmount, quoteWallet, fallbackContractId, fallbackMethodName] =
     getMethodArguments<HandleExecutionRequestArguments>(context);
 
-  return constructPrepareRequestCall({
-    context,
-    authInfo,
-    availableCweb,
-    requestedQuoteAmount,
-    quoteWallet,
-    fallbackContractId,
-    fallbackMethodName,
+  addContinuation(context, {
+    onSuccess: constructPrepareRequestCall({
+      context,
+      authInfo,
+      availableCweb,
+      requestedQuoteAmount,
+      quoteWallet,
+      fallbackContractId,
+      fallbackMethodName,
+    }),
   });
+
+  return [];
 };

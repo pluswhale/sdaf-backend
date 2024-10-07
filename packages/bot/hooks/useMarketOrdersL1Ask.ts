@@ -3,13 +3,13 @@ import { type QueryFunction, useQuery } from '@tanstack/react-query';
 import { type Pagination } from 'dex-app.cm';
 import { type Order } from 'market-maker.cm';
 
-import { type UIMarketOrderAsk } from '@/types';
-import { calculateAmountFromRatio, calculateRatioFromBigInts } from '@/utils';
 
 import { getActiveMarketOrders } from '../api';
 import type { Currency } from '../constants';
 
 import { useGetAllUsersPositions } from './useGetAllUsersPositions';
+import {UIMarketOrderAsk} from "../types";
+import {calculateAmountFromRatio, calculateRatioFromBigInts} from "../utils";
 
 type MarketOrdersQueryKey = ['marketOrders', Currency, Pagination | undefined];
 
@@ -48,9 +48,9 @@ export const useMarketOrdersL1Ask = (currency: Currency, pagination?: Pagination
     const [, currency, pagination] = queryKey;
 
     return await getActiveMarketOrders(currency, pagination).then((marketOrders) => {
-      if ((window as CustomWindow).__MOCKS__ === true) {
-        return (marketOrders || []).concat(mockedOrders);
-      }
+      // if ((window as CustomWindow).__MOCKS__ === true) {
+      //   return (marketOrders || []).concat(mockedOrders);
+      // }
 
       return marketOrders;
     });

@@ -1,4 +1,4 @@
-import {UIMarketOrderAsk, UIMarketOrderBid} from "../types.ts";
+import {UIMarketOrderAsk, UIMarketOrderBid} from "../types";
 
 
 export const filterDustOrder = (order: UIMarketOrderAsk | UIMarketOrderBid): boolean => {

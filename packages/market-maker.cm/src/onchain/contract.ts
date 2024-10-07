@@ -49,7 +49,7 @@ export const cwebMain = () => {
   addMethodHandler(
     module,
     PRIVATE_METHODS.HANDLE_EXECUTION_BLOCK_TRIGGERED,
-    withContractCallLogger(handleExecutionBlockTriggered),
+    addWrappers(handleExecutionBlockTriggered),
   );
 
   addMethodHandler(module, PUBLIC_METHODS.CANCEL_ORDER, addWrappers(cancelOrderPublic));
@@ -67,7 +67,6 @@ export const cwebMain = () => {
 
   addMethodHandler(module, PUBLIC_METHODS.WITHDRAW, addWrappers(withdrawPublic));
   addMethodHandler(module, PRIVATE_METHODS.WITHDRAW, addWrappers(withdraw));
-
 
   addMethodHandler(module, SELF_REGISTER_HANDLER_NAME, selfRegisterHandler as unknown as MethodCallback);
   applyQueue(module, [

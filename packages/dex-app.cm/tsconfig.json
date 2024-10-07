@@ -4,16 +4,14 @@
     "target": "ESNEXT",
     "module": "ESNEXT",
     "moduleResolution": "bundler",
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
       "*": ["node_modules/*", "src/types/*"]
     },
     "rootDir": ".",
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "types": ["vitest/globals"],
-    "allowImportingTsExtensions": true
+    "types": ["vitest/globals"]
   },
-  "include": ["src/**/*.ts",
-    "vitest.config.ts", "__tests__"]
+  "include": ["src/**/*.ts", "vitest.config.ts", "__tests__"]
 }

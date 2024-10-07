@@ -5,17 +5,15 @@ import {
   connect_to_node,
   fetch_claims,
 } from '@coinweb/wallet-lib';
-import { type Pagination } from 'dex-app.cm/src/offchain/index.ts';
-
-import { Currency, CONTRACT_PARAMS } from '../constants/index.ts';
-import {log} from "node:util";
+import { type Pagination } from 'dex-app.cm/src/offchain';
+import {CONTRACT_PARAMS, Currency} from "../constants";
 
 type IndexClaimKey = {
   first_part: unknown[];
   second_part: [number | string, ...unknown[]];
 };
 
-const cwebWalletNode = connect_to_node(process.env.VITE_API_URL || 'https://api-devnet.coinweb.io/wallet'); //NEED ENV
+const cwebWalletNode = connect_to_node(process.env.API_URL || 'https://api-devnet.coinweb.io/wallet');
 
 interface Client {
   fetchClaims: <T extends NonNullable<unknown>>(
@@ -28,7 +26,6 @@ interface Client {
 }
 
 const createClient = (contractAddress?: string, networkName?: NetworkName): Client => {
-  console.log('currency', Currency);
   const createClaimFilter = <T extends NonNullable<unknown>>(
     firstPart: NonNullable<unknown>,
     secondPart: T | null = null,
@@ -100,68 +97,88 @@ const createClient = (contractAddress?: string, networkName?: NetworkName): Clie
   };
 };
 
+//@ts-ignore
 export const baseClients: {
   [key in Exclude<Currency, Currency.CWEB>]: Client;
-} = {
-  [Currency.ETH]: createClient(
-    CONTRACT_PARAMS[Currency.ETH].L2_CONTRACT_ADDRESS_BASE,
-    CONTRACT_PARAMS[Currency.ETH].NETWORK_NAME,
-  ),
-  [Currency.BNB]: createClient(
-    CONTRACT_PARAMS[Currency.BNB].L2_CONTRACT_ADDRESS_BASE,
-    CONTRACT_PARAMS[Currency.BNB].NETWORK_NAME,
-  ),
-  [Currency.USDT_ETH]: createClient(
-    CONTRACT_PARAMS[Currency.USDT_ETH].L2_CONTRACT_ADDRESS_BASE,
-    CONTRACT_PARAMS[Currency.USDT_ETH].NETWORK_NAME,
-  ),
-  [Currency.USDT_BNB]: createClient(
-    CONTRACT_PARAMS[Currency.USDT_BNB].L2_CONTRACT_ADDRESS_BASE,
-    CONTRACT_PARAMS[Currency.USDT_BNB].NETWORK_NAME,
-  ),
-  [Currency.BTC]: createClient(
-    CONTRACT_PARAMS[Currency.BTC].L2_CONTRACT_ADDRESS_BASE,
-    CONTRACT_PARAMS[Currency.BTC].NETWORK_NAME,
-  ),
-  [Currency.LTC]: createClient(
-    CONTRACT_PARAMS[Currency.BTC].L2_CONTRACT_ADDRESS_BASE,
-    CONTRACT_PARAMS[Currency.BTC].NETWORK_NAME,
-  ),
-  [Currency.EGLD]: createClient(
-    CONTRACT_PARAMS[Currency.BTC].L2_CONTRACT_ADDRESS_BASE,
-    CONTRACT_PARAMS[Currency.BTC].NETWORK_NAME,
-  ),
-};
+} = new Proxy(
+    {},
+    {
+      get(obj, name) {
+        //@ts-ignore
+        return (
+            {
+              [Currency.ETH]: createClient(
+                  CONTRACT_PARAMS[Currency.ETH].L2_CONTRACT_ADDRESS_BASE,
+                  CONTRACT_PARAMS[Currency.ETH].NETWORK_NAME,
+              ),
+              [Currency.BNB]: createClient(
+                  CONTRACT_PARAMS[Currency.BNB].L2_CONTRACT_ADDRESS_BASE,
+                  CONTRACT_PARAMS[Currency.BNB].NETWORK_NAME,
+              ),
+              [Currency.USDT_ETH]: createClient(
+                  CONTRACT_PARAMS[Currency.USDT_ETH].L2_CONTRACT_ADDRESS_BASE,
+                  CONTRACT_PARAMS[Currency.USDT_ETH].NETWORK_NAME,
+              ),
+              [Currency.USDT_BNB]: createClient(
+                  CONTRACT_PARAMS[Currency.USDT_BNB].L2_CONTRACT_ADDRESS_BASE,
+                  CONTRACT_PARAMS[Currency.USDT_BNB].NETWORK_NAME,
+              ),
+              [Currency.BTC]: createClient(
+                  CONTRACT_PARAMS[Currency.BTC].L2_CONTRACT_ADDRESS_BASE,
+                  CONTRACT_PARAMS[Currency.BTC].NETWORK_NAME,
+              ),
+              [Currency.LTC]: createClient(
+                  CONTRACT_PARAMS[Currency.BTC].L2_CONTRACT_ADDRESS_BASE,
+                  CONTRACT_PARAMS[Currency.BTC].NETWORK_NAME,
+              ),
+              [Currency.EGLD]: createClient(
+                  CONTRACT_PARAMS[Currency.BTC].L2_CONTRACT_ADDRESS_BASE,
+                  CONTRACT_PARAMS[Currency.BTC].NETWORK_NAME,
+              ),
+            }
+        )[name]
+      }
+    }
+)
 
+//@ts-ignore
 export const makerClients: {
   [key in Exclude<Currency, Currency.CWEB>]: Client;
-} = {
-  [Currency.ETH]: createClient(
-    CONTRACT_PARAMS[Currency.ETH].L2_CONTRACT_ADDRESS_MAKER,
-    CONTRACT_PARAMS[Currency.ETH].NETWORK_NAME,
-  ),
-  [Currency.BNB]: createClient(
-    CONTRACT_PARAMS[Currency.BNB].L2_CONTRACT_ADDRESS_MAKER,
-    CONTRACT_PARAMS[Currency.BNB].NETWORK_NAME,
-  ),
-  [Currency.USDT_ETH]: createClient(
-    CONTRACT_PARAMS[Currency.USDT_ETH].L2_CONTRACT_ADDRESS_MAKER,
-    CONTRACT_PARAMS[Currency.USDT_ETH].NETWORK_NAME,
-  ),
-  [Currency.USDT_BNB]: createClient(
-    CONTRACT_PARAMS[Currency.USDT_BNB].L2_CONTRACT_ADDRESS_MAKER,
-    CONTRACT_PARAMS[Currency.USDT_BNB].NETWORK_NAME,
-  ),
-  [Currency.BTC]: createClient(
-    CONTRACT_PARAMS[Currency.BTC].L2_CONTRACT_ADDRESS_MAKER,
-    CONTRACT_PARAMS[Currency.BTC].NETWORK_NAME,
-  ),
-  [Currency.LTC]: createClient(
-    CONTRACT_PARAMS[Currency.BTC].L2_CONTRACT_ADDRESS_MAKER,
-    CONTRACT_PARAMS[Currency.BTC].NETWORK_NAME,
-  ),
-  [Currency.EGLD]: createClient(
-    CONTRACT_PARAMS[Currency.BTC].L2_CONTRACT_ADDRESS_MAKER,
-    CONTRACT_PARAMS[Currency.BTC].NETWORK_NAME,
-  ),
-};
+} = new Proxy(
+    {},
+    {
+      get(obj, name) {
+        //@ts-ignore
+       return ({
+          [Currency.ETH]: createClient(
+            CONTRACT_PARAMS[Currency.ETH].L2_CONTRACT_ADDRESS_MAKER,
+            CONTRACT_PARAMS[Currency.ETH].NETWORK_NAME,
+        ),
+            [Currency.BNB]: createClient(
+            CONTRACT_PARAMS[Currency.BNB].L2_CONTRACT_ADDRESS_MAKER,
+            CONTRACT_PARAMS[Currency.BNB].NETWORK_NAME,
+        ),
+            [Currency.USDT_ETH]: createClient(
+            CONTRACT_PARAMS[Currency.USDT_ETH].L2_CONTRACT_ADDRESS_MAKER,
+            CONTRACT_PARAMS[Currency.USDT_ETH].NETWORK_NAME,
+        ),
+            [Currency.USDT_BNB]: createClient(
+            CONTRACT_PARAMS[Currency.USDT_BNB].L2_CONTRACT_ADDRESS_MAKER,
+            CONTRACT_PARAMS[Currency.USDT_BNB].NETWORK_NAME,
+        ),
+            [Currency.BTC]: createClient(
+            CONTRACT_PARAMS[Currency.BTC].L2_CONTRACT_ADDRESS_MAKER,
+            CONTRACT_PARAMS[Currency.BTC].NETWORK_NAME,
+        ),
+            [Currency.LTC]: createClient(
+            CONTRACT_PARAMS[Currency.BTC].L2_CONTRACT_ADDRESS_MAKER,
+            CONTRACT_PARAMS[Currency.BTC].NETWORK_NAME,
+        ),
+            [Currency.EGLD]: createClient(
+            CONTRACT_PARAMS[Currency.BTC].L2_CONTRACT_ADDRESS_MAKER,
+            CONTRACT_PARAMS[Currency.BTC].NETWORK_NAME,
+        ),
+        })[name]
+      }
+    }
+)

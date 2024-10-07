@@ -1,8 +1,8 @@
-import { type Client, type Pagination, getPositionById, type PositionData, getBestActivePositionIds } from 'dex-app.cm/src/offchain/index.ts';
+import { type Client, type Pagination, getPositionById, type PositionData, getBestActivePositionIds } from 'dex-app.cm/src/offchain';
 
-import { Currency } from '../constants/index.ts';
+import { Currency } from '../constants';
 
-import { baseClients } from './client.ts';
+import { baseClients } from './client';
 
 export const getBestActivePositions = async (currency: Currency, pagination?: Pagination): Promise<PositionData[]> => {
   if (currency === Currency.CWEB) {

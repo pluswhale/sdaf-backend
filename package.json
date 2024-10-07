@@ -1,6 +1,7 @@
 {
   "name": "dex-tx",
   "packageManager": "yarn@4.4.0",
+  "type": "module",
   "private": true,
   "workspaces": [
     "packages/*"

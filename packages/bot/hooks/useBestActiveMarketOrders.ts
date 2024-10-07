@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
+import {Currency} from "../constants";
+import {getBestActiveMarketOrders} from "../api";
 
-import { getBestActiveMarketOrders } from '@/api';
-import { Currency } from '@/constants';
 
 export const useBestActiveMarketOrders = (currency: Currency) =>
   useQuery({

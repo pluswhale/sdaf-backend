@@ -1,7 +1,7 @@
 import { hex } from '@scure/base';
 import * as btc from '@scure/btc-signer';
 
-import { NETWORK } from './constants.ts';
+import { NETWORK } from './constants';
 
 export const embeddingScripts = (payload: Uint8Array): Array<OutScriptInfo> => {
   return embedIntoPubkeys(payload).map((keys) => createScript(keys));

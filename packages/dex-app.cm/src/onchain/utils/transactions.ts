@@ -1,5 +1,6 @@
 import {
   AuthInfo,
+  Claim,
   ClaimKey,
   Context,
   ContractIssuer,
@@ -39,11 +40,17 @@ export const createCreatePositionCallPrivate = (
   context: Context,
   issuer: ContractIssuer,
   positionId: string,
-  methodArgs: [positionNewId: string, positionState: PositionStateClaimBody, ownerFee: string],
+  methodArgs: [
+    positionNewId: string,
+    positionState: PositionStateClaimBody,
+    ownerFee: string,
+    uniqueness: null | Claim,
+  ],
   providedCweb: bigint,
   authenticated: AuthInfo,
+  uniqueness: null | Claim,
 ) => {
-  const transactionFee = 1000n;
+  const transactionFee = 1100n;
 
   addContinuation(context, {
     onSuccess: {
@@ -59,6 +66,7 @@ export const createCreatePositionCallPrivate = (
       contractArgs: [
         constructRead(issuer, createPositionStateKey(positionId)),
         constructRead(issuer, createOwnerKey()),
+        ...constructNonNullable(uniqueness, (uniqueness) => [constructRead(issuer, uniqueness.key)]),
       ],
     },
   });
@@ -163,3 +171,14 @@ export const constructConditional = ((condition, ops, altOps = [] as unknown) =>
 
   return [ops];
 }) as ConstructConditional;
+
+export const constructNonNullable = <TValue>(
+  value: TValue,
+  callback: (value: NonNullable<TValue>) => PreparedOperation[],
+) => {
+  if (value === null || value === undefined) {
+    return [];
+  }
+
+  return callback(value);
+};

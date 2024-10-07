@@ -67,9 +67,5 @@ export const constructPrepareRequestCall = ({
     ],
   };
 
-  addContinuation(context, {
-    onSuccess: callInfo,
-  });
-
-  return [];
+  return callInfo;
 };

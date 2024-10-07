@@ -15,7 +15,16 @@ export const intToHexString = (d: number | null, padding: number) => {
 };
 
 export function eFix(number: string | number) {
-  return new Intl.NumberFormat('en', { notation: 'compact' }).format(Number(number));
+  const formattedValue = String(number).toLowerCase();
+  const valueHasExponentIndex = formattedValue.indexOf('e');
+
+  if (valueHasExponentIndex !== -1) {
+    const enNumber = new Intl.NumberFormat('en', { notation: 'compact' }).format(Number(number));
+
+    return enNumber.toString();
+  } else {
+    return number.toString();
+  }
 }
 
 function getNewRound(number: number, lenNumber: number, decRound: number, percentRound: number) {
@@ -33,28 +42,32 @@ function getNewRound(number: number, lenNumber: number, decRound: number, percen
   return lenNumber;
 }
 
-export function round(number: string | number, decRound: number, percentRound: number = 1) {
-  if (Number(number) === 0) {
+export function formatNumberWithPrecision(number: string | number, decRound: number, percentRound: number = 1): string {
+  const numericValue = Number(number);
+
+  if (numericValue === 0) {
     return '0';
   }
 
-  const fixedNumber = eFix(number);
-  const doubleNumber = fixedNumber.split('.');
+  const fixedNumber = numericValue.toFixed(decRound); // round to decRound
+  const trimmedNumber = parseFloat(fixedNumber).toString(); // trailing zeroes are removed
+
+  const doubleNumber = trimmedNumber.split('.');
 
   if (doubleNumber.length < 2) {
-    return fixedNumber;
+    return trimmedNumber;
   }
 
   const lenNumber = doubleNumber[1].length;
-  const roundNumber = getNewRound(Number(fixedNumber), lenNumber, decRound, percentRound);
+  const roundNumber = getNewRound(numericValue, lenNumber, decRound, percentRound);
 
   if (roundNumber > lenNumber) {
-    return eFix(fixedNumber);
+    return parseFloat(trimmedNumber).toString();
   }
 
-  const newNumber = fixedNumber.substr(0, doubleNumber[0].length + roundNumber + 1);
+  const newNumber = trimmedNumber.substr(0, doubleNumber[0].length + roundNumber + 1);
 
-  return eFix(newNumber);
+  return parseFloat(newNumber).toString();
 }
 
 export function calculateRatioFromBigInts(amount1: bigint, amount2: bigint) {

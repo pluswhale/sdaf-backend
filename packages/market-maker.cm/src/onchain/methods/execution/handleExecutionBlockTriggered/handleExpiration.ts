@@ -53,60 +53,66 @@ export const handleExpiration = ({
 
   const isOrderCompleted = !BigInt(order.collateral);
 
-  constructPrepareRequestCall({
-    ...request,
-    context,
-    authInfo,
-    availableCweb,
-  });
-
   return [
-    constructContinueTx(context, [
-      passCwebFrom(getContractIssuer(context), providedCweb),
-      constructTake(createRequestFundsKey(requestId)),
-      constructTake(createPendingOrderByOwnerIndexKey(order.owner, request.createdAt, orderId)),
-      constructTake(createRequestByMarketMakerIndexKey(order.owner, request.createdAt, requestId)),
-      constructTake(createRequestByOrderIndexKey(orderId, request.createdAt, requestId)),
-      constructStore(
-        createRequestStateClaim({
-          id: orderId,
-          body: {
+    constructContinueTx(
+      context,
+      [
+        passCwebFrom(getContractIssuer(context), providedCweb),
+        constructTake(createRequestFundsKey(requestId)),
+        constructTake(createPendingOrderByOwnerIndexKey(order.owner, request.createdAt, orderId)),
+        constructTake(createRequestByMarketMakerIndexKey(order.owner, request.createdAt, requestId)),
+        constructTake(createRequestByOrderIndexKey(orderId, request.createdAt, requestId)),
+        constructStore(
+          createRequestStateClaim({
+            id: orderId,
+            body: {
+              ...request,
+              executionStatus: REQUEST_EXECUTION_STATUS.FAILED,
+            },
+          }),
+        ),
+        ...constructConditional(order.activityStatus === ORDER_ACTIVITY_STATUS.PENDING && isOrderCompleted, [
+          constructStore(createClosedOrderIndexClaim({ id: orderId })),
+          constructStore(
+            createOrderStateClaim({
+              id: orderId,
+              body: {
+                ...order,
+                activityStatus: ORDER_ACTIVITY_STATUS.COMPLETED,
+              },
+            }),
+          ),
+        ]),
+        ...constructConditional(order.activityStatus === ORDER_ACTIVITY_STATUS.PENDING && !isOrderCompleted, [
+          constructStore(
+            createOrderStateClaim({
+              id: orderId,
+              body: {
+                ...order,
+                activityStatus: ORDER_ACTIVITY_STATUS.ACTIVE,
+              },
+            }),
+          ),
+          constructStore(createOrderActiveIndexClaim({ timestamp: order.createdAt, id: orderId })),
+          constructStore(
+            createBestActiveOrderIndexClaim({
+              id: orderId,
+              baseAmount: order.baseAmount,
+              quoteAmount: order.l1Amount,
+            }),
+          ),
+        ]),
+      ],
+      [
+        {
+          callInfo: constructPrepareRequestCall({
             ...request,
-            executionStatus: REQUEST_EXECUTION_STATUS.FAILED,
-          },
-        }),
-      ),
-      ...constructConditional(order.activityStatus === ORDER_ACTIVITY_STATUS.PENDING && isOrderCompleted, [
-        constructStore(createClosedOrderIndexClaim({ id: orderId })),
-        constructStore(
-          createOrderStateClaim({
-            id: orderId,
-            body: {
-              ...order,
-              activityStatus: ORDER_ACTIVITY_STATUS.COMPLETED,
-            },
+            context,
+            authInfo,
+            availableCweb,
           }),
-        ),
-      ]),
-      ...constructConditional(order.activityStatus === ORDER_ACTIVITY_STATUS.PENDING && !isOrderCompleted, [
-        constructStore(
-          createOrderStateClaim({
-            id: orderId,
-            body: {
-              ...order,
-              activityStatus: ORDER_ACTIVITY_STATUS.ACTIVE,
-            },
-          }),
-        ),
-        constructStore(createOrderActiveIndexClaim({ timestamp: order.createdAt, id: orderId })),
-        constructStore(
-          createBestActiveOrderIndexClaim({
-            id: orderId,
-            baseAmount: order.baseAmount,
-            quoteAmount: order.l1Amount,
-          }),
-        ),
-      ]),
-    ]),
+        },
+      ],
+    ),
   ];
 };

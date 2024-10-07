@@ -1,6 +1,6 @@
 import { type QueryFunction, useQuery } from '@tanstack/react-query';
+import {getMempoolTxsSpendingUtxo} from "../networks/btc";
 
-import { getMempoolTxsSpendingUtxo } from '@/networks/btc';
 
 type CheckMempoolTxsSpendingUtxoQueryKey = ['mempoolTxUtxo', string, string];
 

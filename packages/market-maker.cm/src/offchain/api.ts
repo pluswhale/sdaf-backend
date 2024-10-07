@@ -77,6 +77,7 @@ export const getClaimById = async (client: Client, id: string) => {
 export const getAllOwnOrdersIds = async (client: Client, owner: User): Promise<string[]> => {
   const claimsResponse = await client.fetchClaims(createOrderByOwnerIndexFirstPart(owner), null);
 
+
   return claimsResponse.map(({ content }) => ((content.key as ClaimKey).second_part as [number, string])[1]);
 };
 
@@ -106,9 +107,7 @@ export const getBestActiveOrdersIds = async (client: Client): Promise<string[]> 
 
 export const getAllOwnOrders = async (client: Client, owner: User) => {
   const ids = await getAllOwnOrdersIds(client, owner);
-
   const orders = await Promise.all(ids.map((id) => getOrderById(client, id)));
-
   return orders;
 };
 

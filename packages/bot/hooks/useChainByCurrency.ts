@@ -1,6 +1,6 @@
 import { useChains } from 'wagmi';
+import {Currency, ERC20_TOKENS, EVM_TOKENS} from "../constants";
 
-import { Currency, ERC20_TOKENS, EVM_TOKENS } from '@/constants';
 
 const useChainByCurrency = (currency?: Currency) => {
   const evmWagmiChains = useChains();
