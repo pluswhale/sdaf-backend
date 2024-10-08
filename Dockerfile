@@ -12,6 +12,7 @@ EXPOSE 5000
 WORKDIR /app
 COPY package*.json .
 COPY yarn.lock .
+COPY .yarn .
 COPY --from=build /app/packages/ ./packages
 WORKDIR /app/packages/bot
 CMD ["npm", "start"]
