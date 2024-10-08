@@ -10,5 +10,6 @@ RUN yarn build
 FROM node:22 AS production
 EXPOSE 5000
 WORKDIR /app
-COPY --from=build /app/packages/dex-app.cm/dist/out ./
+COPY package*.json .
+COPY --from=build /app/packages/ ./packages
 CMD ["node", "start"]
