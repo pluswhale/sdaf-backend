@@ -11,8 +11,7 @@ FROM node:22 AS production
 EXPOSE 5000
 WORKDIR /app
 COPY package*.json .
-COPY yarn.lock .
-COPY .yarn .
+COPY --from=build /node_modules ./
 COPY --from=build /app/packages/ ./packages
 WORKDIR /app/packages/bot
 CMD ["npm", "start"]
