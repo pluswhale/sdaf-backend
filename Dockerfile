@@ -13,4 +13,4 @@ WORKDIR /app
 COPY package*.json .
 COPY --from=build /app/packages/ ./packages
 WORKDIR /app/packages/bot
-CMD ["node", "start.js"]
+CMD ["npm", "start"]
