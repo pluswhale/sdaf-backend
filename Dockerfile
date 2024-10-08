@@ -12,4 +12,5 @@ EXPOSE 5000
 WORKDIR /app
 COPY package*.json .
 COPY --from=build /app/packages/ ./packages
-CMD ["node", "start"]
+WORKDIR /app/packages/bot
+CMD ["node", "start.js"]
