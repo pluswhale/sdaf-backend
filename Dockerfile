@@ -1,4 +1,4 @@
-FROM node:18 AS build
+FROM node:22 AS build
 WORKDIR /app
 COPY package*.json .
 RUN apt-get update && apt-get install -y jq
@@ -7,7 +7,7 @@ COPY . .
 RUN yarn install
 RUN yarn build
 
-FROM node:18 AS production
+FROM node:22 AS production
 EXPOSE 5000
 WORKDIR /app
 COPY package*.json .
