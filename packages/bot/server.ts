@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import axios from 'axios';
 import { JsonRpcProvider } from '@ethersproject/providers';
+import cors from 'cors';
 import sentTxMonitor, { sleep, walletWithMnemonic } from './utils/wallet';
 import { getAllMarketClaim, getAllUserPositions, getMarketMakerOrders } from './api';
 import { ACTIVITY_STATUS, BtcChainData } from 'dex-app.cm';
@@ -16,6 +17,9 @@ import { get_all_utxos as getAllUtxos, get_failed_txs as getFailedTxs } from '@c
 dotenv.config();
 
 const app = express();
+app.use(cors());
+
+
 const LIMIT = 100;
 const INTERVAL = 5 * 60 * 1000;
 const INTERVAL_PACT = 0.5 * 60 * 1000;
@@ -266,7 +270,7 @@ function getbtcKey() {
 
 async function intervalBot(wallet: any, txMonitor: any) {
     console.log(functionTimer, 'timer intervalBot');
-    if (functionTimer){
+    if (functionTimer) {
         console.log(new Date(Date.now()).toISOString(), 'start date botWork intervalBot');
         const result = await botWork(wallet, txMonitor);
         console.log(result, 'result intervalBot');

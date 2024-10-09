@@ -1,7 +1,5 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import axios from 'axios';
-import { JsonRpcProvider } from '@ethersproject/providers';
 import sentTxMonitor, { sleep, walletWithMnemonic } from './utils/wallet';
 import { getAllMarketClaim, getAllUserPositions, getMarketMakerOrders } from './api';
 import { ACTIVITY_STATUS } from 'dex-app.cm';
@@ -17,6 +15,7 @@ const app = express();
 const LIMIT = 100;
 const INTERVAL = 5 * 60 * 1000;
 const INTERVAL_PACT = 0.5 * 60 * 1000;
+let timer = false;
 let functionTimer = false;
 let positionsMax = 3;
 let startValue = 3;
@@ -34,7 +33,6 @@ let btcWalletAddress = '2N2Qvsoib2diR3doYh2M7daFy6sGU5FBg43';
 let collateralConst = 1;
 let partialPercent = 80;
 let saveTxMonitor = undefined;
-let timer = false;
 let tokenPrice = {
     BTC: 0,
     ETH: 0,
@@ -45,42 +43,60 @@ let tokenPrice = {
     USDT_ETH: 0,
     USDT_BNB: 0,
 };
-app.get('/', (req, res) => {
-    res.send('Bot is running!');
-});
-const DEVNET_L1A_CHAIN = {
-    id: 1892,
-    name: 'Devnet L1A',
-    rpcUrl: 'https://geth-devblue-l1a.coinhq.store/',
-    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-};
-const DEVNET_L1B_CHAIN = {
-    id: 1893,
-    name: 'Devnet L1B',
-    rpcUrl: 'https://geth-devblue-l1b.coinhq.store/',
-    nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
-};
-export const providers = {
-    L1A: new JsonRpcProvider(DEVNET_L1A_CHAIN.rpcUrl),
-    L1B: new JsonRpcProvider(DEVNET_L1B_CHAIN.rpcUrl),
-};
-export async function getL1ABlockNumber() {
-    const blockNumber = await providers.L1A.getBlockNumber();
-    console.log('Current block number on L1A:', blockNumber);
-}
-export async function getL1BBlockNumber() {
-    const blockNumber = await providers.L1B.getBlockNumber();
-    console.log('Current block number on L1B:', blockNumber);
-}
-export async function getBTCUTXOs(address) {
+// PORTED PROVIDERS FROM FRONTEND. may be will be used in future
+// const DEVNET_L1A_CHAIN = {
+//     id: 1892,
+//     name: 'Devnet L1A',
+//     rpcUrl: 'https://geth-devblue-l1a.coinhq.store/',
+//     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+// };
+//
+// const DEVNET_L1B_CHAIN = {
+//     id: 1893,
+//     name: 'Devnet L1B',
+//     rpcUrl: 'https://geth-devblue-l1b.coinhq.store/',
+//     nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+// };
+//
+// export const providers = {
+//     L1A: new JsonRpcProvider(DEVNET_L1A_CHAIN.rpcUrl),
+//     L1B: new JsonRpcProvider(DEVNET_L1B_CHAIN.rpcUrl),
+// };
+//
+// export async function getL1ABlockNumber() {
+//     const blockNumber = await providers.L1A.getBlockNumber();
+//     console.log('Current block number on L1A:', blockNumber);
+// }
+//
+//
+// export async function getL1BBlockNumber() {
+//     const blockNumber = await providers.L1B.getBlockNumber();
+//     console.log('Current block number on L1B:', blockNumber);
+// }
+//
+// export async function getBTCUTXOs(address: string) {
+//     try {
+//         const { data } = await axios.get(`https://api.blockcypher.com/v1/btc/test3/addrs/${address}?unspentOnly=true`);
+//         console.log('UTXOs:', data.txrefs);
+//     } catch (error) {
+//         console.error('Error fetching UTXOs:', error);
+//     }
+// }
+// Route to start the bot
+app.get('/start-bot', async (req, res) => {
     try {
-        const { data } = await axios.get(`https://api.blockcypher.com/v1/btc/test3/addrs/${address}?unspentOnly=true`);
-        console.log('UTXOs:', data.txrefs);
+        await startBot();
+        res.send('Bot started');
     }
     catch (error) {
-        console.error('Error fetching UTXOs:', error);
+        res.status(500).send('Failed to start bot');
     }
-}
+});
+// Route to stop the bot
+app.get('/stop-bot', (req, res) => {
+    stopBot();
+    res.send('Bot stopped');
+});
 async function getTokenPrice(token) {
     if (token === 'CWEB') {
         const cwebPrice = await getCwebPriceFromCoinGekko();
@@ -134,53 +150,54 @@ async function botWork(wallet, txMonitor) {
         { token: Currency.BTC, useC1: false, useC2: false },
     ];
     for (let i = 0; i < curMas.length; i++) {
-        // try {
-        console.log(curMas[i], 'currency');
-        const currency = curMas[i].token;
-        const useC1 = curMas[i].useC1;
-        const useC2 = curMas[i].useC2;
-        if (useC1) {
-            const dataC1 = await getAllUserPositions(currency, wallet.pub_key, { limit: LIMIT, offset: 0 });
-            console.log(dataC1, 'dataC1');
-            const filterDataC1 = dataC1?.filter(item => item.activityStatus === ACTIVITY_STATUS.ACTIVE);
-            const projectionC1 = await getValuePositions(currency, false);
-            console.log(filterDataC1, 'filterDataC1');
-            console.log(projectionC1, 'projectionC1');
-            if (currency === Currency.BTC) {
-                const usedUtxoOrder = dataC1?.filter(item => item.activityStatus === ACTIVITY_STATUS.ERROR && item.error === 'UTXO is already in use');
-                console.log(usedUtxoOrder, 'usedUtxoOrder');
-                const usedUtxoMas = [];
-                usedUtxoOrder?.forEach((order) => {
-                    if (!usedUtxoMas.find(el => el.l1TxId === order?.chainData?.l1TxId && el.vout === order?.chainData?.vout)) {
-                        usedUtxoMas.push({
-                            l1TxId: order?.chainData?.l1TxId ?? '',
-                            vout: order?.chainData?.vout ?? '',
-                        });
-                    }
-                });
-                console.log(usedUtxoMas, 'usedUtxoMas');
-                const root = getbtcKey();
-                await chandePositions(filterDataC1, projectionC1, wallet, txMonitor, btcWalletAddress, root, usedUtxoMas);
+        try {
+            console.log(curMas[i], 'currency');
+            const currency = curMas[i].token;
+            const useC1 = curMas[i].useC1;
+            const useC2 = curMas[i].useC2;
+            if (useC1) {
+                const dataC1 = await getAllUserPositions(currency, wallet.pub_key, { limit: LIMIT, offset: 0 });
+                console.log(dataC1, 'dataC1');
+                const filterDataC1 = dataC1?.filter(item => item.activityStatus === ACTIVITY_STATUS.ACTIVE);
+                const projectionC1 = await getValuePositions(currency, false);
+                console.log(filterDataC1, 'filterDataC1');
+                console.log(projectionC1, 'projectionC1');
+                if (currency === Currency.BTC) {
+                    const usedUtxoOrder = dataC1?.filter(item => item.activityStatus === ACTIVITY_STATUS.ERROR && item.error === 'UTXO is already in use');
+                    console.log(usedUtxoOrder, 'usedUtxoOrder');
+                    const usedUtxoMas = [];
+                    usedUtxoOrder?.forEach((order) => {
+                        if (!usedUtxoMas.find(el => el.l1TxId === order?.chainData?.l1TxId && el.vout === order?.chainData?.vout)) {
+                            usedUtxoMas.push({
+                                l1TxId: order?.chainData?.l1TxId ?? '',
+                                vout: order?.chainData?.vout ?? '',
+                            });
+                        }
+                    });
+                    console.log(usedUtxoMas, 'usedUtxoMas');
+                    const root = getbtcKey();
+                    await chandePositions(filterDataC1, projectionC1, wallet, txMonitor, btcWalletAddress, root, usedUtxoMas);
+                }
+                else {
+                    await chandePositions(filterDataC1, projectionC1, wallet, txMonitor, ethWallet);
+                }
             }
-            else {
-                await chandePositions(filterDataC1, projectionC1, wallet, txMonitor, ethWallet);
+            if (useC2) {
+                console.log('im here');
+                console.log('wallet pubkey', wallet.pub_key);
+                const dataC2 = await getMarketMakerOrders(currency, wallet.pub_key, { limit: LIMIT, offset: 0 });
+                console.log(dataC2, 'dataC2');
+                //@ts-ignore
+                const filterDataC2 = dataC2?.filter(item => item.activityStatus === ACTIVITY_STATUS.ACTIVE);
+                const projectionC2 = await getValuePositions(currency, true);
+                console.log(filterDataC2, 'filterDataC2');
+                console.log(projectionC2, 'projectionC2');
+                await chandeOrders(filterDataC2, projectionC2, wallet, collateralConst, txMonitor);
             }
         }
-        if (useC2) {
-            console.log('im here');
-            console.log('wallet pubkey', wallet.pub_key);
-            const dataC2 = await getMarketMakerOrders(currency, wallet.pub_key, { limit: LIMIT, offset: 0 });
-            console.log(dataC2, 'dataC2');
-            //@ts-ignore
-            const filterDataC2 = dataC2?.filter(item => item.activityStatus === ACTIVITY_STATUS.ACTIVE);
-            const projectionC2 = await getValuePositions(currency, true);
-            console.log(filterDataC2, 'filterDataC2');
-            console.log(projectionC2, 'projectionC2');
-            await chandeOrders(filterDataC2, projectionC2, wallet, collateralConst, txMonitor);
+        catch (e) {
+            console.log('error starting bow work: ', e);
         }
-        // } catch (e) {
-        //     console.log('error', e);
-        // }
     }
     return 'end botWork';
 }
@@ -237,6 +254,11 @@ async function intervalBot(wallet, txMonitor) {
         console.log(new Date(Date.now()).toISOString(), 'end date intervalBot');
     }
 }
+function stopBot() {
+    functionTimer = false;
+    timer = false;
+    console.log(new Date(Date.now()).toISOString(), 'Stopping the bot');
+}
 async function startBot() {
     let newTxMonitor = saveTxMonitor;
     if (!saveTxMonitor) {
@@ -255,7 +277,7 @@ async function startBot() {
     else {
         throw new Error('no wallet and tx monitor');
     }
-    // Pact task executed every INTERVAL_PACT
+    // pact task executed every INTERVAL_PACT
     setInterval(() => {
         console.log('Executing botWorkPact...');
         botWorkPact(wallet);
@@ -263,6 +285,5 @@ async function startBot() {
 }
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
-    startBot();
 });
 // process.on('unhandledRejection', (reason, promise) => { console.error('Unhandled Rejection at:', promise, 'reason:', reason); });
