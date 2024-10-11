@@ -286,6 +286,6 @@ async function startBot() {
     }, INTERVAL_PACT);
 }
 app.listen(5000, () => {
-    console.log('Server is running on port 3000');
+    console.log('Server is running on port 5000');
 });
 // process.on('unhandledRejection', (reason, promise) => { console.error('Unhandled Rejection at:', promise, 'reason:', reason); });
