@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import sentTxMonitor, { sleep, walletWithMnemonic } from './utils/wallet';
 import { getAllMarketClaim, getAllUserPositions, getMarketMakerOrders } from './api';
 import { ACTIVITY_STATUS } from 'dex-app.cm';
@@ -12,6 +13,7 @@ import { getCwebPriceFromCoinGekko } from './utils/api';
 import { get_all_utxos as getAllUtxos, get_failed_txs as getFailedTxs } from '@coinweb/wallet-lib';
 dotenv.config();
 const app = express();
+app.use(cors());
 const LIMIT = 100;
 const INTERVAL = 5 * 60 * 1000;
 const INTERVAL_PACT = 0.5 * 60 * 1000;
