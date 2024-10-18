@@ -94,6 +94,14 @@ let tokenPrice = {
 //     }
 // }
 
+app.get('/', async (req, res) => {
+    try {
+        res.send('Bot started');
+    } catch (error) {
+        res.status(500).send('Failed to start bot');
+    }
+});
+
 // Route to start the bot
 app.get('/start-bot', async (req, res) => {
     try {
