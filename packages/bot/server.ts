@@ -17,6 +17,8 @@ import { get_all_utxos as getAllUtxos, get_failed_txs as getFailedTxs } from '@c
 dotenv.config();
 
 const app = express();
+
+app.use(express.json());
 app.use(cors());
 
 
@@ -41,7 +43,11 @@ let btcWalletMnemonic = 'opinion patrol tube angle early nature chaos sorry volu
 let btcWalletAddress = '2N2Qvsoib2diR3doYh2M7daFy6sGU5FBg43';
 let collateralConst = 1;
 let partialPercent = 80;
+let botCreateOptions: any = [];
+let botPactOptions: any = [];
 let saveTxMonitor: any = undefined;
+let botInterval: NodeJS.Timeout | null = null;
+let pactInterval: NodeJS.Timeout | null = null;
 
 let tokenPrice = {
     BTC: 0,
@@ -54,46 +60,6 @@ let tokenPrice = {
     USDT_BNB: 0,
 };
 
-// PORTED PROVIDERS FROM FRONTEND. may be will be used in future
-// const DEVNET_L1A_CHAIN = {
-//     id: 1892,
-//     name: 'Devnet L1A',
-//     rpcUrl: 'https://geth-devblue-l1a.coinhq.store/',
-//     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-// };
-//
-// const DEVNET_L1B_CHAIN = {
-//     id: 1893,
-//     name: 'Devnet L1B',
-//     rpcUrl: 'https://geth-devblue-l1b.coinhq.store/',
-//     nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
-// };
-//
-// export const providers = {
-//     L1A: new JsonRpcProvider(DEVNET_L1A_CHAIN.rpcUrl),
-//     L1B: new JsonRpcProvider(DEVNET_L1B_CHAIN.rpcUrl),
-// };
-//
-// export async function getL1ABlockNumber() {
-//     const blockNumber = await providers.L1A.getBlockNumber();
-//     console.log('Current block number on L1A:', blockNumber);
-// }
-//
-//
-// export async function getL1BBlockNumber() {
-//     const blockNumber = await providers.L1B.getBlockNumber();
-//     console.log('Current block number on L1B:', blockNumber);
-// }
-//
-// export async function getBTCUTXOs(address: string) {
-//     try {
-//         const { data } = await axios.get(`https://api.blockcypher.com/v1/btc/test3/addrs/${address}?unspentOnly=true`);
-//         console.log('UTXOs:', data.txrefs);
-//     } catch (error) {
-//         console.error('Error fetching UTXOs:', error);
-//     }
-// }
-
 app.get('/', async (req, res) => {
     try {
         res.send('Bot started');
@@ -103,14 +69,17 @@ app.get('/', async (req, res) => {
 });
 
 // Route to start the bot
-app.get('/start-bot', async (req, res) => {
+app.post('/start-bot', async (req, res) => {
     try {
+        const botSettings = req.body || null;
+        console.log('bs', req.body);
+        await startBot(botSettings);
 
-        await startBot();
-        res.send('Bot started');
+        res.send('Bot started with provided settings');
     } catch (error) {
-        console.log(error);
-        res.status(500).send(`Failed to start bot: ${error}`);
+        console.error('Error starting bot:', error);
+        //@ts-ignore
+        res.status(500).send(`Failed to start bot: ${error.message}`);
     }
 });
 
@@ -167,7 +136,7 @@ async function botWork(wallet: any, txMonitor: any) {
     const failedTxs = await getFailedTxs(txMonitor);
     console.log(utxoAll, 'utxoAll');
     console.log(failedTxs, 'failedTxs');
-    const curMas = [
+    const curMas = botCreateOptions?.length ?  botCreateOptions : [
         { token: Currency.BNB, useC1: true, useC2: true },
         { token: Currency.ETH, useC1: true, useC2: true },
         { token: Currency.USDT_ETH, useC1: true, useC2: true },
@@ -230,7 +199,7 @@ async function botWork(wallet: any, txMonitor: any) {
 }
 
 async function botWorkPact(wallet: any) {
-    const curMas = [
+    const curMas = botPactOptions?.length ? botPactOptions : [
         { token: Currency.BNB, usePact: true },
         { token: Currency.ETH, usePact: true },
         { token: Currency.USDT_ETH, usePact: true },
@@ -284,9 +253,15 @@ async function intervalBot(wallet: any, txMonitor: any) {
         console.log(new Date(Date.now()).toISOString(), 'start date botWork intervalBot');
         const result = await botWork(wallet, txMonitor);
         console.log(result, 'result intervalBot');
-        await sleep(INTERVAL);
-        console.log(new Date(Date.now()).toISOString(), 'start date new botWork intervalBot');
-        await intervalBot(wallet, txMonitor);
+        // Wait for the interval duration before calling recursively
+        botInterval = setTimeout(async () => {
+            if (functionTimer) {
+                console.log(new Date(Date.now()).toISOString(), 'start date new botWork intervalBot');
+                await intervalBot(wallet, txMonitor);
+            } else {
+                console.log(new Date(Date.now()).toISOString(), 'intervalBot stopped');
+            }
+        }, INTERVAL);
     } else {
         console.log(new Date(Date.now()).toISOString(), 'end date intervalBot');
     }
@@ -294,11 +269,63 @@ async function intervalBot(wallet: any, txMonitor: any) {
 
 function stopBot() {
     functionTimer = false;
-    timer = false;
+
+    // Clear all timers and intervals
+    if (botInterval) {
+        clearTimeout(botInterval);
+        botInterval = null;
+    }
+    if (pactInterval) {
+        clearInterval(pactInterval);
+        pactInterval = null;
+    }
     console.log(new Date(Date.now()).toISOString(), 'Stopping the bot');
 }
 
-async function startBot() {
+async function startBot(botSettings: any) {
+    if (botSettings) {
+        const {
+            positionsMax: incomingPositionsMax,
+            startValue: incomingStartValue,
+            endValue: incomingEndValue,
+            percentC1: incomingPercentC1,
+            percentC2: incomingPercentC2,
+            percentDifferentC1: incomingPercentDifferentC1,
+            percentDifferentC2: incomingPercentDifferentC2,
+            mnemonic: incomingMnemonic,
+            ethWallet: incomingEthWallet,
+            ethWalletPrivKey: incomingEthWalletPrivKey,
+            btcWalletDerivationPath: incomingBtcWalletDerivationPath,
+            btcWalletMnemonic: incomingBtcWalletMnemonic,
+            btcWalletAddressFinalise: incomingBtcWalletAddressFinalise,
+            btcWalletDerivationPathFinalise: incomingBtcWalletDerivationPathFinalise,
+            btcWalletMnemonicFinalise: incomingBtcWalletMnemonicFinalise,
+            btcWalletAddress: incomingBtcWalletAddress,
+            collateralConst: incomingCollateralConst,
+            partialPercent: incomingPartialPercent,
+            botCreateOptions: incomingBotCreateOptions,
+            botPactOptions: incomingBotPactOptions,
+        } = botSettings;
+
+        positionsMax = incomingPositionsMax;
+        startValue = incomingStartValue;
+        endValue = incomingEndValue;
+        percentC1 = incomingPercentC1;
+        percentC2 = incomingPercentC2;
+        percentDifferentC1 = incomingPercentDifferentC1;
+        percentDifferentC2 = incomingPercentDifferentC2;
+        mnemonic = incomingMnemonic;
+        ethWallet = incomingEthWallet;
+        ethWalletPrivKey = incomingEthWalletPrivKey;
+        btcWalletDerivationPath = incomingBtcWalletDerivationPath;
+        btcWalletMnemonic = incomingBtcWalletMnemonic;
+        btcWalletAddress = incomingBtcWalletAddress;
+        collateralConst = incomingCollateralConst;
+        partialPercent = incomingPartialPercent;
+        botCreateOptions = incomingBotCreateOptions;
+        botPactOptions = incomingBotPactOptions
+    }
+
     let newTxMonitor = saveTxMonitor;
     if (!saveTxMonitor) {
         
@@ -313,20 +340,25 @@ async function startBot() {
     console.log('wallet', wallet);
     timer = true;
     functionTimer = true;
+    // Start bot work intervals
     if (wallet && newTxMonitor) {
         intervalBot(wallet, newTxMonitor);
-    } else  {
-        throw new Error('no wallet and tx monitor');
+    } else {
+        throw new Error('No wallet or transaction monitor found');
     }
 
-    // pact task executed every INTERVAL_PACT
-    setInterval(() => {
-        console.log('Executing botWorkPact...');
-        botWorkPact(wallet);
+    // Start pact task interval
+    pactInterval = setInterval(() => {
+        if (functionTimer) {
+            console.log('Executing botWorkPact...');
+            botWorkPact(wallet);
+        } else {
+            console.log('Pact interval stopped');
+        }
     }, INTERVAL_PACT);
 }
 
-app.listen(5000, () => {
+app.listen(5001, () => {
     console.log('Server is running on port 3000');
 });
 

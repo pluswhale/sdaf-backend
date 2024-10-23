@@ -34,6 +34,8 @@ let btcWalletMnemonic = 'opinion patrol tube angle early nature chaos sorry volu
 let btcWalletAddress = '2N2Qvsoib2diR3doYh2M7daFy6sGU5FBg43';
 let collateralConst = 1;
 let partialPercent = 80;
+let botCreateOptions = [];
+let botPactOptions = [];
 let saveTxMonitor = undefined;
 let tokenPrice = {
     BTC: 0,
@@ -45,45 +47,6 @@ let tokenPrice = {
     USDT_ETH: 0,
     USDT_BNB: 0,
 };
-// PORTED PROVIDERS FROM FRONTEND. may be will be used in future
-// const DEVNET_L1A_CHAIN = {
-//     id: 1892,
-//     name: 'Devnet L1A',
-//     rpcUrl: 'https://geth-devblue-l1a.coinhq.store/',
-//     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-// };
-//
-// const DEVNET_L1B_CHAIN = {
-//     id: 1893,
-//     name: 'Devnet L1B',
-//     rpcUrl: 'https://geth-devblue-l1b.coinhq.store/',
-//     nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
-// };
-//
-// export const providers = {
-//     L1A: new JsonRpcProvider(DEVNET_L1A_CHAIN.rpcUrl),
-//     L1B: new JsonRpcProvider(DEVNET_L1B_CHAIN.rpcUrl),
-// };
-//
-// export async function getL1ABlockNumber() {
-//     const blockNumber = await providers.L1A.getBlockNumber();
-//     console.log('Current block number on L1A:', blockNumber);
-// }
-//
-//
-// export async function getL1BBlockNumber() {
-//     const blockNumber = await providers.L1B.getBlockNumber();
-//     console.log('Current block number on L1B:', blockNumber);
-// }
-//
-// export async function getBTCUTXOs(address: string) {
-//     try {
-//         const { data } = await axios.get(`https://api.blockcypher.com/v1/btc/test3/addrs/${address}?unspentOnly=true`);
-//         console.log('UTXOs:', data.txrefs);
-//     } catch (error) {
-//         console.error('Error fetching UTXOs:', error);
-//     }
-// }
 app.get('/', async (req, res) => {
     try {
         res.send('Bot started');
@@ -93,14 +56,17 @@ app.get('/', async (req, res) => {
     }
 });
 // Route to start the bot
-app.get('/start-bot', async (req, res) => {
+app.post('/start-bot', async (req, res) => {
     try {
-        await startBot();
-        res.send('Bot started');
+        const botSettings = req.body || null;
+        console.log('bs', req);
+        // await startBot(botSettings);
+        res.send('Bot started with provided settings');
     }
     catch (error) {
-        console.log(error);
-        res.status(500).send(`Failed to start bot: ${error}`);
+        console.error('Error starting bot:', error);
+        //@ts-ignore
+        res.status(500).send(`Failed to start bot: ${error.message}`);
     }
 });
 // Route to stop the bot
@@ -153,7 +119,7 @@ async function botWork(wallet, txMonitor) {
     const failedTxs = await getFailedTxs(txMonitor);
     console.log(utxoAll, 'utxoAll');
     console.log(failedTxs, 'failedTxs');
-    const curMas = [
+    const curMas = botCreateOptions?.length ? botCreateOptions : [
         { token: Currency.BNB, useC1: true, useC2: true },
         { token: Currency.ETH, useC1: true, useC2: true },
         { token: Currency.USDT_ETH, useC1: true, useC2: true },
@@ -213,7 +179,7 @@ async function botWork(wallet, txMonitor) {
     return 'end botWork';
 }
 async function botWorkPact(wallet) {
-    const curMas = [
+    const curMas = botPactOptions?.length ? botPactOptions : [
         { token: Currency.BNB, usePact: true },
         { token: Currency.ETH, usePact: true },
         { token: Currency.USDT_ETH, usePact: true },
@@ -270,7 +236,27 @@ function stopBot() {
     timer = false;
     console.log(new Date(Date.now()).toISOString(), 'Stopping the bot');
 }
-async function startBot() {
+async function startBot(botSettings) {
+    if (botSettings) {
+        const { positionsMax: incomingPositionsMax, startValue: incomingStartValue, endValue: incomingEndValue, percentC1: incomingPercentC1, percentC2: incomingPercentC2, percentDifferentC1: incomingPercentDifferentC1, percentDifferentC2: incomingPercentDifferentC2, mnemonic: incomingMnemonic, ethWallet: incomingEthWallet, ethWalletPrivKey: incomingEthWalletPrivKey, btcWalletDerivationPath: incomingBtcWalletDerivationPath, btcWalletMnemonic: incomingBtcWalletMnemonic, btcWalletAddressFinalise: incomingBtcWalletAddressFinalise, btcWalletDerivationPathFinalise: incomingBtcWalletDerivationPathFinalise, btcWalletMnemonicFinalise: incomingBtcWalletMnemonicFinalise, btcWalletAddress: incomingBtcWalletAddress, collateralConst: incomingCollateralConst, partialPercent: incomingPartialPercent, botCreateOptions: incomingBotCreateOptions, botPactOptions: incomingBotPactOptions, } = botSettings;
+        positionsMax = incomingPositionsMax;
+        startValue = incomingStartValue;
+        endValue = incomingEndValue;
+        percentC1 = incomingPercentC1;
+        percentC2 = incomingPercentC2;
+        percentDifferentC1 = incomingPercentDifferentC1;
+        percentDifferentC2 = incomingPercentDifferentC2;
+        mnemonic = incomingMnemonic;
+        ethWallet = incomingEthWallet;
+        ethWalletPrivKey = incomingEthWalletPrivKey;
+        btcWalletDerivationPath = incomingBtcWalletDerivationPath;
+        btcWalletMnemonic = incomingBtcWalletMnemonic;
+        btcWalletAddress = incomingBtcWalletAddress;
+        collateralConst = incomingCollateralConst;
+        partialPercent = incomingPartialPercent;
+        botCreateOptions = incomingBotCreateOptions;
+        botPactOptions = incomingBotPactOptions;
+    }
     let newTxMonitor = saveTxMonitor;
     if (!saveTxMonitor) {
         const txMonitor = await sentTxMonitor();
