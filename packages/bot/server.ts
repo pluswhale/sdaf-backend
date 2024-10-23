@@ -105,7 +105,7 @@ app.get('/', async (req, res) => {
 // Route to start the bot
 app.get('/start-bot', async (req, res) => {
     try {
-        
+
         await startBot();
         res.send('Bot started');
     } catch (error) {
@@ -326,7 +326,7 @@ async function startBot() {
     }, INTERVAL_PACT);
 }
 
-app.listen(5001, () => {
+app.listen(5000, () => {
     console.log('Server is running on port 3000');
 });
 
