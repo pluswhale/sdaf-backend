@@ -18,3 +18,11 @@ test:
   script:
     - echo "tests disabled"
   when: manual
+
+production:
+  stage: production
+  environment:
+    name: production
+  variables:
+    HELM_UPGRADE_EXTRA_ARGS: |
+      --set ingress.enabled=false
