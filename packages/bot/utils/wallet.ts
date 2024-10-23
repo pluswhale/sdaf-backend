@@ -1,53 +1,55 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import {
-  create_wallet as createWallet,
-  from_hex_string as fromHexString,
+  add_txs as addTxs,
   compose_ui_commands as composeUiCommand,
   create_tx_monitor as createTxMonitor,
-  add_txs as addTxs,
-  get_txs as getTxs,
+  create_wallet as createWallet,
   embed,
+  from_hex_string as fromHexString,
+  get_all_utxos as getAllUtxos,
+  get_txs as getTxs,
   sign,
   Transaction,
-  get_all_utxos as getAllUtxos,
 } from '@coinweb/wallet-lib';
 
-import { mnemonicToHDKey } from './cwbBlockchain';
+import {mnemonicToHDKey} from './cwbBlockchain';
 
 export const walletWithMnemonic = async (mnemonic: string, urlAddress?: string) => {
-  const address = urlAddress ? `${urlAddress}/wallet` : process.env.API_URL;
-  //@ts-ignore
+  const address = urlAddress ? `${urlAddress}/wallet` : process.env.API_URL || 'https://api-devnet.coinweb.io/wallet';
   const wsAddress = address.replace(/^https:/, 'wss:');
+
   const hdkey = mnemonicToHDKey(mnemonic);
+
   //enableLogging({ gql: true });
-  const wallet = await createWallet({
-    //@ts-ignore
+  return await createWallet({
     address,
     ws_address: wsAddress,
+    //@ts-ignore
     pub_key: hdkey.publicKey.toString('hex'),
     shard: null,
     max_retry_time_secs: null,
     enable_retries: null,
     sign_callback: (msg) => {
+      //@ts-ignore
       return sign(fromHexString(hdkey.privateKey.toString('hex')), msg);
     },
   });
-
-  return wallet;
 };
 
 export async function sentComposeTokenCommand(wallet: any, jsonTokenCommand: any, networkWrite: any, txMonitor: any) {
   if (!wallet || !jsonTokenCommand) throw new Error('wallet or command not found');
   if (!networkWrite) networkWrite = null;
   const utxoAllStart = await getAllUtxos(txMonitor);
+
   console.log(utxoAllStart, 'utxoAllStart sentComposeTokenCommand');
   const l2TransactionData = await composeUiCommand(wallet, [jsonTokenCommand], networkWrite);
   const newTxs = await addTxs(txMonitor, l2TransactionData?.l2_transaction);
   const utxoAllEnd = await getAllUtxos(txMonitor);
+
   console.log(utxoAllEnd, 'utxoAllEnd sentComposeTokenCommand');
 
-  return { l2TransactionData, newTxs};
+  return { l2TransactionData, newTxs };
 }
 
 export async function sentEmbed(wallet: any, l2Transaction: any) {
@@ -55,6 +57,7 @@ export async function sentEmbed(wallet: any, l2Transaction: any) {
     if (!wallet || !l2Transaction) throw new Error('wallet or l2Transaction not found');
 
     const uuid = await embed(wallet, l2Transaction);
+
     console.log(uuid, 'uuid');
 
     return uuid;
@@ -69,39 +72,46 @@ export default async function sentTxMonitor() {
     const pendingTxs: any = [];
     const utxos: any = [];
     const txMonitor = createTxMonitor(pendingTxs, utxos);
+
     return txMonitor;
   } catch (error) {
     console.error(error);
     // eslint-disable-next-line no-console
     console.log(error, 'error');
+
     return '';
   }
 }
 
 export async function sleep(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms)); }
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 async function getInfoL2Txs(createTxMonitor: any, inputId: any): Promise<Transaction[]> {
   const getNewTxs = await getTxs(createTxMonitor, inputId);
+
   return getNewTxs;
 }
 
 const ITER_CONST = 60;
 
 export async function timerStatus(txMonitor: any, newTxs: any, iter: number = 0) {
-  if(iter > ITER_CONST) return 'TimeOut';
+  if (iter > ITER_CONST) return 'TimeOut';
   iter += 1;
-  const getNewTxs = await getInfoL2Txs(
-      txMonitor,
-      newTxs[0].input_id,
-  );
+  const getNewTxs = await getInfoL2Txs(txMonitor, newTxs[0].input_id);
+
   console.log(iter, 'iter');
   console.log(getNewTxs, 'getNewTxs');
-  if ((getNewTxs.length > 0 && getNewTxs[0] ) &&
-      (getNewTxs[0].status === 'L2Confirmed' || getNewTxs[0].status === 'L2Unknown' || getNewTxs[0].status === 'Error')) {
+  if (
+      getNewTxs.length > 0 &&
+      getNewTxs[0] &&
+      (getNewTxs[0].status === 'L2Confirmed' || getNewTxs[0].status === 'L2Unknown' || getNewTxs[0].status === 'Error')
+  ) {
     console.log('success iter', iter);
+
     return getNewTxs[0].status;
   }
-  await sleep(1000)
+  await sleep(1000);
+
   return await timerStatus(txMonitor, newTxs, iter);
 }

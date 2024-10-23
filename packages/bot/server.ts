@@ -105,10 +105,12 @@ app.get('/', async (req, res) => {
 // Route to start the bot
 app.get('/start-bot', async (req, res) => {
     try {
+
         await startBot();
         res.send('Bot started');
     } catch (error) {
-        res.status(500).send('Failed to start bot');
+        console.log(error);
+        res.status(500).send(`Failed to start bot: ${error}`);
     }
 });
 
@@ -298,9 +300,10 @@ function stopBot() {
 
 async function startBot() {
     let newTxMonitor = saveTxMonitor;
-    if (!saveTxMonitor)
-    {
+    if (!saveTxMonitor) {
+        
         const txMonitor = await sentTxMonitor();
+
         saveTxMonitor = txMonitor
         newTxMonitor = txMonitor;
     }
@@ -328,4 +331,4 @@ app.listen(5000, () => {
 });
 
 
-// process.on('unhandledRejection', (reason, promise) => { console.error('Unhandled Rejection at:', promise, 'reason:', reason); });
+process.on('unhandledRejection', (reason, promise) => { console.error('Unhandled Rejection at:', promise, 'reason:', reason); });

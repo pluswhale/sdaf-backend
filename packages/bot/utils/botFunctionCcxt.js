@@ -125,7 +125,7 @@ export async function chandePositions(filterData, projection, wallet, txMonitor,
 export async function chandeOrders(filterData, projection, wallet, collateralConst, txMonitor) {
     const decimals = decimalsForCurrency(Currency.CWEB); // projection[0].token);
     console.log(filterData, 'filterData chandeOrders');
-    if (filterData?.length === 0) {
+    if (filterData.length === 0) {
         const data = await getAllMarketCollateralBalance(projection[0].token, wallet.pub_key);
         let balance = data?.content?.fees_stored ? Number(data.content.fees_stored) / 10 ** decimals : 0;
         if (balance === 0) {
@@ -213,9 +213,6 @@ async function createOrder(symbol, amount, price, wallet, txMonitor, ethWallet, 
 }
 async function transfer(amount, fromAccount, toAccount, wallet, txMonitor) {
     try {
-        console.log('transfer amount:', amount);
-        console.log('transfer from account: ', fromAccount);
-        console.log('transfer to account: ', toAccount);
         const transferQr = convertInfoToTransfer(fromAccount, toAccount, convertStringToBigInt(eFix(String(amount)), Currency.CWEB)); //BigInt(Math.round(Number(amount) * 1e18) + 1));
         console.log(transferQr, 'transferQr transfer');
         const { l2TransactionData, newTxs } = await sentComposeTokenCommand(wallet, JSON.parse(transferQr), null, txMonitor);
@@ -240,13 +237,20 @@ async function approveERC20(signer, item, token) {
     if (!L1_TOKEN_ADDRESS && !L1_CONTRACT_ADDRESS_MAKER)
         return;
     const tokenAmount = item ? item.quote : 0n;
-    const decimals = decimalsForCurrency(token);
-    const sum = String(Number(tokenAmount) / 10 ** decimals);
+    // const decimals = decimalsForCurrency(token);
+    // const sum = String(Number(tokenAmount) / 10 ** decimals);
     const contractApprove = new ethers.Contract(L1_TOKEN_ADDRESS, erc20Abi).connect(signer);
-    const approvalTx = await contractApprove.getFunction('approve')(L1_CONTRACT_ADDRESS_MAKER, ethers.parseEther(sum));
-    await approvalTx.wait();
-    const transferTx = await contractApprove.getFunction('transferFrom')(signer.getAddress(), L1_CONTRACT_ADDRESS_MAKER, ethers.parseEther(sum));
-    await transferTx.wait();
+    try {
+        const approvalTx = await contractApprove.getFunction('approve')(L1_CONTRACT_ADDRESS_MAKER, tokenAmount);
+        await approvalTx.wait();
+    }
+    catch (e) {
+        console.log(e, 'error approvalTx');
+        const approvalTx0 = await contractApprove.getFunction('approve')(L1_CONTRACT_ADDRESS_MAKER, 0n);
+        await approvalTx0.wait();
+        const approvalTx1 = await contractApprove.getFunction('approve')(L1_CONTRACT_ADDRESS_MAKER, tokenAmount);
+        await approvalTx1.wait();
+    }
 }
 export async function sendC2Claim(item, token, privKey) {
     if (GLOBAL_WRONG_PACT.includes(item.id)) {
@@ -256,7 +260,7 @@ export async function sendC2Claim(item, token, privKey) {
     let rpcETH = 'https://geth-devblue-l1a.coinhq.store/';
     let rpcBNB = 'https://geth-devblue-l1b.coinhq.store/';
     console.log(process.env.MODE, 'MODE');
-    if (process.env.MODE === 'production') {
+    if (process.env.MODE === 'production' || process.env.MODE === 'production2') {
         rpcETH = 'https://mainnet.infura.io/v3/c7dfefe8fad848b692b7cdb1ce554a5b';
         rpcBNB = 'https://bsc-dataseed.binance.org/';
     }
@@ -267,7 +271,12 @@ export async function sendC2Claim(item, token, privKey) {
     const provider = new ethers.JsonRpcProvider(useRPC);
     const signer = new ethers.Wallet(privKey, provider);
     if (ERC20_TOKENS.includes(token))
-        await approveERC20(signer, item, token);
+        try {
+            await approveERC20(signer, item, token);
+        }
+        catch (e) {
+            console.log('error approveERC20', e);
+        }
     const { L1_CONTRACT_ADDRESS_MAKER, L1_CONTRACT_ABI_MAKER, L1_CALL_METHOD_NAME_MAKER } = CONTRACT_PARAMS[token];
     const contract = new ethers.Contract(L1_CONTRACT_ADDRESS_MAKER, [L1_CONTRACT_ABI_MAKER], signer).connect(signer);
     const value = ERC20_TOKENS.includes(token) ? 0 : item.quote;
@@ -275,14 +284,12 @@ export async function sendC2Claim(item, token, privKey) {
     console.log(contract, 'contract');
     console.log(value, 'value');
     try {
-        contract.getFunction(L1_CALL_METHOD_NAME_MAKER)(ethers.toBigInt(item.id), item.quote, item.recipient, item.quote, {
+        const tx = await contract.getFunction(L1_CALL_METHOD_NAME_MAKER)(ethers.toBigInt(item.id), item.quote, item.recipient, item.quote, {
             value,
-        })
-            .then((text) => console.log('contract.getFunction', text))
-            .catch((er) => {
-            GLOBAL_WRONG_PACT.push(item.id);
-            console.error(er, 'error');
         });
+        console.log('start waitcontract.getFunction', tx);
+        await tx.wait();
+        console.log('end wait contract.getFunction', tx);
     }
     catch (error) {
         GLOBAL_WRONG_PACT.push(item.id);
