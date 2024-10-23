@@ -1,26 +1,25 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { create_wallet as createWallet, from_hex_string as fromHexString, compose_ui_commands as composeUiCommand, create_tx_monitor as createTxMonitor, add_txs as addTxs, get_txs as getTxs, embed, sign, get_all_utxos as getAllUtxos, } from '@coinweb/wallet-lib';
+import { add_txs as addTxs, compose_ui_commands as composeUiCommand, create_tx_monitor as createTxMonitor, create_wallet as createWallet, embed, from_hex_string as fromHexString, get_all_utxos as getAllUtxos, get_txs as getTxs, sign, } from '@coinweb/wallet-lib';
 import { mnemonicToHDKey } from './cwbBlockchain';
 export const walletWithMnemonic = async (mnemonic, urlAddress) => {
-    const address = urlAddress ? `${urlAddress}/wallet` : process.env.API_URL;
-    //@ts-ignore
+    const address = urlAddress ? `${urlAddress}/wallet` : process.env.API_URL || 'https://api-devnet.coinweb.io/wallet';
     const wsAddress = address.replace(/^https:/, 'wss:');
     const hdkey = mnemonicToHDKey(mnemonic);
     //enableLogging({ gql: true });
-    const wallet = await createWallet({
-        //@ts-ignore
+    return await createWallet({
         address,
         ws_address: wsAddress,
+        //@ts-ignore
         pub_key: hdkey.publicKey.toString('hex'),
         shard: null,
         max_retry_time_secs: null,
         enable_retries: null,
         sign_callback: (msg) => {
+            //@ts-ignore
             return sign(fromHexString(hdkey.privateKey.toString('hex')), msg);
         },
     });
-    return wallet;
 };
 export async function sentComposeTokenCommand(wallet, jsonTokenCommand, networkWrite, txMonitor) {
     if (!wallet || !jsonTokenCommand)
@@ -63,7 +62,7 @@ export default async function sentTxMonitor() {
     }
 }
 export async function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 async function getInfoL2Txs(createTxMonitor, inputId) {
     const getNewTxs = await getTxs(createTxMonitor, inputId);
@@ -77,7 +76,8 @@ export async function timerStatus(txMonitor, newTxs, iter = 0) {
     const getNewTxs = await getInfoL2Txs(txMonitor, newTxs[0].input_id);
     console.log(iter, 'iter');
     console.log(getNewTxs, 'getNewTxs');
-    if ((getNewTxs.length > 0 && getNewTxs[0]) &&
+    if (getNewTxs.length > 0 &&
+        getNewTxs[0] &&
         (getNewTxs[0].status === 'L2Confirmed' || getNewTxs[0].status === 'L2Unknown' || getNewTxs[0].status === 'Error')) {
         console.log('success iter', iter);
         return getNewTxs[0].status;

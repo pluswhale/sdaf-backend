@@ -1,10 +1,7 @@
 import { force_refresh as forceRefresh, Wallet } from '@coinweb/wallet-lib';
 import { convertInfoToCancelQr, convertInfoToCreateQr, convertInfoToTransfer } from './dexUtils';
 import { sentComposeTokenCommand, sentEmbed } from './wallet';
-
 import { ethers } from 'ethers';
-
-
 import { erc20Abi } from 'viem';
 import { getPsbtStartTransaction } from './bts';
 import {CONTRACT_PARAMS, Currency, ERC20_TOKENS} from "../constants";
@@ -22,8 +19,8 @@ async function findDifferences(filterData: any, projection: any, wallet: Wallet,
   for (let i = 0; i < filterData.length; i += 1) {
     console.log(newProjection, 'newProjection');
     if (
-        filterData[i]?.covering &&
-        (Number(filterData[i].covering) / Number(filterData[i].baseAmount)) * 100 < projection[0].partialPercent
+      filterData[i]?.covering &&
+      (Number(filterData[i].covering) / Number(filterData[i].baseAmount)) * 100 < projection[0].partialPercent
     ) {
       console.log(filterData[i].id, 'canceled covering');
       if (isC2)
@@ -33,8 +30,8 @@ async function findDifferences(filterData: any, projection: any, wallet: Wallet,
       continue;
     }
     if (
-        filterData[i]?.funds &&
-        (Number(filterData[i].funds) / Number(filterData[i].baseAmount)) * 100 < projection[0].partialPercent
+      filterData[i]?.funds &&
+      (Number(filterData[i].funds) / Number(filterData[i].baseAmount)) * 100 < projection[0].partialPercent
     ) {
       console.log(filterData[i].id, 'canceled funds');
       if (isC2)
@@ -45,7 +42,7 @@ async function findDifferences(filterData: any, projection: any, wallet: Wallet,
     }
     const decimals = decimalsForCurrency(projection[0].token);
     const decimalsCweb = decimalsForCurrency(Currency.CWEB);
-
+    
     const elements = newProjection.filter((item) => {
       /* console.log(item.cweb, `cweb ${index}`);
       console.log(item.l1, `l1 ${index}`);
@@ -60,10 +57,10 @@ async function findDifferences(filterData: any, projection: any, wallet: Wallet,
       console.log((item.cweb * (100 + item.different)) / 100, 'cweb + different'); */
 
       return (
-          (item.cweb * (100 - item.different)) / 100 <= Number(filterData[i].baseAmount) / 10 ** decimalsCweb &&
-          Number(filterData[i].baseAmount) / 10 ** decimalsCweb <= (item.cweb * (100 + item.different)) / 100 &&
-          (item.l1 * (100 - item.different)) / 100 <= Number(filterData[i].quoteAmount) / 10 ** decimals &&
-          Number(filterData[i].quoteAmount) / 10 ** decimals <= (item.l1 * (100 + item.different)) / 100
+        (item.cweb * (100 - item.different)) / 100 <= Number(filterData[i].baseAmount) / 10 ** decimalsCweb &&
+        Number(filterData[i].baseAmount) / 10 ** decimalsCweb <= (item.cweb * (100 + item.different)) / 100 &&
+        (item.l1 * (100 - item.different)) / 100 <= Number(filterData[i].quoteAmount) / 10 ** decimals &&
+        Number(filterData[i].quoteAmount) / 10 ** decimals <= (item.l1 * (100 + item.different)) / 100
       );
     });
     console.log(elements, 'elements');
@@ -83,10 +80,10 @@ async function findDifferences(filterData: any, projection: any, wallet: Wallet,
 async function getBtc(root: any, utxos: any, wallet?: string) {
   const publicKey = Buffer.from(root._publicKey).toString('hex');
   const { utxoId, vout, psbtB64} = await getPsbtStartTransaction(
-      wallet ?? '',
-      publicKey,
-      root._privateKey,
-      utxos,
+    wallet ?? '',
+    publicKey,
+    root._privateKey,
+    utxos,
   );
   return {utxoId, vout, psbtB64};
 }
@@ -136,7 +133,7 @@ export async function chandePositions(filterData: any, projection: any, wallet: 
         vout: vout,
       });
       await createOrder(`CWEB/${newPosition[i].token}`, newPosition[i].cweb, newPosition[i].l1, wallet, txMonitor, ethWallet, chainData);
-    } else
+    } else 
       await createOrder(`CWEB/${newPosition[i].token}`, newPosition[i].cweb, newPosition[i].l1, wallet, txMonitor, ethWallet);
   }
 }
@@ -144,7 +141,7 @@ export async function chandePositions(filterData: any, projection: any, wallet: 
 export async function chandeOrders(filterData: any, projection: any, wallet: Wallet, collateralConst: number, txMonitor: any) {
   const decimals = decimalsForCurrency(Currency.CWEB); // projection[0].token);
   console.log(filterData, 'filterData chandeOrders');
-  if (filterData?.length === 0) {
+  if (filterData.length === 0) {
     const data = await getAllMarketCollateralBalance(projection[0].token, wallet.pub_key);
     let balance = data?.content?.fees_stored ? Number(data.content.fees_stored) / 10 ** decimals : 0;
     if (balance === 0) {
@@ -152,11 +149,11 @@ export async function chandeOrders(filterData: any, projection: any, wallet: Wal
     }
     for (let i = 0; i < projection.length; i += 1) {
       const isNewCollateralBalance = await checkCollateral(
-          balance,
-          projection[i].cweb * collateralConst,
-          wallet,
-          `collateral_${projection[i].token.toLowerCase()}`,
-          txMonitor,
+        balance,
+        projection[i].cweb * collateralConst,
+        wallet,
+        `collateral_${projection[i].token.toLowerCase()}`,
+        txMonitor,
       );
       if (isNewCollateralBalance) {
         balance = isNewCollateralBalance;
@@ -174,11 +171,11 @@ export async function chandeOrders(filterData: any, projection: any, wallet: Wal
     let balance = data?.content?.fees_stored ? Number(data.content.fees_stored) / 10 ** decimals : 0;
     for (let i = 0; i < newOrders.length; i += 1) {
       const isNewCollateralBalance = await checkCollateral(
-          balance,
-          newOrders[i].cweb * collateralConst,
-          wallet,
-          `collateral_${newOrders[i].token.toLowerCase()}`,
-          txMonitor,
+        balance,
+        newOrders[i].cweb * collateralConst,
+        wallet,
+        `collateral_${newOrders[i].token.toLowerCase()}`,
+        txMonitor,
       );
       if (isNewCollateralBalance) {
         balance = isNewCollateralBalance;
@@ -246,11 +243,7 @@ async function createOrder(symbol: string, amount: number, price: number, wallet
 }
 
 async function transfer(amount: number, fromAccount: string, toAccount: string, wallet: Wallet, txMonitor: any) {
-  try {
-    console.log('transfer amount:', amount);
-    console.log('transfer from account: ', fromAccount);
-    console.log('transfer to account: ', toAccount);
-
+  try{
     const transferQr = convertInfoToTransfer(fromAccount, toAccount, convertStringToBigInt(eFix(String(amount)), Currency.CWEB));//BigInt(Math.round(Number(amount) * 1e18) + 1));
     console.log(transferQr, 'transferQr transfer');
     const {l2TransactionData, newTxs} = await sentComposeTokenCommand(wallet, JSON.parse(transferQr), null, txMonitor);
@@ -270,25 +263,29 @@ async function transfer(amount: number, fromAccount: string, toAccount: string, 
 
 async function approveERC20(signer: ethers.Wallet, item: any, token: Currency) {
   const { L1_TOKEN_ADDRESS, L1_CONTRACT_ADDRESS_MAKER } = (ERC20_TOKENS as string[]).includes(token)
-      ? CONTRACT_PARAMS[token as ERC20Currency]
-      : { L1_TOKEN_ADDRESS: undefined, L1_CONTRACT_ADDRESS_MAKER: undefined };
+    ? CONTRACT_PARAMS[token as ERC20Currency]
+    : { L1_TOKEN_ADDRESS: undefined, L1_CONTRACT_ADDRESS_MAKER: undefined };
   if (!L1_TOKEN_ADDRESS && !L1_CONTRACT_ADDRESS_MAKER) return;
   const tokenAmount = item ? item.quote : 0n;
-  const decimals = decimalsForCurrency(token);
-  const sum = String(Number(tokenAmount) / 10 ** decimals);
+  // const decimals = decimalsForCurrency(token);
+  // const sum = String(Number(tokenAmount) / 10 ** decimals);
   const contractApprove = new ethers.Contract(L1_TOKEN_ADDRESS, erc20Abi).connect(signer);
 
-  const approvalTx = await contractApprove.getFunction('approve')(L1_CONTRACT_ADDRESS_MAKER, ethers.parseEther(sum));
+  try {
+    const approvalTx = await contractApprove.getFunction('approve')(L1_CONTRACT_ADDRESS_MAKER, tokenAmount);
 
-  await approvalTx.wait();
+    await approvalTx.wait();
+  } catch (e) {
+    console.log(e, 'error approvalTx');
 
-  const transferTx = await contractApprove.getFunction('transferFrom')(
-      signer.getAddress(),
-      L1_CONTRACT_ADDRESS_MAKER,
-      ethers.parseEther(sum),
-  );
+    const approvalTx0 = await contractApprove.getFunction('approve')(L1_CONTRACT_ADDRESS_MAKER, 0n);
 
-  await transferTx.wait();
+    await approvalTx0.wait();
+
+    const approvalTx1 = await contractApprove.getFunction('approve')(L1_CONTRACT_ADDRESS_MAKER, tokenAmount);
+
+    await approvalTx1.wait();
+  }
 }
 
 export async function sendC2Claim(item: any, token: Currency, privKey: string) {
@@ -296,12 +293,12 @@ export async function sendC2Claim(item: any, token: Currency, privKey: string) {
     console.log(`stack pact ${item.id}`);
     return;
   }
-
+  
   let rpcETH = 'https://geth-devblue-l1a.coinhq.store/';
   let rpcBNB = 'https://geth-devblue-l1b.coinhq.store/';
 
   console.log(process.env.MODE, 'MODE');
-  if (process.env.MODE === 'production'){
+  if (process.env.MODE === 'production' || process.env.MODE === 'production2'){
     rpcETH = 'https://mainnet.infura.io/v3/c7dfefe8fad848b692b7cdb1ce554a5b';
     rpcBNB = 'https://bsc-dataseed.binance.org/'
   }
@@ -314,10 +311,14 @@ export async function sendC2Claim(item: any, token: Currency, privKey: string) {
   const signer = new ethers.Wallet(privKey, provider);
 
   if ((ERC20_TOKENS as Currency[]).includes(token))
-    await approveERC20(signer, item, token);
+    try {
+      await approveERC20(signer, item, token);
+    } catch(e) {
+      console.log('error approveERC20', e);
+    }
 
   const { L1_CONTRACT_ADDRESS_MAKER, L1_CONTRACT_ABI_MAKER, L1_CALL_METHOD_NAME_MAKER } =
-      CONTRACT_PARAMS[token as EvmCurrency | ERC20Currency];
+    CONTRACT_PARAMS[token as EvmCurrency | ERC20Currency];
 
   const contract = new ethers.Contract(L1_CONTRACT_ADDRESS_MAKER, [L1_CONTRACT_ABI_MAKER], signer).connect(signer);
 
@@ -328,7 +329,7 @@ export async function sendC2Claim(item: any, token: Currency, privKey: string) {
   console.log(value, 'value');
 
   try {
-    contract.getFunction(L1_CALL_METHOD_NAME_MAKER)(
+    const tx = await contract.getFunction(L1_CALL_METHOD_NAME_MAKER)(
         ethers.toBigInt(item.id),
         item.quote,
         item.recipient,
@@ -336,13 +337,10 @@ export async function sendC2Claim(item: any, token: Currency, privKey: string) {
         {
           value,
         },
-    )
-        .then((text) => console.log('contract.getFunction', text))
-        .catch((er) => {
-          GLOBAL_WRONG_PACT.push(item.id);
-          console.error(er, 'error');
-        });
-
+      );
+    console.log('start waitcontract.getFunction', tx)
+    await tx.wait();
+    console.log('end wait contract.getFunction', tx);
   } catch (error) {
     GLOBAL_WRONG_PACT.push(item.id);
     console.error(error);

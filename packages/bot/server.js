@@ -84,6 +84,14 @@ let tokenPrice = {
 //         console.error('Error fetching UTXOs:', error);
 //     }
 // }
+app.get('/', async (req, res) => {
+    try {
+        res.send('Bot started');
+    }
+    catch (error) {
+        res.status(500).send('Failed to start bot');
+    }
+});
 // Route to start the bot
 app.get('/start-bot', async (req, res) => {
     try {
@@ -91,7 +99,8 @@ app.get('/start-bot', async (req, res) => {
         res.send('Bot started');
     }
     catch (error) {
-        res.status(500).send('Failed to start bot');
+        console.log(error);
+        res.status(500).send(`Failed to start bot: ${error}`);
     }
 });
 // Route to stop the bot
@@ -285,7 +294,7 @@ async function startBot() {
         botWorkPact(wallet);
     }, INTERVAL_PACT);
 }
-app.listen(5000, () => {
-    console.log('Server is running on port 5000');
+app.listen(5001, () => {
+    console.log('Server is running on port 3000');
 });
-// process.on('unhandledRejection', (reason, promise) => { console.error('Unhandled Rejection at:', promise, 'reason:', reason); });
+process.on('unhandledRejection', (reason, promise) => { console.error('Unhandled Rejection at:', promise, 'reason:', reason); });

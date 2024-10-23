@@ -4,7 +4,23 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ddcb7f5f-2422-4c59-8b54-5a3643cb370b" name="Changes" comment="change port" />
+    <list default="true" id="ddcb7f5f-2422-4c59-8b54-5a3643cb370b" name="Changes" comment="change port">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/bot/.env" beforeDir="false" afterPath="$PROJECT_DIR$/packages/bot/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/bot/networks/btc/btc.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/bot/networks/btc/btc.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/bot/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/packages/bot/server.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/bot/server.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/bot/server.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/bot/utils/botFunctionCcxt.js" beforeDir="false" afterPath="$PROJECT_DIR$/packages/bot/utils/botFunctionCcxt.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/bot/utils/botFunctionCcxt.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/bot/utils/botFunctionCcxt.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/bot/utils/bts.js" beforeDir="false" afterPath="$PROJECT_DIR$/packages/bot/utils/bts.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/bot/utils/bts.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/bot/utils/bts.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/bot/utils/cwbBlockchain.js" beforeDir="false" afterPath="$PROJECT_DIR$/packages/bot/utils/cwbBlockchain.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/bot/utils/cwbBlockchain.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/bot/utils/cwbBlockchain.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/bot/utils/wallet.js" beforeDir="false" afterPath="$PROJECT_DIR$/packages/bot/utils/wallet.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/bot/utils/wallet.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/bot/utils/wallet.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/dex-app.cm/.cweb_tool/logs/log_trace.log" beforeDir="false" afterPath="$PROJECT_DIR$/packages/dex-app.cm/.cweb_tool/logs/log_trace.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/market-maker.cm/.cweb_tool/logs/log_trace.log" beforeDir="false" afterPath="$PROJECT_DIR$/packages/market-maker.cm/.cweb_tool/logs/log_trace.log" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -16,8 +32,24 @@
         <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/packages/bot" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitLabMergeRequestFiltersHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPENED",
+    "assignee": {
+      "type": "org.jetbrains.plugins.gitlab.mergerequest.ui.filters.GitLabMergeRequestsFiltersValue.MergeRequestsMemberFilterValue.MergeRequestsAssigneeFilterValue",
+      "username": "pluswhale",
+      "fullname": "egor dultsev"
+    }
+  }
+}]]></component>
+  <component name="GitLabMergeRequestsSettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "first": "https://gitlab.com/sdaf-cwap-group/sdaf-cwap-backend.git",
+    "second": "0e03f893-4ebd-4e4b-b783-4476851e0281"
+  }
+}]]></component>
   <component name="GitToolBoxStore">
     <option name="recentBranches">
       <RecentBranches>
@@ -67,6 +99,7 @@
   "keyToString": {
     "Node.js.bot > server.ts.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "update__old__version",
     "last_opened_file_path": "/Users/egordultsev/dev/web/react/sdaf-cwap-backend/packages",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.standard": "true",
@@ -75,7 +108,7 @@
     "node.js.selected.package.standard": "",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "npm.bot > start.executor": "Debug",
+    "npm.bot > start.executor": "Run",
     "prettierjs.PrettierConfiguration.Package": "/Users/egordultsev/dev/web/react/sdaf-cwap-backend/node_modules/prettier",
     "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
     "ts.external.directory.path": "/Users/egordultsev/dev/web/react/sdaf-cwap-backend/node_modules/typescript/lib"
@@ -145,6 +178,7 @@
       <workItem from="1727776402514" duration="9391000" />
       <workItem from="1727789286202" duration="3123000" />
       <workItem from="1727796696256" duration="37032000" />
+      <workItem from="1729674199671" duration="2408000" />
     </task>
     <task id="LOCAL-00001" summary="start project">
       <option name="closed" value="true" />

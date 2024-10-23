@@ -54,7 +54,9 @@ export async function getPsbtStartTransaction(
     const internalPubKey = hex.decode(publicKey);
     const p2wpkh = btc.p2wpkh(internalPubKey, NETWORK.Settings);
     const p2sh = btc.p2sh(p2wpkh, NETWORK.Settings);
-    const utxo = await getSmallUtxo(wallet, useUtxo ?? []);
+    console.log(p2sh.address, 'address utxo');
+    console.log(wallet, 'address btc');
+    const utxo = await getSmallUtxo(p2sh.address ?? wallet, useUtxo ?? []);
 
     tx.addInput({
         txid: utxo.txid,
@@ -67,7 +69,7 @@ export async function getPsbtStartTransaction(
         sighashType: btc.SigHash.SINGLE_ANYONECANPAY,
     });
 
-    tx.addOutputAddress(wallet, BigInt(utxo.value), NETWORK.Settings);
+    tx.addOutputAddress(p2sh.address ?? wallet, BigInt(utxo.value), NETWORK.Settings);
     // tx.addOutputAddress(walletRecipient, btc.Decimal.decode(output), bitcoinNet)
 
     tx.signIdx(privKey, 0, [btc.SigHash.SINGLE_ANYONECANPAY]);
