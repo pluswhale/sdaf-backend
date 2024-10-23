@@ -342,7 +342,7 @@ async function startBot(botSettings: any) {
     functionTimer = true;
     // Start bot work intervals
     if (wallet && newTxMonitor) {
-        intervalBot(wallet, newTxMonitor);
+         await intervalBot(wallet, newTxMonitor);
     } else {
         throw new Error('No wallet or transaction monitor found');
     }
