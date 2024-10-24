@@ -11,8 +11,12 @@
       "*": ["*"]
     },
     "rootDir": ".",
-//    "types": ["vitest/globals"],
+    //    "types": ["vitest/globals"],
     "allowImportingTsExtensions": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "strictPropertyInitialization": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
   }
 }
+
