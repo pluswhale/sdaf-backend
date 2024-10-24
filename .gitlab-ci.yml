@@ -6,6 +6,7 @@ variables:
   BROWSER_PERFORMANCE_DISABLED: "true"
   CODE_QUALITY_DISABLED: "true"
   DAST_DISABLED: "true"
+  POSTGRES_ENABLED: "true"
   DEPENDENCY_SCANNING_DISABLED: "true"
   LICENSE_MANAGEMENT_DISABLED: "true"
   SAST_DISABLED: "true"
@@ -17,3 +18,16 @@ test:
   script:
     - echo "tests disabled"
   when: manual
+
+production:
+  # variables:
+  #  HELM_UPGRADE_EXTRA_ARGS: >-
+  #     --set ingress.annotations[0].key="kubernetes.io/ingress.class"
+  #     --set ingress.annotations[0].value="public"
+  #     --set ingress.annotations[1].key="cert-manager.io/cluster-issuer"
+  #     --set ingress.annotations[1].value="letsencrypt-prod"
+  #  HELM_UPGRADE_EXTRA_ARGS: |
+  #     --set ingress.enabled=false
+  environment:
+    name: production
+    url: http://$KUBE_INGRESS_BASE_DOMAIN
