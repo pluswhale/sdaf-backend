@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import sentTxMonitor, { sleep, walletWithMnemonic } from './utils/wallet';
+import sentTxMonitor, { walletWithMnemonic } from './utils/wallet';
 import { getAllMarketClaim, getAllUserPositions, getMarketMakerOrders } from './api';
 import { ACTIVITY_STATUS } from 'dex-app.cm';
 import { Currency } from './constants';
@@ -13,6 +13,7 @@ import { getCwebPriceFromCoinGekko } from './utils/api';
 import { get_all_utxos as getAllUtxos, get_failed_txs as getFailedTxs } from '@coinweb/wallet-lib';
 dotenv.config();
 const app = express();
+app.use(express.json());
 app.use(cors());
 const LIMIT = 100;
 const INTERVAL = 5 * 60 * 1000;
@@ -37,6 +38,8 @@ let partialPercent = 80;
 let botCreateOptions = [];
 let botPactOptions = [];
 let saveTxMonitor = undefined;
+let botInterval = null;
+let pactInterval = null;
 let tokenPrice = {
     BTC: 0,
     ETH: 0,
@@ -59,8 +62,8 @@ app.get('/', async (req, res) => {
 app.post('/start-bot', async (req, res) => {
     try {
         const botSettings = req.body || null;
-        console.log('bs', req);
-        // await startBot(botSettings);
+        console.log('bs', req.body);
+        await startBot(botSettings);
         res.send('Bot started with provided settings');
     }
     catch (error) {
@@ -223,9 +226,16 @@ async function intervalBot(wallet, txMonitor) {
         console.log(new Date(Date.now()).toISOString(), 'start date botWork intervalBot');
         const result = await botWork(wallet, txMonitor);
         console.log(result, 'result intervalBot');
-        await sleep(INTERVAL);
-        console.log(new Date(Date.now()).toISOString(), 'start date new botWork intervalBot');
-        await intervalBot(wallet, txMonitor);
+        // Wait for the interval duration before calling recursively
+        botInterval = setTimeout(async () => {
+            if (functionTimer) {
+                console.log(new Date(Date.now()).toISOString(), 'start date new botWork intervalBot');
+                await intervalBot(wallet, txMonitor);
+            }
+            else {
+                console.log(new Date(Date.now()).toISOString(), 'intervalBot stopped');
+            }
+        }, INTERVAL);
     }
     else {
         console.log(new Date(Date.now()).toISOString(), 'end date intervalBot');
@@ -233,7 +243,15 @@ async function intervalBot(wallet, txMonitor) {
 }
 function stopBot() {
     functionTimer = false;
-    timer = false;
+    // Clear all timers and intervals
+    if (botInterval) {
+        clearTimeout(botInterval);
+        botInterval = null;
+    }
+    if (pactInterval) {
+        clearInterval(pactInterval);
+        pactInterval = null;
+    }
     console.log(new Date(Date.now()).toISOString(), 'Stopping the bot');
 }
 async function startBot(botSettings) {
@@ -268,16 +286,22 @@ async function startBot(botSettings) {
     console.log('wallet', wallet);
     timer = true;
     functionTimer = true;
+    // Start bot work intervals
     if (wallet && newTxMonitor) {
-        intervalBot(wallet, newTxMonitor);
+        await intervalBot(wallet, newTxMonitor);
     }
     else {
-        throw new Error('no wallet and tx monitor');
+        throw new Error('No wallet or transaction monitor found');
     }
-    // pact task executed every INTERVAL_PACT
-    setInterval(() => {
-        console.log('Executing botWorkPact...');
-        botWorkPact(wallet);
+    // Start pact task interval
+    pactInterval = setInterval(() => {
+        if (functionTimer) {
+            console.log('Executing botWorkPact...');
+            botWorkPact(wallet);
+        }
+        else {
+            console.log('Pact interval stopped');
+        }
     }, INTERVAL_PACT);
 }
 app.listen(5001, () => {
