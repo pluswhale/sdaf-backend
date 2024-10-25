@@ -10,6 +10,7 @@ variables:
   DEPENDENCY_SCANNING_DISABLED: "true"
   LICENSE_MANAGEMENT_DISABLED: "true"
   SAST_DISABLED: "true"
+  POSTGRES_VERSION: "13"
 
   DOCKER_HOST: "tcp://docker-dind.gitlab-managed-apps:2375"
 
