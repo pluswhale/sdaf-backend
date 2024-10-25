@@ -21,8 +21,16 @@ test:
   when: manual
 
 deploy to production-green:
+  extends: .auto-deploy
   stage: deploy
-  script: make deploy
+  script:
+    - auto-deploy check_kube_domain
+    - auto-deploy download_chart
+    - auto-deploy use_kube_context
+    - auto-deploy ensure_namespace
+    - auto-deploy initialize_tiller
+    - auto-deploy create_secret
+    - auto-deploy deploy
   # variables:
   #   COLOR: "dev-green"
   # HELM_UPGRADE_EXTRA_ARGS: >-
@@ -39,3 +47,12 @@ deploy to production-green:
   environment:
     name: production-green
     url: http://$KUBE_INGRESS_BASE_DOMAIN
+
+
+production:
+  environment:
+    name: production
+    url: http://$KUBE_INGRESS_BASE_DOMAIN
+  when: manual
+
+
