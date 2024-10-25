@@ -20,8 +20,9 @@ test:
     - echo "tests disabled"
   when: manual
 
-production:
-  # variables:
+deploy to dev-green:
+  variables:
+    COLOR: "dev-green"
   #  HELM_UPGRADE_EXTRA_ARGS: >-
   #     --set ingress.annotations[0].key="kubernetes.io/ingress.class"
   #     --set ingress.annotations[0].value="public"
@@ -29,6 +30,10 @@ production:
   #     --set ingress.annotations[1].value="letsencrypt-prod"
   #  HELM_UPGRADE_EXTRA_ARGS: |
   #     --set ingress.enabled=false
+      # POSTGRES_HELM_UPGRADE_EXTRA_ARGS: >-
+      # --set persistence.storageClass=hdd-hostpath
+      # --set postgresqlPostgresPassword=$POSTGRES_PASSWORD
+      # --set postgresqlPassword=$POSTGRES_PASSWORD
   environment:
-    name: production
+    name: $COLOR
     url: http://$KUBE_INGRESS_BASE_DOMAIN
