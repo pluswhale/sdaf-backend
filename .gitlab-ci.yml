@@ -24,6 +24,8 @@ deploy to dev-green:
   stage: production
   variables:
     COLOR: "dev-green"
+  script:
+    - echo "Deploying to $COLOR environment"
   # HELM_UPGRADE_EXTRA_ARGS: >-
   #    --set ingress.annotations[0].key="kubernetes.io/ingress.class"
   #    --set ingress.annotations[0].value="public"
