@@ -58,8 +58,17 @@ app.get('/', async (req, res) => {
         res.status(500).send('Failed to start bot');
     }
 });
+app.post('/post', async (req, res) => {
+    try {
+        console.log('req body', req.body);
+        res.send('post success');
+    }
+    catch (error) {
+        res.status(500).send('Failed to start bot');
+    }
+});
 // Route to start the bot
-app.post('/start-bot', async (req, res) => {
+app.post('/start-bot/', async (req, res) => {
     try {
         const botSettings = req.body || null;
         console.log('bs', req.body);
@@ -73,7 +82,7 @@ app.post('/start-bot', async (req, res) => {
     }
 });
 // Route to stop the bot
-app.get('/stop-bot', (req, res) => {
+app.get('/stop-bot/', (req, res) => {
     stopBot();
     res.send('Bot stopped');
 });
@@ -304,7 +313,7 @@ async function startBot(botSettings) {
         }
     }, INTERVAL_PACT);
 }
-app.listen(5001, () => {
+app.listen(5000, () => {
     console.log('Server is running on port 3000');
 });
 process.on('unhandledRejection', (reason, promise) => { console.error('Unhandled Rejection at:', promise, 'reason:', reason); });
