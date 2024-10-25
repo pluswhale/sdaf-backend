@@ -22,6 +22,7 @@ test:
 
 deploy to production-green:
   stage: deploy
+  script: make deploy
   # variables:
   #   COLOR: "dev-green"
   # HELM_UPGRADE_EXTRA_ARGS: >-
