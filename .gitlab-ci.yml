@@ -20,9 +20,10 @@ test:
     - echo "tests disabled"
   when: manual
 
-deploy to dev-green:
-  variables:
-    COLOR: "dev-green"
+deploy to production-green:
+  stage: deploy
+  # variables:
+  #   COLOR: "dev-green"
   # HELM_UPGRADE_EXTRA_ARGS: >-
   #    --set ingress.annotations[0].key="kubernetes.io/ingress.class"
   #    --set ingress.annotations[0].value="public"
@@ -34,8 +35,6 @@ deploy to dev-green:
   # --set persistence.storageClass=hdd-hostpath
   # --set postgresqlPostgresPassword=$POSTGRES_PASSWORD
   # --set postgresqlPassword=$POSTGRES_PASSWORD
-  script:
-    - echo "Deploying to $COLOR environment"
   environment:
-    name: $COLOR
+    name: production-green
     url: http://$KUBE_INGRESS_BASE_DOMAIN
