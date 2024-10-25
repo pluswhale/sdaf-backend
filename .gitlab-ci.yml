@@ -21,7 +21,6 @@ test:
   when: manual
 
 deploy to dev-green:
-  stage: production
   variables:
     COLOR: "dev-green"
   # HELM_UPGRADE_EXTRA_ARGS: >-
