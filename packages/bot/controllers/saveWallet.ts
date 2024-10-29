@@ -9,8 +9,10 @@ export const saveWallet = async (req: Request, res: Response): Promise<void> => 
   const { walletName, walletType, currencyWallet } = req.body;
 
   try {
-    const { wallet_data }: { wallet_data: { publicKeyCompressed: string; publicKeyUncompressed: string } } = (
-      await axios.post('http://localhost:5002/api/generate-wallet')
+    const {
+      wallet_data,
+    }: { wallet_data: { publicKeyCompressed: string; publicKeyUncompressed: string; address: string } } = (
+      await axios.get(`http://localhost:5002/api/generate-wallet?walletType=${currencyWallet || 'BNB'}`)
     )?.data;
 
     console.log('wallet_data', wallet_data);
@@ -23,6 +25,9 @@ export const saveWallet = async (req: Request, res: Response): Promise<void> => 
       wallet.currency_type = currencyWallet;
       wallet.pub_key = wallet_data.publicKeyCompressed;
 
+      if (wallet_data.address) {
+        wallet.address = wallet_data.address;
+      }
       // Save the wallet in the database
       await walletRepository.save(wallet);
 

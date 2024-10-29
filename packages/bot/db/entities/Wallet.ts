@@ -35,5 +35,8 @@ export class Wallet {
 
   @Column({ type: 'varchar', length: 256, unique: true })
   pub_key: string;
+
+  @Column({ type: 'varchar', length: 256, unique: true, default: '' })
+  address: string;
 }
 
