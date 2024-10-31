@@ -5,7 +5,7 @@ import { AppDataSource } from '../db/AppDataSource';
 
 const walletRepository = AppDataSource.getRepository(Wallet);
 
-export const saveWallet = async (req: Request, res: Response): Promise<void> => {
+export const saveWallet = async (req: Request, res: Response): Promise<any> => {
   const { walletName, walletType, currencyWallet } = req.body;
 
   try {
@@ -31,9 +31,9 @@ export const saveWallet = async (req: Request, res: Response): Promise<void> => 
       // Save the wallet in the database
       await walletRepository.save(wallet);
 
-      res.status(201).send({ message: 'Wallet generated and stored' });
+      return res.status(201).send({ message: 'Wallet generated and stored' });
     } else {
-      res.status(400).send({ message: 'There was error in generating or saving wallet' });
+      return res.status(400).send({ message: 'There was error in generating or saving wallet' });
     }
   } catch (error) {
     console.error('Error generating or storing wallet:', error);

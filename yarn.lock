@@ -4543,6 +4543,7 @@ __metadata:
     eslint: "npm:^8.57.0"
     eslint-import-resolver-typescript: "npm:^3.6.3"
     eslint-plugin-import: "npm:^2.29.1"
+    express-validator: "npm:^7.2.0"
     husky: "npm:^9.1.4"
     js-yaml: "npm:^4.1.0"
     lint-staged: "npm:^15.2.4"
@@ -5459,6 +5460,16 @@ __metadata:
   version: 3.1.1
   resolution: "exponential-backoff@npm:3.1.1"
   checksum: 10c0/160456d2d647e6019640bd07111634d8c353038d9fa40176afb7cd49b0548bdae83b56d05e907c2cce2300b81cae35d800ef92fefb9d0208e190fa3b7d6bb579
+  languageName: node
+  linkType: hard
+
+"express-validator@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "express-validator@npm:7.2.0"
+  dependencies:
+    lodash: "npm:^4.17.21"
+    validator: "npm:~13.12.0"
+  checksum: 10c0/3197fdbe5e2f574432d11f5e2c7a367ef6473534c158f96d849a2426130d835076c3dd87d11483fe1932001e188eabac3aa9b0485c7944cf12fea10fc31cde3d
   languageName: node
   linkType: hard
 
@@ -7324,7 +7335,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:^4.17.14, lodash@npm:^4.17.15":
+"lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.21":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: 10c0/d8cbea072bb08655bb4c989da418994b073a608dffa608b09ac04b43a791b12aeae7cd7ad919aa4c925f33b48490b5cfe6c1f71d827956071dae2e7bb3a6b74c
@@ -11041,6 +11052,13 @@ __metadata:
   dependencies:
     builtins: "npm:^1.0.3"
   checksum: 10c0/064f21f59aefae6cc286dd4a50b15d14adb0227e0facab4316197dfb8d06801669e997af5081966c15f7828a5e6ff1957bd20886aeb6b9d0fa430e4cb5db9c4a
+  languageName: node
+  linkType: hard
+
+"validator@npm:~13.12.0":
+  version: 13.12.0
+  resolution: "validator@npm:13.12.0"
+  checksum: 10c0/21d48a7947c9e8498790550f56cd7971e0e3d724c73388226b109c1bac2728f4f88caddfc2f7ed4b076f9b0d004316263ac786a17e9c4edf075741200718cd32
   languageName: node
   linkType: hard
 

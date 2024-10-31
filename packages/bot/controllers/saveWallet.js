@@ -19,10 +19,10 @@ export const saveWallet = async (req, res) => {
             }
             // Save the wallet in the database
             await walletRepository.save(wallet);
-            res.status(201).send({ message: 'Wallet generated and stored' });
+            return res.status(201).send({ message: 'Wallet generated and stored' });
         }
         else {
-            res.status(400).send({ message: 'There was error in generating or saving wallet' });
+            return res.status(400).send({ message: 'There was error in generating or saving wallet' });
         }
     }
     catch (error) {
