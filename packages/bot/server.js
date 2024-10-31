@@ -320,16 +320,21 @@ async function startBot(botSettings) {
         }
     }, INTERVAL_PACT);
 }
+
 AppDataSource()
     ?.initialize()
     .then(() => {
     console.log('Database connected successfully');
 })
     .catch((error) => console.log('Error connecting to database:', error));
-app.listen(process.env.PORT, () => {
+
+app.use('/api/', appRoutes);
+
+app.listen(process.env.PORT || 5000, () => {
     console.log(`Server is running on port: ${process.env.PORT}`);
 });
-app.use('/api/', appRoutes);
+
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
+

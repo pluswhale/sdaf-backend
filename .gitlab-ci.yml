@@ -10,6 +10,7 @@ variables:
   DEPENDENCY_SCANNING_DISABLED: "true"
   LICENSE_MANAGEMENT_DISABLED: "true"
   SAST_DISABLED: "true"
+  POSTGRES_VERSION: "13"
 
   DOCKER_HOST: "tcp://docker-dind.gitlab-managed-apps:2375"
 
@@ -19,15 +20,37 @@ test:
     - echo "tests disabled"
   when: manual
 
-production:
+deploy to production-green:
+  extends: .auto-deploy
+  stage: deploy
+  script:
+    - auto-deploy check_kube_domain
+    - auto-deploy download_chart
+    - auto-deploy use_kube_context
+    - auto-deploy ensure_namespace
+    - auto-deploy initialize_tiller
+    - auto-deploy create_secret
+    - auto-deploy deploy
   # variables:
-  #  HELM_UPGRADE_EXTRA_ARGS: >-
-  #     --set ingress.annotations[0].key="kubernetes.io/ingress.class"
-  #     --set ingress.annotations[0].value="public"
-  #     --set ingress.annotations[1].key="cert-manager.io/cluster-issuer"
-  #     --set ingress.annotations[1].value="letsencrypt-prod"
-  #  HELM_UPGRADE_EXTRA_ARGS: |
-  #     --set ingress.enabled=false
+  #   COLOR: "dev-green"
+  # HELM_UPGRADE_EXTRA_ARGS: >-
+  #    --set ingress.annotations[0].key="kubernetes.io/ingress.class"
+  #    --set ingress.annotations[0].value="public"
+  #    --set ingress.annotations[1].key="cert-manager.io/cluster-issuer"
+  #    --set ingress.annotations[1].value="letsencrypt-prod"
+  # HELM_UPGRADE_EXTRA_ARGS: |
+  #    --set ingress.enabled=false
+  # POSTGRES_HELM_UPGRADE_EXTRA_ARGS: >-
+  # --set persistence.storageClass=hdd-hostpath
+  # --set postgresqlPostgresPassword=$POSTGRES_PASSWORD
+  # --set postgresqlPassword=$POSTGRES_PASSWORD
+  environment:
+    name: production-green
+    url: http://$KUBE_INGRESS_BASE_DOMAIN
+
+
+production:
   environment:
     name: production
     url: http://$KUBE_INGRESS_BASE_DOMAIN
+  when: manual
