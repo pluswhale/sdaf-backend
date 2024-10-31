@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { Wallet } from '../db/entities/Wallet';
 import { Request, Response } from 'express';
-import { AppDataSource } from '../db/AppDataSource';
+import AppDataSource from '../db/AppDataSource';
 
-const walletRepository = AppDataSource.getRepository(Wallet);
+const walletRepository = AppDataSource()?.getRepository(Wallet);
 
 export const saveWallet = async (req: Request, res: Response): Promise<any> => {
   const { walletName, walletType, currencyWallet } = req.body;
@@ -29,7 +29,7 @@ export const saveWallet = async (req: Request, res: Response): Promise<any> => {
         wallet.address = wallet_data.address;
       }
       // Save the wallet in the database
-      await walletRepository.save(wallet);
+      await walletRepository?.save(wallet);
 
       return res.status(201).send({ message: 'Wallet generated and stored' });
     } else {

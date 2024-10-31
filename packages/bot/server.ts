@@ -1,9 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import axios from 'axios';
-import { JsonRpcProvider } from '@ethersproject/providers';
 import cors from 'cors';
-import sentTxMonitor, { sleep, walletWithMnemonic } from './utils/wallet';
+import sentTxMonitor, { walletWithMnemonic } from './utils/wallet';
 import { getAllMarketClaim, getAllUserPositions, getMarketMakerOrders } from './api';
 import { ACTIVITY_STATUS, BtcChainData } from 'dex-app.cm';
 import { Currency } from './constants';
@@ -13,7 +11,7 @@ import HDKey from 'hdkey';
 import { getBinancePrice, getTestPrices } from './utils/binanceApi';
 import { getCwebPriceFromCoinGekko } from './utils/api';
 import { get_all_utxos as getAllUtxos, get_failed_txs as getFailedTxs } from '@coinweb/wallet-lib';
-import { AppDataSource } from './db/AppDataSource';
+import AppDataSource from './db/AppDataSource';
 import appRoutes from './routes/appRoutes';
 
 dotenv.config();
@@ -374,14 +372,15 @@ async function startBot(botSettings: any) {
   }, INTERVAL_PACT);
 }
 
-AppDataSource.initialize()
+AppDataSource()
+  ?.initialize()
   .then(() => {
     console.log('Database connected successfully');
   })
   .catch((error) => console.log('Error connecting to database:', error));
 
 app.listen(process.env.PORT, () => {
-  console.log('Server is running on port 3000');
+  console.log(`Server is running on port: ${process.env.PORT}`);
 });
 
 app.use('/api/', appRoutes);

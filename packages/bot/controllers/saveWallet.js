@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Wallet } from '../db/entities/Wallet';
-import { AppDataSource } from '../db/AppDataSource';
-const walletRepository = AppDataSource.getRepository(Wallet);
+import AppDataSource from '../db/AppDataSource';
+const walletRepository = AppDataSource()?.getRepository(Wallet);
 export const saveWallet = async (req, res) => {
     const { walletName, walletType, currencyWallet } = req.body;
     try {
@@ -18,7 +18,7 @@ export const saveWallet = async (req, res) => {
                 wallet.address = wallet_data.address;
             }
             // Save the wallet in the database
-            await walletRepository.save(wallet);
+            await walletRepository?.save(wallet);
             return res.status(201).send({ message: 'Wallet generated and stored' });
         }
         else {
