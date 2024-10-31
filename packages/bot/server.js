@@ -11,6 +11,8 @@ import HDKey from 'hdkey';
 import { getBinancePrice } from './utils/binanceApi';
 import { getCwebPriceFromCoinGekko } from './utils/api';
 import { get_all_utxos as getAllUtxos, get_failed_txs as getFailedTxs } from '@coinweb/wallet-lib';
+import AppDataSource from './db/AppDataSource';
+import appRoutes from './routes/appRoutes';
 dotenv.config();
 const app = express();
 app.use(express.json());
@@ -131,13 +133,15 @@ async function botWork(wallet, txMonitor) {
     const failedTxs = await getFailedTxs(txMonitor);
     console.log(utxoAll, 'utxoAll');
     console.log(failedTxs, 'failedTxs');
-    const curMas = botCreateOptions?.length ? botCreateOptions : [
-        { token: Currency.BNB, useC1: true, useC2: true },
-        { token: Currency.ETH, useC1: true, useC2: true },
-        { token: Currency.USDT_ETH, useC1: true, useC2: true },
-        { token: Currency.USDT_BNB, useC1: true, useC2: true },
-        { token: Currency.BTC, useC1: false, useC2: false },
-    ];
+    const curMas = botCreateOptions?.length
+        ? botCreateOptions
+        : [
+            { token: Currency.BNB, useC1: true, useC2: true },
+            { token: Currency.ETH, useC1: true, useC2: true },
+            { token: Currency.USDT_ETH, useC1: true, useC2: true },
+            { token: Currency.USDT_BNB, useC1: true, useC2: true },
+            { token: Currency.BTC, useC1: false, useC2: false },
+        ];
     for (let i = 0; i < curMas.length; i++) {
         try {
             console.log(curMas[i], 'currency');
@@ -147,16 +151,17 @@ async function botWork(wallet, txMonitor) {
             if (useC1) {
                 const dataC1 = await getAllUserPositions(currency, wallet.pub_key, { limit: LIMIT, offset: 0 });
                 console.log(dataC1, 'dataC1');
-                const filterDataC1 = dataC1?.filter(item => item.activityStatus === ACTIVITY_STATUS.ACTIVE);
+                const filterDataC1 = dataC1?.filter((item) => item.activityStatus === ACTIVITY_STATUS.ACTIVE);
                 const projectionC1 = await getValuePositions(currency, false);
                 console.log(filterDataC1, 'filterDataC1');
                 console.log(projectionC1, 'projectionC1');
                 if (currency === Currency.BTC) {
-                    const usedUtxoOrder = dataC1?.filter(item => item.activityStatus === ACTIVITY_STATUS.ERROR && item.error === 'UTXO is already in use');
+                    const usedUtxoOrder = dataC1?.filter((item) => item.activityStatus === ACTIVITY_STATUS.ERROR && item.error === 'UTXO is already in use');
                     console.log(usedUtxoOrder, 'usedUtxoOrder');
                     const usedUtxoMas = [];
                     usedUtxoOrder?.forEach((order) => {
-                        if (!usedUtxoMas.find(el => el.l1TxId === order?.chainData?.l1TxId && el.vout === order?.chainData?.vout)) {
+                        if (!usedUtxoMas.find((el) => el.l1TxId === order?.chainData?.l1TxId &&
+                            el.vout === order?.chainData?.vout)) {
                             usedUtxoMas.push({
                                 l1TxId: order?.chainData?.l1TxId ?? '',
                                 vout: order?.chainData?.vout ?? '',
@@ -177,7 +182,7 @@ async function botWork(wallet, txMonitor) {
                 const dataC2 = await getMarketMakerOrders(currency, wallet.pub_key, { limit: LIMIT, offset: 0 });
                 console.log(dataC2, 'dataC2');
                 //@ts-ignore
-                const filterDataC2 = dataC2?.filter(item => item.activityStatus === ACTIVITY_STATUS.ACTIVE);
+                const filterDataC2 = dataC2?.filter((item) => item.activityStatus === ACTIVITY_STATUS.ACTIVE);
                 const projectionC2 = await getValuePositions(currency, true);
                 console.log(filterDataC2, 'filterDataC2');
                 console.log(projectionC2, 'projectionC2');
@@ -191,13 +196,15 @@ async function botWork(wallet, txMonitor) {
     return 'end botWork';
 }
 async function botWorkPact(wallet) {
-    const curMas = botPactOptions?.length ? botPactOptions : [
-        { token: Currency.BNB, usePact: true },
-        { token: Currency.ETH, usePact: true },
-        { token: Currency.USDT_ETH, usePact: true },
-        { token: Currency.USDT_BNB, usePact: true },
-        { token: Currency.BTC, usePact: false },
-    ];
+    const curMas = botPactOptions?.length
+        ? botPactOptions
+        : [
+            { token: Currency.BNB, usePact: true },
+            { token: Currency.ETH, usePact: true },
+            { token: Currency.USDT_ETH, usePact: true },
+            { token: Currency.USDT_BNB, usePact: true },
+            { token: Currency.BTC, usePact: false },
+        ];
     for (let i = 0; i < curMas.length; i++) {
         try {
             console.log(curMas[i], 'currency');
@@ -313,7 +320,21 @@ async function startBot(botSettings) {
         }
     }, INTERVAL_PACT);
 }
-app.listen(5000, () => {
-    console.log('Server is running on port 3000');
+
+AppDataSource()
+    ?.initialize()
+    .then(() => {
+    console.log('Database connected successfully');
+})
+    .catch((error) => console.log('Error connecting to database:', error));
+
+app.use('/api/', appRoutes);
+
+app.listen(process.env.PORT || 5000, () => {
+    console.log(`Server is running on port: ${process.env.PORT}`);
 });
-process.on('unhandledRejection', (reason, promise) => { console.error('Unhandled Rejection at:', promise, 'reason:', reason); });
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
