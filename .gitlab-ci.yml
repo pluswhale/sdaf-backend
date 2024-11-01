@@ -13,12 +13,9 @@ variables:
   POSTGRES_VERSION: "13"
   DOCKER_HOST: "tcp://docker-dind.gitlab-managed-apps:2375"
 
-
+  
 .before_script: &before_script
-  before_script: &deploy_before_script_commands
-    - printenv ENV_SPECIFIC_VALUES > chart/env-specific--values.yaml || true
-    # - export APP_VALUES_FILES="${APP_VALUES_FILES} common-extra-helm-values env-specific-values
-
+  - printenv ENV_SPECIFIC_VALUES > chart/env-specific--values.yaml || true
 
 test:
   stage: test
