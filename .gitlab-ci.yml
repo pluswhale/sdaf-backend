@@ -13,10 +13,6 @@ variables:
   POSTGRES_VERSION: "13"
   DOCKER_HOST: "tcp://docker-dind.gitlab-managed-apps:2375"
 
-  
-.before_script: &before_script
-  - printenv ENV_SPECIFIC_VALUES > chart/env-specific--values.yaml || true
-
 test:
   stage: test
   script:
@@ -25,7 +21,7 @@ test:
 
 deploy to production-green:
   before_script:
-    <<: *before_script
+    - printenv ENV_SPECIFIC_VALUES > chart/env-specific--values.yaml || true
   extends: .auto-deploy
   stage: deploy
   script:
