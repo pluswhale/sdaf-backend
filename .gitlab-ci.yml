@@ -20,9 +20,16 @@ test:
   when: manual
 
 deploy to production-green:
-  # before_script:
-  #   - printenv ENV_SPECIFIC_VALUES >> chart/values.yaml || true
-  #   - echo "$ENV_SPECIFIC_VALUES"
+  before_script:
+    - printenv ENV_SPECIFIC_VALUES >> chart/env-specific-values.yaml || true
+    - export APP_VALUES_FILES="${APP_VALUES_FILES} env-specific-values"
+    - echo APP_VALUES_FILES=${APP_VALUES_FILES}
+    - |
+      for file in $APP_VALUES_FILES; do
+        export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS} --values chart/${file}.yaml"
+      done
+    - export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS}"
+    - echo HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS}
   extends: .auto-deploy
   stage: deploy
   script:
