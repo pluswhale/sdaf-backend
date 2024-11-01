@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { Wallet } from '../db/entities/Wallet';
 import { Request, Response } from 'express';
-import AppDataSource from '../db/AppDataSource';
+import { AppDataSource } from '../db/AppDataSource';
 
-const walletRepository = AppDataSource()?.getRepository(Wallet);
+const walletRepository = AppDataSource.getRepository(Wallet);
 
 export const saveWallet = async (req: Request, res: Response): Promise<any> => {
   const { walletName, walletType, currencyWallet } = req.body;

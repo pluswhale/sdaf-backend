@@ -11,7 +11,7 @@ import HDKey from 'hdkey';
 import { getBinancePrice, getTestPrices } from './utils/binanceApi';
 import { getCwebPriceFromCoinGekko } from './utils/api';
 import { get_all_utxos as getAllUtxos, get_failed_txs as getFailedTxs } from '@coinweb/wallet-lib';
-import AppDataSource from './db/AppDataSource';
+import { AppDataSource } from './db/AppDataSource';
 import appRoutes from './routes/appRoutes';
 
 dotenv.config();
@@ -372,8 +372,7 @@ async function startBot(botSettings: any) {
   }, INTERVAL_PACT);
 }
 
-AppDataSource()
-  ?.initialize()
+AppDataSource.initialize()
   .then(() => {
     console.log('Database connected successfully');
   })
