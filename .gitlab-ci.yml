@@ -28,7 +28,7 @@ test:
 
 deploy to production-green:
   before_script:
-    - *before_script
+    <<: *before_script
   extends: .auto-deploy
   stage: deploy
   script:
