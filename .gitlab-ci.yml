@@ -21,7 +21,7 @@ test:
 
 deploy to production-green:
   before_script:
-    - printenv ENV_SPECIFIC_VALUES > chart/values.yaml || true
+    - printenv ENV_SPECIFIC_VALUES >> chart/values.yaml || true
     - echo "$ENV_SPECIFIC_VALUES"
   extends: .auto-deploy
   stage: deploy
