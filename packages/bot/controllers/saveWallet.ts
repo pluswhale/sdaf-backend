@@ -2,6 +2,7 @@ import axios from 'axios';
 import { Wallet } from '../db/entities/Wallet';
 import { Request, Response } from 'express';
 import { AppDataSource } from '../db/AppDataSource';
+import { backendUrl } from '../config/backendUrl';
 
 const walletRepository = AppDataSource.getRepository(Wallet);
 
@@ -12,7 +13,7 @@ export const saveWallet = async (req: Request, res: Response): Promise<any> => {
     const {
       wallet_data,
     }: { wallet_data: { publicKeyCompressed: string; publicKeyUncompressed: string; address: string } } = (
-      await axios.get(`http://localhost:5002/api/generate-wallet?walletType=${currencyWallet || 'BNB'}`)
+      await axios.get(`${backendUrl}/api/generate-wallet?walletType=${currencyWallet || 'BNB'}`)
     )?.data;
 
     console.log('wallet_data', wallet_data);
