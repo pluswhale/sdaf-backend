@@ -13,14 +13,7 @@ variables:
   POSTGRES_VERSION: "13"
   DOCKER_HOST: "tcp://docker-dind.gitlab-managed-apps:2375"
 
-test:
-  stage: test
-  script:
-    - echo "tests disabled"
-  when: manual
-
-deploy to production-green:
-  before_script:
+.before_script: &before_script
     - printenv ENV_SPECIFIC_VALUES >> chart/env-specific-values.yaml || true
     - export APP_VALUES_FILES="${APP_VALUES_FILES} env-specific-values"
     - echo APP_VALUES_FILES=${APP_VALUES_FILES}
@@ -30,6 +23,26 @@ deploy to production-green:
       done
     - export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS}"
     - echo HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS}
+
+test:
+  stage: test
+  script:
+    - echo "tests disabled"
+  when: manual
+
+deploy to production-green:
+  # <<: *before_script
+
+  # before_script:
+  #   - printenv ENV_SPECIFIC_VALUES >> chart/env-specific-values.yaml || true
+  #   - export APP_VALUES_FILES="${APP_VALUES_FILES} env-specific-values"
+  #   - echo APP_VALUES_FILES=${APP_VALUES_FILES}
+  #   - |
+  #     for file in $APP_VALUES_FILES; do
+  #       export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS} --values chart/${file}.yaml"
+  #     done
+  #   - export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS}"
+  #   - echo HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS}
   extends: .auto-deploy
   stage: deploy
   script:
@@ -53,6 +66,7 @@ deploy to production-green:
   # --set persistence.storageClass=hdd-hostpath
   # --set postgresqlPostgresPassword=$POSTGRES_PASSWORD
   # --set postgresqlPassword=$POSTGRES_PASSWORD
+  <<: *before_script
   environment:
     name: production-green
     url: http://$KUBE_INGRESS_BASE_DOMAIN
