@@ -1,5 +1,5 @@
 import { check, validationResult } from 'express-validator';
-import { checkBalanceBNBToUSDT, checkBalanceBTCToUSDT } from '../services/getBalance';
+import { checkBalanceBTCToUSDT, checkBalanceUSDT } from '../services/getBalance';
 export var Currency;
 (function (Currency) {
     Currency["BTC"] = "BTC";
@@ -22,7 +22,7 @@ export const getBalanceOfAddress = async (req, res) => {
             return res.status(200).json({ data: balance });
         }
         case Currency.USDT_BEP20: {
-            const balance = await checkBalanceBNBToUSDT(address);
+            const balance = await checkBalanceUSDT(address);
             return res.status(200).json({ data: balance });
         }
         default: {

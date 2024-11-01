@@ -325,14 +325,10 @@ AppDataSource.initialize()
     console.log('Database connected successfully');
 })
     .catch((error) => console.log('Error connecting to database:', error));
-
-app.use('/api/', appRoutes);
-
-app.listen(process.env.PORT || 5000, () => {
+app.listen(process.env.PORT, () => {
     console.log(`Server is running on port: ${process.env.PORT}`);
 });
-
+app.use('/api/', appRoutes);
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
-
