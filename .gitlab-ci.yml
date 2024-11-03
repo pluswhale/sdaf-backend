@@ -45,7 +45,7 @@ deploy to production-green:
   # --set postgresqlPassword=$POSTGRES_PASSWORD
   before_script:
     - printenv ENV_SPECIFIC_VALUES >> chart/env-specific-values.yaml || true
-    - export APP_VALUES_FILES="${APP_VALUES_FILES} env-specific-values"
+    - export APP_VALUES_FILES="${APP_VALUES_FILES}"
     - echo APP_VALUES_FILES=${APP_VALUES_FILES}
     - |
       for file in $APP_VALUES_FILES; do
