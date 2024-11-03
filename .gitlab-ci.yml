@@ -45,18 +45,23 @@ deploy to production-green:
   # --set postgresqlPassword=$POSTGRES_PASSWORD
   before_script:
     - printenv ENV_SPECIFIC_VALUES >> chart/env-specific-values.yaml || true
-    - export APP_VALUES_FILES="${APP_VALUES_FILES}"
+    - echo "Current APP_VALUES_FILES: ${APP_VALUES_FILES}"
+    - export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS} --timeout 2h"
+    - echo "Initial HELM_UPGRADE_EXTRA_ARGS: ${HELM_UPGRADE_EXTRA_ARGS}"
     - echo APP_VALUES_FILES=${APP_VALUES_FILES}
-    - |
-      for file in $APP_VALUES_FILES; do
-        export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS} --values chart/${file}.yaml"
-      done
-    - export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS}"
-    - echo HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS}
+  - |
+    for file in $APP_VALUES_FILES; do
+      if [[ -f chart/${file}.yaml ]]; then
+        HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS} --values chart/${file}.yaml"
+      else
+        echo "File chart/${file}.yaml does not exist."
+      fi
+    done
+  - export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS}"
+  - echo "Final HELM_UPGRADE_EXTRA_ARGS: ${HELM_UPGRADE_EXTRA_ARGS}"
   # variables: 
   #   HELM_UPGRADE_EXTRA_ARGS: "--timeout 2h"
-  #   APP_VALUES_FILES: env-specific-values
-
+    APP_VALUES_FILES: env-specific-values
   environment:
     name: production-green
     url: http://$KUBE_INGRESS_BASE_DOMAIN
