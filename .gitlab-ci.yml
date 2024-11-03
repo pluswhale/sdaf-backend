@@ -45,9 +45,9 @@ deploy to production-green:
   # --set postgresqlPassword=$POSTGRES_PASSWORD
   before_script:
     - printenv ENV_SPECIFIC_VALUES >> chart/env-specific-values.yaml || true
-    - echo "Current APP_VALUES_FILES=${APP_VALUES_FILES}"
-    - export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS} --timeout 2h"
-    - echo "Initial HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS}"
+    - echo Current APP_VALUES_FILES=${APP_VALUES_FILES}
+    - export HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS} --timeout 2h
+    - echo Initial HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS}
     - echo APP_VALUES_FILES=${APP_VALUES_FILES}
     - |
       for file in $APP_VALUES_FILES; do
