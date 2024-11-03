@@ -58,10 +58,10 @@ deploy to production-green:
         fi
       done
     - export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS}"
-    - echo "Final HELM_UPGRADE_EXTRA_ARGS: ${HELM_UPGRADE_EXTRA_ARGS}"
-  # variables: 
-  #   HELM_UPGRADE_EXTRA_ARGS: "--timeout 2h"
-    APP_VALUES_FILES: env-specific-values
+    - echo Final HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS}
+  # # variables: 
+  # #   HELM_UPGRADE_EXTRA_ARGS: "--timeout 2h"
+  #   APP_VALUES_FILES: env-specific-values
   environment:
     name: production-green
     url: http://$KUBE_INGRESS_BASE_DOMAIN
