@@ -53,9 +53,9 @@ deploy to production-green:
       done
     - export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS}"
     - echo HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS}
-  variables: 
-    HELM_UPGRADE_EXTRA_ARGS: "--timeout 2h"
-    APP_VALUES_FILES: env-specific-values
+  # variables: 
+  #   HELM_UPGRADE_EXTRA_ARGS: "--timeout 2h"
+  #   APP_VALUES_FILES: env-specific-values
 
   environment:
     name: production-green
