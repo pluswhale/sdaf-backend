@@ -30,16 +30,13 @@ const USDT_ABI = [
     'function balanceOf(address owner) view returns (uint256)',
     'function decimals() view returns (uint8)', // Add the decimals method
 ];
-const USDT_CONTRACT_ADDRESS = '0x337610d27c682E347C9cD60BD4b3b107C9d34dDd'; // Replace with the testnet USDT contract address
+const USDT_CONTRACT_ADDRESS = '0x337610d27c682E347C9cD60BD4b3b107C9d34dDd'; // Replace with the mainnet USDT contract address
 export const checkBalanceUSDT = async (walletAddress) => {
     const provider = ethProvider;
     const usdtContract = new Contract(USDT_CONTRACT_ADDRESS, USDT_ABI, provider);
     // Get the balance of USDT in the wallet
     const balanceInUSDT = await usdtContract.balanceOf(walletAddress);
-    // Check the actual number of decimals used by this token
     const decimals = await usdtContract.decimals();
-    console.log('USDT Token Decimals:', decimals);
-    // Format the balance using the correct number of decimals
     const formattedBalance = parseFloat(formatUnits(balanceInUSDT, decimals));
-    return formattedBalance.toFixed(2); // Return balance formatted to two decimal places
+    return formattedBalance.toFixed(2);
 };

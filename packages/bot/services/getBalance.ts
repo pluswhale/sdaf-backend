@@ -15,7 +15,6 @@ export const checkBalanceBNBToUSDT = async (address: string) => {
   });
 
   const bnbToUsdtRate = response.data?.price;
-
   const balanceInUSDT = formattedBalance * parseFloat(bnbToUsdtRate);
 
   return balanceInUSDT.toFixed(2); // Round to two decimal places for readability
@@ -23,6 +22,7 @@ export const checkBalanceBNBToUSDT = async (address: string) => {
 
 export const checkBalanceBTCToUSDT = async (btcAddress: string) => {
   const balanceInBTC = await getBitcoinBalance(btcAddress);
+
   const response = await axios.get('https://api.binance.com/api/v3/ticker/price', {
     params: {
       symbol: 'BTCUSDT',
@@ -30,9 +30,7 @@ export const checkBalanceBTCToUSDT = async (btcAddress: string) => {
   });
 
   const btcToUsdtRate = parseFloat(response.data.price);
-
   const balanceInUSDT = balanceInBTC * btcToUsdtRate;
-
   return balanceInUSDT.toFixed(2);
 };
 
@@ -41,7 +39,7 @@ const USDT_ABI = [
   'function decimals() view returns (uint8)', // Add the decimals method
 ];
 
-const USDT_CONTRACT_ADDRESS = '0x337610d27c682E347C9cD60BD4b3b107C9d34dDd'; // Replace with the testnet USDT contract address
+const USDT_CONTRACT_ADDRESS = '0x337610d27c682E347C9cD60BD4b3b107C9d34dDd'; // Replace with the mainnet USDT contract address
 
 export const checkBalanceUSDT = async (walletAddress: string) => {
   const provider = ethProvider;
@@ -49,14 +47,9 @@ export const checkBalanceUSDT = async (walletAddress: string) => {
 
   // Get the balance of USDT in the wallet
   const balanceInUSDT = await usdtContract.balanceOf(walletAddress);
-
-  // Check the actual number of decimals used by this token
   const decimals = await usdtContract.decimals();
-  console.log('USDT Token Decimals:', decimals);
-
-  // Format the balance using the correct number of decimals
   const formattedBalance = parseFloat(formatUnits(balanceInUSDT, decimals));
 
-  return formattedBalance.toFixed(2); // Return balance formatted to two decimal places
+  return formattedBalance.toFixed(2);
 };
 

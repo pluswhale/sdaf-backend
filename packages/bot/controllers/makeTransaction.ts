@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { backendUrl } from 'config/backendUrl';
+import { backendUrl } from '../config/backendUrl';
 import { Request, Response } from 'express';
 import { check, validationResult } from 'express-validator';
 
@@ -27,7 +27,7 @@ export const makeTransaction = async (req: Request, res: Response): Promise<any>
   }
 
   try {
-    const response = await axios.post(`${backendUrl}/api/transaction`, req.body);
+    const response = await axios.post(`${backendUrl()}/api/transaction`, req.body);
 
     if (!response) {
       return res.status(404).json({ message: 'Can`t send transaction' });

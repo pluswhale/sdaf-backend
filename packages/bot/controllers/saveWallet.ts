@@ -13,7 +13,7 @@ export const saveWallet = async (req: Request, res: Response): Promise<any> => {
     const {
       wallet_data,
     }: { wallet_data: { publicKeyCompressed: string; publicKeyUncompressed: string; address: string } } = (
-      await axios.get(`${backendUrl}/api/generate-wallet?walletType=${currencyWallet || 'BNB'}`)
+      await axios.get(`${backendUrl()}/api/generate-wallet?walletType=${currencyWallet || 'BNB'}`)
     )?.data;
 
     console.log('wallet_data', wallet_data);
