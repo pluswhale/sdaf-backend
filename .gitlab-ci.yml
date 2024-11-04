@@ -71,3 +71,4 @@ production:
     name: production
     url: http://$KUBE_INGRESS_BASE_DOMAIN
   when: manual
+  
