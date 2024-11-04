@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { backendUrl } from '../config/backendUrl';
+import { backendUrl } from '../config';
 import { Request, Response } from 'express';
 import { check, validationResult } from 'express-validator';
 

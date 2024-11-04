@@ -1,7 +1,7 @@
 // wallet.controller.ts
-import { checkBalanceBTCToUSDT, checkBalanceUSDT } from '../services/getBalance';
+import { checkBalanceBTCToUSDT, checkBalanceUSDT } from '../services';
 import { AppDataSource } from '../db/AppDataSource';
-import { Wallet } from '../db/entities/Wallet';
+import { Wallet } from '../db/entities';
 import { Request, Response } from 'express';
 
 const walletRepository = AppDataSource.getRepository(Wallet);

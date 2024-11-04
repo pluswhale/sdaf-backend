@@ -1,5 +1,5 @@
 import { check, validationResult } from 'express-validator';
-import { checkBalanceBNBToUSDT, checkBalanceBTCToUSDT, checkBalanceUSDT } from '../services/getBalance';
+import { checkBalanceBTCToUSDT, checkBalanceUSDT } from '../services';
 import { Request, Response } from 'express';
 
 export enum Currency {

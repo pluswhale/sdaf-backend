@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { Wallet } from '../db/entities/Wallet';
+import { Wallet } from '../db/entities';
 import { Request, Response } from 'express';
 import { AppDataSource } from '../db/AppDataSource';
-import { backendUrl } from '../config/backendUrl';
+import { backendUrl } from '../config';
 
 const walletRepository = AppDataSource.getRepository(Wallet);
 

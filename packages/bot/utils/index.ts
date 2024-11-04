@@ -6,3 +6,5 @@ export * from './orders';
 export * from './truncateAddress';
 export * from './typeGuards';
 export * from './validation';
+export * from './getBtcToUsdt';
+
