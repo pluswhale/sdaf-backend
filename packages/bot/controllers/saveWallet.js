@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { Wallet } from '../db/entities/Wallet';
+import { Wallet } from '../db/entities';
 import { AppDataSource } from '../db/AppDataSource';
-import { backendUrl } from '../config/backendUrl';
+import { backendUrl } from '../config';
 const walletRepository = AppDataSource.getRepository(Wallet);
 export const saveWallet = async (req, res) => {
     const { walletName, walletType, currencyWallet } = req.body;

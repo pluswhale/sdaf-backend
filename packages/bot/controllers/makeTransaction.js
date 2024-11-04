@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { backendUrl } from '../config/backendUrl';
+import { backendUrl } from '../config';
 import { check, validationResult } from 'express-validator';
 export const validateTransaction = [
     check('pub_key').isString().withMessage('Public key must be a string'),

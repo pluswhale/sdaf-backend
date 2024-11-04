@@ -1,5 +1,5 @@
 import { check, validationResult } from 'express-validator';
-import { checkBalanceBTCToUSDT, checkBalanceUSDT } from '../services/getBalance';
+import { checkBalanceBTCToUSDT, checkBalanceUSDT } from '../services';
 export var Currency;
 (function (Currency) {
     Currency["BTC"] = "BTC";

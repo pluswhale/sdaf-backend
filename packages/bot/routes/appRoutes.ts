@@ -1,5 +1,5 @@
 import makeTransaction, { validateTransaction } from '../controllers/makeTransaction';
-import { getAllWallets } from '../controllers';
+import { createUsers, getAllWallets } from '../controllers';
 import { saveWallet } from '../controllers';
 import express from 'express';
 import { getBalanceOfAddress, validateGetBalance } from '../controllers';
@@ -11,7 +11,8 @@ router.post('/save/wallet', saveWallet);
 router.get('/wallets', getAllWallets);
 router.post('/transaction', validateTransaction, makeTransaction);
 router.get('/balance', validateGetBalance, getBalanceOfAddress);
-router.get('/login', loginUser);
+router.post('/login', loginUser);
+router.get('/create/users', createUsers);
 
 export default router;
 

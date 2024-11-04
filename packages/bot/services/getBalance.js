@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { ethProvider } from '../config/network';
+import { ethProvider } from '../config';
 import { Contract, formatEther, formatUnits } from 'ethers';
-import { getBitcoinBalance } from '../utils/getBtcToUsdt';
+import { getBitcoinBalance } from '../utils';
 export const checkBalanceBNBToUSDT = async (address) => {
     const provider = ethProvider;
     const balanceInBNB = await provider.getBalance(address);
