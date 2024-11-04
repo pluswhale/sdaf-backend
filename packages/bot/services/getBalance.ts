@@ -3,21 +3,13 @@ import { ethProvider } from '../config';
 import { Contract, formatEther, formatUnits } from 'ethers';
 import { getBitcoinBalance } from '../utils';
 
-export const checkBalanceBNBToUSDT = async (address: string) => {
-  const provider = ethProvider;
-  const balanceInBNB = await provider.getBalance(address);
-  const formattedBalance = parseFloat(formatEther(balanceInBNB));
+export const checkBalanceInBNB = async (address: string) => {
+  const provider = ethProvider; // Ensure `ethProvider` is connected to the BNB mainnet
+  const balanceInWei = await provider.getBalance(address);
 
-  const response = await axios.get('https://api.binance.com/api/v3/ticker/price', {
-    params: {
-      symbol: 'BNBUSDT',
-    },
-  });
+  const formattedBalance = parseFloat(formatEther(balanceInWei));
 
-  const bnbToUsdtRate = response.data?.price;
-  const balanceInUSDT = formattedBalance * parseFloat(bnbToUsdtRate);
-
-  return balanceInUSDT.toFixed(2); // Round to two decimal places for readability
+  return formattedBalance;
 };
 
 export const checkBalanceBTCToUSDT = async (btcAddress: string) => {
@@ -31,7 +23,7 @@ export const checkBalanceBTCToUSDT = async (btcAddress: string) => {
 
   const btcToUsdtRate = parseFloat(response.data.price);
   const balanceInUSDT = balanceInBTC * btcToUsdtRate;
-  return balanceInUSDT.toFixed(2);
+  return { usd: balanceInUSDT.toFixed(2), btc: balanceInBTC };
 };
 
 const USDT_ABI = [
