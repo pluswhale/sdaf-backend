@@ -28,11 +28,12 @@ deploy to production-green:
     APP_VALUES_FILES: env-specific-values
   before_script:
     - printenv ENV_SPECIFIC_VALUES > chart/env-specific-values.yaml || true
+    - cat chart/env-specific-values.yaml  
     - echo APP_VALUES_FILES=${APP_VALUES_FILES}
     - |
       for file in $APP_VALUES_FILES; do
         if [[ -f chart/${file}.yaml ]]; then
-          HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS} --values chart/${file}.yaml"
+          export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS} --values chart/${file}.yaml"
         else
           echo "File chart/${file}.yaml does not exist."
         fi
