@@ -134,9 +134,9 @@ spec:
 {{- end }}
         {{- end }}
         env:
-{{- if .Values.extraEnv }}
-{{- toYaml .Values.extraEnv | nindent 8 }}
-{{- end }}
+          {{- if .Values.extraEnv }}
+          {{- toYaml .Values.extraEnv | nindent 8 }}
+          {{- end }}
 {{- if .Values.postgresql.managed }}
         - name: POSTGRES_USER
           valueFrom:
