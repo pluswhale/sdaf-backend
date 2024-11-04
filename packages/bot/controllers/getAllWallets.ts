@@ -19,7 +19,6 @@ export const getAllWallets = async (req: Request, res: Response): Promise<any> =
         if (wallet.currency_type === 'BTC') {
           const price = await checkBalanceBTCToUSDT(wallet.address);
           return { ...wallet, price };
-          return wallet; // placeholder if you plan to add this logic later
         } else if (wallet.currency_type === 'USDT_BEP20') {
           const price = await checkBalanceUSDT(wallet.address);
           return { ...wallet, price };

@@ -30,8 +30,11 @@ const USDT_ABI = [
     'function balanceOf(address owner) view returns (uint256)',
     'function decimals() view returns (uint8)', // Add the decimals method
 ];
-const USDT_CONTRACT_ADDRESS = '0x337610d27c682E347C9cD60BD4b3b107C9d34dDd'; // Replace with the mainnet USDT contract address
+const USDT_CONTRACT_ADDRESS = (process.env.NETWORK === 'testnet'
+    ? process.env.USDT_CONTRACT_ADDRESS_TESTNET
+    : process.env.USDT_CONTRACT_ADDRESS_MAINNET) || '';
 export const checkBalanceUSDT = async (walletAddress) => {
+    console.log('usdt contract addres', USDT_CONTRACT_ADDRESS);
     const provider = ethProvider;
     const usdtContract = new Contract(USDT_CONTRACT_ADDRESS, USDT_ABI, provider);
     // Get the balance of USDT in the wallet
