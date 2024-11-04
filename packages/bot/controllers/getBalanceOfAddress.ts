@@ -1,5 +1,5 @@
 import { check, validationResult } from 'express-validator';
-import { checkBalanceBNBToUSDT, checkBalanceBTCToUSDT } from '../services/getBalance';
+import { checkBalanceBNBToUSDT, checkBalanceBTCToUSDT, checkBalanceUSDT } from '../services/getBalance';
 import { Request, Response } from 'express';
 
 export enum Currency {
@@ -30,7 +30,7 @@ export const getBalanceOfAddress = async (req: Request, res: Response): Promise<
     }
 
     case Currency.USDT_BEP20: {
-      const balance = await checkBalanceBNBToUSDT(address as string);
+      const balance = await checkBalanceUSDT(address as string);
 
       return res.status(200).json({ data: balance });
     }

@@ -11,7 +11,7 @@ import HDKey from 'hdkey';
 import { getBinancePrice } from './utils/binanceApi';
 import { getCwebPriceFromCoinGekko } from './utils/api';
 import { get_all_utxos as getAllUtxos, get_failed_txs as getFailedTxs } from '@coinweb/wallet-lib';
-import AppDataSource from './db/AppDataSource';
+import { AppDataSource } from './db/AppDataSource';
 import appRoutes from './routes/appRoutes';
 dotenv.config();
 const app = express();
@@ -320,21 +320,15 @@ async function startBot(botSettings) {
         }
     }, INTERVAL_PACT);
 }
-
-AppDataSource()
-    ?.initialize()
+AppDataSource.initialize()
     .then(() => {
     console.log('Database connected successfully');
 })
     .catch((error) => console.log('Error connecting to database:', error));
-
-app.use('/api/', appRoutes);
-
-app.listen(process.env.PORT || 5000, () => {
+app.listen(process.env.PORT, () => {
     console.log(`Server is running on port: ${process.env.PORT}`);
 });
-
+app.use('/api/', appRoutes);
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
-

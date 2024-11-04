@@ -1,11 +1,12 @@
 import axios from 'axios';
 import { Wallet } from '../db/entities/Wallet';
-import AppDataSource from '../db/AppDataSource';
-const walletRepository = AppDataSource()?.getRepository(Wallet);
+import { AppDataSource } from '../db/AppDataSource';
+import { backendUrl } from '../config/backendUrl';
+const walletRepository = AppDataSource.getRepository(Wallet);
 export const saveWallet = async (req, res) => {
     const { walletName, walletType, currencyWallet } = req.body;
     try {
-        const { wallet_data, } = (await axios.get(`http://localhost:5002/api/generate-wallet?walletType=${currencyWallet || 'BNB'}`))?.data;
+        const { wallet_data, } = (await axios.get(`${backendUrl()}/api/generate-wallet?walletType=${currencyWallet || 'BNB'}`))?.data;
         console.log('wallet_data', wallet_data);
         if (wallet_data) {
             //SAVE WALLET DATA IN DB

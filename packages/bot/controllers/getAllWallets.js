@@ -1,23 +1,27 @@
 // wallet.controller.ts
-import { checkBalanceBNBToUSDT } from '../services/getBalance';
-import AppDataSource from '../db/AppDataSource';
+import { checkBalanceBTCToUSDT, checkBalanceUSDT } from '../services/getBalance';
+import { AppDataSource } from '../db/AppDataSource';
 import { Wallet } from '../db/entities/Wallet';
+const walletRepository = AppDataSource.getRepository(Wallet);
 export const getAllWallets = async (req, res) => {
     try {
-        const walletRepository = AppDataSource()?.getRepository(Wallet);
-        const wallets = await walletRepository?.find();
-        const walletsWithPrice = wallets?.map(async (wallet) => {
+        const wallets = await walletRepository.find();
+        if (!wallets) {
+            return res.status(400).json({ message: 'Wallets not found' });
+        }
+        const walletsWithPrice = await Promise.all(wallets.map(async (wallet) => {
             if (wallet.currency_type === 'BTC') {
-                //TODO: Get price for BTC
+                const price = await checkBalanceBTCToUSDT(wallet.address);
+                return { ...wallet, price };
             }
             else if (wallet.currency_type === 'USDT_BEP20') {
-                const price = checkBalanceBNBToUSDT(wallet.address);
+                const price = await checkBalanceUSDT(wallet.address);
                 return { ...wallet, price };
             }
             else {
                 return wallet;
             }
-        });
+        }));
         res.status(200).json(walletsWithPrice);
     }
     catch (error) {
