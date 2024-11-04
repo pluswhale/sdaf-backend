@@ -26,6 +26,7 @@ deploy to production-green:
     # HELM_UPGRADE_EXTRA_ARGS: "--timeout 2h"
     ENV_SPECIFIC_VALUES: ${ENV_SPECIFIC_VALUES}
     APP_VALUES_FILES: env-specific-values
+    POSTGRES_ENABLED: "true"
   before_script:
     - printenv ENV_SPECIFIC_VALUES > chart/env-specific-values.yaml || true
     - cat chart/env-specific-values.yaml  
