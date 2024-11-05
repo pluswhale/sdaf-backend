@@ -28,7 +28,7 @@ export const makeTransaction = async (req: Request, res: Response): Promise<any>
 
   try {
     const response = await axios.post(
-      `http://production-sdaf-cwap-autotranzactor.autotranzactor-production.svc.cluster.local/api/transaction`,
+      `http://production-sdaf-cwap-autotranzactor.autotranzactor-production.svc.cluster.local:5000/api/transaction`,
       req.body,
     );
 
