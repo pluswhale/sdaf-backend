@@ -12,9 +12,9 @@ export const saveWallet = async (req: Request, res: Response): Promise<any> => {
   try {
     const {
       wallet_data,
-    }: { wallet_data: { publicKeyCompressed: string; publicKeyUncompressed: string; address: string } } = (
-      await axios.get(`${backendUrl()}/api/generate-wallet?walletType=${currencyWallet || 'BNB'}`)
-    )?.data;
+    }: {
+      wallet_data: { publicKeyCompressed: string; publicKeyUncompressed: string; address: string; mnemonic: string };
+    } = (await axios.get(`${backendUrl()}/api/generate-wallet?walletType=${currencyWallet || 'BNB'}`))?.data;
 
     console.log('wallet_data', wallet_data);
 
@@ -32,7 +32,7 @@ export const saveWallet = async (req: Request, res: Response): Promise<any> => {
       // Save the wallet in the database
       await walletRepository?.save(wallet);
 
-      return res.status(201).send({ message: 'Wallet generated and stored' });
+      return res.status(201).send({ message: 'Wallet generated and stored', data: { mnemonic: wallet_data.mnemonic } });
     } else {
       return res.status(400).send({ message: 'There was error in generating or saving wallet' });
     }
