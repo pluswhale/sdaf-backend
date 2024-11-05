@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { backendUrl } from '../config';
 import { check, validationResult } from 'express-validator';
 export const validateTransaction = [
     check('pub_key').isString().withMessage('Public key must be a string'),
@@ -18,7 +17,7 @@ export const makeTransaction = async (req, res) => {
         return res.status(400).json({ errors: errors.array() });
     }
     try {
-        const response = await axios.post(`${backendUrl()}/api/transaction`, req.body);
+        const response = await axios.post(`http://localhost:5002/api/transaction`, req.body);
         if (!response) {
             return res.status(404).json({ message: 'Can`t send transaction' });
         }

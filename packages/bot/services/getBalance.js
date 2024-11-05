@@ -5,10 +5,7 @@ import { getBitcoinBalance } from '../utils';
 export const checkBalanceInBNB = async (address) => {
     const provider = ethProvider; // Ensure `ethProvider` is connected to the BNB mainnet
     const balanceInWei = await provider.getBalance(address);
-    console.log('balanceInWei', balanceInWei.toString());
-    // Convert wei to BNB (1 BNB = 10^18 wei)
     const formattedBalance = parseFloat(formatEther(balanceInWei));
-    console.log('formattedBalance in BNB:', formattedBalance);
     return formattedBalance;
 };
 export const checkBalanceBTCToUSDT = async (btcAddress) => {
