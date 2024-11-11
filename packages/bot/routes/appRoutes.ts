@@ -22,9 +22,9 @@ router.post('/login', loginUser);
 router.get('/create/users', createUsers);
 
 router.post('/auto-send/start', validateTransaction, startAutoTransaction);
-router.post('/auto-send/stop/:walletAddress', stopAutoTransaction);
-router.post('/auto-send/transactions', getAllAutoTransactions);
-router.post('/auto-send/transactions/drop-all', dropAllAutoTransactions);
+router.delete('/auto-send/stop/:walletAddress', stopAutoTransaction);
+router.get('/auto-send/transactions', getAllAutoTransactions);
+router.get('/auto-send/transactions/drop-all', dropAllAutoTransactions);
 
 export default router;
 

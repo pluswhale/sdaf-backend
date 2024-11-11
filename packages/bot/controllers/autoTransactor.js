@@ -1,0 +1,74 @@
+import axios from 'axios';
+import { backendUrl } from '../config';
+import { check, validationResult } from 'express-validator';
+export const validateTransaction = [
+    check('pub_key').isString().withMessage('Public key must be a string'),
+    check('from').isString().withMessage('"From" address must be a string'),
+    check('to').isString().withMessage('"To" address must be a string'),
+    check('amount').isFloat({ gt: 0 }).withMessage('Amount must be a number greater than 0'),
+    check('currencyType').isString().withMessage('Currency type must be a string'),
+    check('interval')
+        .optional()
+        .isInt({ min: 1000 })
+        .withMessage('Interval must be an integer greater than or equal to 1000 ms'),
+];
+export const startAutoTransaction = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+        const response = await axios.post(`${backendUrl()}/api/auto-send/start`, req.body);
+        if (!response) {
+            return res.status(404).json({ message: 'Can`t send auto transaction' });
+        }
+        return res.status(200).json(response.data);
+    }
+    catch (error) {
+        console.error('Error sending auto transaction:', error);
+        res.status(500).json({ error: 'Failed to send auto transaction' });
+    }
+};
+export const stopAutoTransaction = async (req, res) => {
+    const walletAddress = req.params.walletAddress;
+    if (!walletAddress) {
+        return res.status(404).json({ message: 'No wallet address' });
+    }
+    try {
+        const response = await axios.delete(`${backendUrl()}/api/auto-send/stop/${walletAddress}/`);
+        if (!response) {
+            return res.status(404).json({ message: 'Can`t send auto transaction' });
+        }
+        return res.status(200).json(response.data);
+    }
+    catch (error) {
+        console.error('Error sending auto transaction:', error);
+        res.status(500).json({ error: 'Failed to send auto transaction' });
+    }
+};
+export const getAllAutoTransactions = async (req, res) => {
+    try {
+        const response = await axios.get(`${backendUrl()}/api/auto-send/transactions`);
+        if (!response) {
+            return res.status(404).json({ message: 'Can`t send auto transaction' });
+        }
+        return res.status(200).json(response.data);
+    }
+    catch (error) {
+        console.error('Error sending auto transaction:', error);
+        res.status(500).json({ error: 'Failed to send auto transaction' });
+    }
+};
+export const dropAllAutoTransactions = async (req, res) => {
+    try {
+        const response = await axios.get(`${backendUrl()}/api/auto-send/transactions/drop-all`);
+        if (!response) {
+            return res.status(404).json({ message: 'Can`t send auto transaction' });
+        }
+        return res.status(200).json(response.data);
+    }
+    catch (error) {
+        console.error('Error sending auto transaction:', error);
+        res.status(500).json({ error: 'Failed to send auto transaction' });
+    }
+};
