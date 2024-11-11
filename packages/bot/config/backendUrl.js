@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
-const enviroment = process.env.NETWORK;
+const enviroment = 'testnet';
 export const backendUrl = () => {
     if (enviroment) {
         return enviroment === 'testnet'
