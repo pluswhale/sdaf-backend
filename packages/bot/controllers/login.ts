@@ -2,6 +2,7 @@ import { AppDataSource } from '../db/AppDataSource';
 import { User } from '../db/entities';
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 
 const userRepository = AppDataSource.getRepository(User);
 
@@ -11,7 +12,16 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
     const user = await userRepository.findOne({ where: { username } });
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      res.status(200).send('Login successful');
+      const secretKey = process.env.SECRET_JWT_KEY;
+
+      const accessToken = jwt.sign({ user }, secretKey as string, { expiresIn: '1h' });
+      const refreshToken = jwt.sign({ user }, secretKey as string, { expiresIn: '1d' });
+
+      res
+        .cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'strict' })
+        .header('Authorization', accessToken)
+        .status(200)
+        .send('Login successful');
     } else {
       res.status(401).send('Invalid credentials');
     }

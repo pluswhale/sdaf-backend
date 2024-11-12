@@ -1,5 +1,5 @@
 import makeTransaction, { validateTransaction } from '../controllers/makeTransaction';
-import { createUsers, getAllWallets } from '../controllers';
+import { createUsers, getAllWallets, refreshToken } from '../controllers';
 import { saveWallet } from '../controllers';
 import express from 'express';
 import { getBalanceOfAddress, validateGetBalance } from '../controllers';
@@ -10,21 +10,23 @@ import {
   startAutoTransaction,
   stopAutoTransaction,
 } from '../controllers/autoTransactor';
+import { authenticate } from '../middlewares';
 
 const router = express.Router();
 
-router.post('/save/wallet', saveWallet);
-router.get('/wallets', getAllWallets);
-router.post('/transaction', validateTransaction, makeTransaction);
+router.post('/save/wallet', authenticate, saveWallet);
+router.get('/wallets', authenticate, getAllWallets);
+router.post('/transaction', validateTransaction, authenticate, makeTransaction);
 
 router.get('/balance', validateGetBalance, getBalanceOfAddress);
 router.post('/login', loginUser);
-router.get('/create/users', createUsers);
+router.post('/refresh', refreshToken);
+// router.get('/create/users', createUsers);
 
-router.post('/auto-send/start', validateTransaction, startAutoTransaction);
-router.delete('/auto-send/stop/:walletAddress', stopAutoTransaction);
-router.get('/auto-send/transactions', getAllAutoTransactions);
-router.get('/auto-send/transactions/drop-all', dropAllAutoTransactions);
+router.post('/auto-send/start', validateTransaction, authenticate, startAutoTransaction);
+router.delete('/auto-send/stop/:walletAddress', authenticate, stopAutoTransaction);
+router.get('/auto-send/transactions', authenticate, getAllAutoTransactions);
+router.get('/auto-send/transactions/drop-all', authenticate, dropAllAutoTransactions);
 
 export default router;
 
