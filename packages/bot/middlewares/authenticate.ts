@@ -19,7 +19,7 @@ const authenticate = (req: any, res: any, next: NextFunction) => {
 
   const secretKey = process.env.SECRET_JWT_KEY;
 
-  if (!accessToken && !refreshToken) {
+  if (!accessToken) {
     return res.status(401).send('Access Denied. No token provided.');
   }
 
