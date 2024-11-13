@@ -17,7 +17,7 @@ export const loginUser = async (req, res) => {
                 .cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'strict' })
                 .header('Authorization', accessToken)
                 .status(200)
-                .send({ refreshToken, accessToken });
+                .send('Login successful');
         }
         else {
             res.status(401).send('Invalid credentials');

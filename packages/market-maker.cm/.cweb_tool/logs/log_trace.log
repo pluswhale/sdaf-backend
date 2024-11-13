@@ -42,3 +42,7 @@
 2024-11-06T09:32:05.955Z [WARN]     WARNING: Missing optional field "home" on the contract-module, please set the url to the project's website
 2024-11-06T09:32:06.207Z [WARN]     WARNING: Missing optional field "home" on the contract-module, please set the url to the project's website
 2024-11-06T09:32:06.399Z [SUCCESS]  Pack command status: success
+2024-11-13T13:11:31.371Z [TRACE]    Initiate command cmd_pack
+2024-11-13T13:11:31.387Z [WARN]     WARNING: Missing optional field "home" on the contract-module, please set the url to the project's website
+2024-11-13T13:11:31.655Z [WARN]     WARNING: Missing optional field "home" on the contract-module, please set the url to the project's website
+2024-11-13T13:11:31.850Z [SUCCESS]  Pack command status: success
