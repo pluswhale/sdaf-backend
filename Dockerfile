@@ -1,10 +1,14 @@
-FROM node:22
+FROM node:22-alpine AS build
 WORKDIR /app
 COPY package*.json .
-RUN apt-get update && apt-get install -y jq
-RUN npm install -g typescript
+RUN npm install
 COPY . .
-RUN yarn install
-RUN yarn build
-WORKDIR /app/packages/bot
+RUN npm run build
+
+
+FROM node:22-alpine AS production
+WORKDIR /app
+COPY package*.json .
+RUN npm ci --only=production
+COPY --from=build /app/dist ./dist
 CMD ["npm", "start"]

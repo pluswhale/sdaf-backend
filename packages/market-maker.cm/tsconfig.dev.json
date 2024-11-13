@@ -1,9 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "declaration": true,
-    "rootDir": "./src",
-    "outDir": "./dist/out/cweb_dist/"
-  },
-  "exclude": ["**/__tests__", "**/__mocks__", "vitest.config.ts"]
-}

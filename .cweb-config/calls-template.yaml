@@ -1,2 +1,0 @@
-calls:
-    - !include packages/market-maker.cm/deploy/.calls-package.yaml
