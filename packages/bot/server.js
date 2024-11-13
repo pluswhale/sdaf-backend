@@ -17,7 +17,12 @@ import cookieParser from 'cookie-parser';
 dotenv.config();
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: '*', credentials: true }));
+app.use(cors({
+    origin: ['http://localhost:3000', 'https://sdafcwap.com'], // Replace with your frontend's actual origin
+    credentials: true, // Allows cookies and other credentials
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify the methods your API supports
+    allowedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie'], // Specify necessary headers
+}));
 app.use(cookieParser());
 const LIMIT = 100;
 const INTERVAL = 5 * 60 * 1000;

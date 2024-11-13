@@ -8,7 +8,11 @@ export const refreshToken = async (req, res) => {
     try {
         const decoded = jwt.verify(refreshToken, secretKey);
         const accessToken = jwt.sign({ user: decoded.user }, secretKey, { expiresIn: '1h' });
-        res.header('Authorization', accessToken).send(decoded.user);
+        res
+            .setHeader('Access-Control-Allow-Credentials', 'true')
+            .setHeader('Access-Control-Expose-Headers', 'Authorization, Set-Cookie')
+            .header('Authorization', accessToken)
+            .send(decoded.user);
     }
     catch (error) {
         return res.status(400).send('Invalid refresh token.');

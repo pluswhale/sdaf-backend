@@ -12,10 +12,12 @@ export const loginUser = async (req, res) => {
             const accessToken = jwt.sign({ user }, secretKey, { expiresIn: '1h' });
             const refreshToken = jwt.sign({ user }, secretKey, { expiresIn: '1d' });
             res
+                .setHeader('Access-Control-Allow-Credentials', 'true')
+                .setHeader('Access-Control-Expose-Headers', 'Authorization, Set-Cookie')
                 .cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'strict' })
                 .header('Authorization', accessToken)
                 .status(200)
-                .send('Login successful');
+                .send({ refreshToken, accessToken });
         }
         else {
             res.status(401).send('Invalid credentials');

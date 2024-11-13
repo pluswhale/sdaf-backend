@@ -21,6 +21,8 @@ const authenticate = (req, res, next) => {
             const decoded = jwt.verify(refreshToken, secretKey);
             const newAccessToken = jwt.sign({ user: decoded.user }, secretKey, { expiresIn: '1h' });
             res
+                .setHeader('Access-Control-Allow-Credentials', 'true')
+                .setHeader('Access-Control-Expose-Headers', 'Authorization, Set-Cookie')
                 .cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'strict' })
                 .header('Authorization', `Bearer ${newAccessToken}`);
             req.user = decoded.user;
