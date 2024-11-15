@@ -25,27 +25,30 @@ const authenticate = (req: any, res: any, next: NextFunction) => {
 
   try {
     const decoded = jwt.verify(accessToken as string, secretKey as string) as JwtPayloadWithUser;
+    console.log('decoded', decoded);
+
     req.user = decoded.user;
     next();
   } catch (error) {
-    if (!refreshToken) {
-      return res.status(401).send('Access Denied. No refresh token provided.');
-    }
+    return res.status(401).send('Access token Expired.');
+    // if (!refreshToken) {
+    //   return res.status(401).send('Access Denied. No refresh token provided.');
+    // }
 
-    try {
-      const decoded = jwt.verify(refreshToken, secretKey as string) as JwtPayloadWithUser;
-      const newAccessToken = jwt.sign({ user: decoded.user }, secretKey as string, { expiresIn: '30s' });
+    // try {
+    //   const decoded = jwt.verify(refreshToken, secretKey as string) as JwtPayloadWithUser;
+    //   const newAccessToken = jwt.sign({ user: decoded.user }, secretKey as string, { expiresIn: '30s' });
 
-      res
-        .setHeader('Access-Control-Allow-Credentials', 'true')
-        .setHeader('Access-Control-Expose-Headers', 'Authorization, Set-Cookie')
-        .cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'lax', secure: false })
-        .header('Authorization', `Bearer ${newAccessToken}`);
-      req.user = decoded.user;
-      next();
-    } catch (error) {
-      return res.status(400).send('Invalid Token.');
-    }
+    //   res
+    //     .setHeader('Access-Control-Allow-Credentials', 'true')
+    //     .setHeader('Access-Control-Expose-Headers', 'Authorization, Set-Cookie')
+    //     .cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'lax', secure: false })
+    //     .header('Authorization', `Bearer ${newAccessToken}`);
+    //   req.user = decoded.user;
+    //   next();
+    // } catch (error) {
+    //   return res.status(400).send('Invalid Token.');
+    // }
   }
 };
 
