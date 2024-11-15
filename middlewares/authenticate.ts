@@ -34,12 +34,12 @@ const authenticate = (req: any, res: any, next: NextFunction) => {
 
     try {
       const decoded = jwt.verify(refreshToken, secretKey as string) as JwtPayloadWithUser;
-      const newAccessToken = jwt.sign({ user: decoded.user }, secretKey as string, { expiresIn: '1h' });
+      const newAccessToken = jwt.sign({ user: decoded.user }, secretKey as string, { expiresIn: '30s' });
 
       res
         .setHeader('Access-Control-Allow-Credentials', 'true')
         .setHeader('Access-Control-Expose-Headers', 'Authorization, Set-Cookie')
-        .cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'strict' })
+        .cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'lax', secure: false })
         .header('Authorization', `Bearer ${newAccessToken}`);
       req.user = decoded.user;
       next();

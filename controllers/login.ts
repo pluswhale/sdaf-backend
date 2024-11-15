@@ -14,13 +14,13 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
     if (user && (await bcrypt.compare(password, user.password))) {
       const secretKey = process.env.SECRET_JWT_KEY;
 
-      const accessToken = jwt.sign({ user }, secretKey as string, { expiresIn: '1h' });
+      const accessToken = jwt.sign({ user }, secretKey as string, { expiresIn: '30s' });
       const refreshToken = jwt.sign({ user }, secretKey as string, { expiresIn: '1d' });
 
       res
         .setHeader('Access-Control-Allow-Credentials', 'true')
         .setHeader('Access-Control-Expose-Headers', 'Authorization, Set-Cookie')
-        .cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'strict' })
+        .cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'lax', secure: false })
         .header('Authorization', accessToken)
         .status(200)
         .send('Login successful');
