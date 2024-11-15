@@ -14,8 +14,8 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
     if (user && (await bcrypt.compare(password, user.password))) {
       const secretKey = process.env.SECRET_JWT_KEY;
 
-      const accessToken = jwt.sign({ user }, secretKey as string, { expiresIn: '30s' });
-      const refreshToken = jwt.sign({ user }, secretKey as string, { expiresIn: '1d' });
+      const accessToken = jwt.sign({ user }, secretKey as string, { expiresIn: '1d' });
+      const refreshToken = jwt.sign({ user }, secretKey as string, { expiresIn: '30d' });
 
       res
         .setHeader('Access-Control-Allow-Credentials', 'true')

@@ -15,7 +15,7 @@ export const refreshToken = async (req: Request, res: Response): Promise<any> =>
 
   try {
     const decoded = jwt.verify(refreshToken, secretKey as string) as unknown as JwtPayloadWithUser;
-    const accessToken = jwt.sign({ user: decoded.user }, secretKey as string, { expiresIn: '30s' });
+    const accessToken = jwt.sign({ user: decoded.user }, secretKey as string, { expiresIn: '1d' });
 
     res
       .setHeader('Access-Control-Allow-Credentials', 'true')
