@@ -1,5 +1,13 @@
 import makeTransaction, { validateTransaction } from '../controllers/makeTransaction';
-import { createUsers, getAllWallets, refreshToken } from '../controllers';
+import {
+  createUsers,
+  editMarginController,
+  getAllMarginsController,
+  getAllWallets,
+  getOrders,
+  refreshToken,
+  validateEditMargin,
+} from '../controllers';
 import { saveWallet } from '../controllers';
 import express from 'express';
 import { getBalanceOfAddress, validateGetBalance } from '../controllers';
@@ -17,16 +25,21 @@ const router = express.Router();
 router.post('/save/wallet', authenticate, saveWallet);
 router.get('/wallets', authenticate, getAllWallets);
 router.post('/transaction', validateTransaction, authenticate, makeTransaction);
-
 router.get('/balance', validateGetBalance, getBalanceOfAddress);
+
 router.post('/login', loginUser);
 router.post('/refresh', refreshToken);
-// router.get('/create/users', createUsers);
 
+//auto-send
 router.post('/auto-send/start', validateTransaction, authenticate, startAutoTransaction);
 router.delete('/auto-send/stop/:walletAddress', authenticate, stopAutoTransaction);
 router.get('/auto-send/transactions', authenticate, getAllAutoTransactions);
 router.get('/auto-send/transactions/drop-all', authenticate, dropAllAutoTransactions);
+
+//quoting engine
+router.get('/quoting-engine/margins', getAllMarginsController);
+router.put('/quoting-engine/margins/:id', validateEditMargin, editMarginController);
+router.get('/quoting-engine/orders', getOrders);
 
 export default router;
 

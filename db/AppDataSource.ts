@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import { Wallet } from './entities';
+import { Margin, Wallet } from './entities';
 import { User } from './entities';
 
 const InitDataSource = () => {
@@ -34,7 +34,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || 'sdaf',
   synchronize: true,
   logging: false,
-  entities: [Wallet, User],
+  entities: [Wallet, User, Margin],
   migrations: [],
   subscribers: [],
 });

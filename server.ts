@@ -4,6 +4,7 @@ import cors from 'cors';
 import { AppDataSource } from './db/AppDataSource';
 import appRoutes from './routes/appRoutes';
 import cookieParser from 'cookie-parser';
+import { seedMargins } from './db/seeders/MarginSeeder';
 
 dotenv.config();
 
@@ -20,7 +21,6 @@ app.use(
 );
 app.use(cookieParser());
 
-
 app.get('/', async (req, res) => {
   try {
     res.send('Bot started');
@@ -29,10 +29,10 @@ app.get('/', async (req, res) => {
   }
 });
 
-
 AppDataSource.initialize()
-  .then(() => {
+  .then(async () => {
     console.log('Database connected successfully');
+    await seedMargins(AppDataSource);
   })
   .catch((error) => console.log('Error connecting to database:', error));
 
