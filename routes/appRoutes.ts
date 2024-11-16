@@ -1,12 +1,13 @@
 import makeTransaction, { validateTransaction } from '../controllers/makeTransaction';
 import {
-  createUsers,
   editMarginController,
   getAllMarginsController,
   getAllWallets,
   getOrders,
   refreshToken,
+  setUpMinAndMaxWallet,
   validateEditMargin,
+  validateSetUpMixMaxInWallet,
 } from '../controllers';
 import { saveWallet } from '../controllers';
 import express from 'express';
@@ -26,6 +27,7 @@ router.post('/save/wallet', authenticate, saveWallet);
 router.get('/wallets', authenticate, getAllWallets);
 router.post('/transaction', validateTransaction, authenticate, makeTransaction);
 router.get('/balance', validateGetBalance, getBalanceOfAddress);
+router.put('/wallet/update-minmax/:id', validateSetUpMixMaxInWallet, setUpMinAndMaxWallet);
 
 router.post('/login', loginUser);
 router.post('/refresh', refreshToken);

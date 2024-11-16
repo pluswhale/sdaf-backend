@@ -8,4 +8,5 @@ export * from './refreshToken';
 export * from './getAllMargins';
 export * from './editMargin';
 export * from './getOrders';
+export * from './setUpMinAndMaxBalance';
 

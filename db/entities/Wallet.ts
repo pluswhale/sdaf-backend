@@ -38,5 +38,11 @@ export class Wallet {
 
   @Column({ type: 'varchar', length: 256, unique: true, default: '' })
   address: string;
+
+  @Column({ type: 'varchar', default: 0 })
+  minBalance: string;
+
+  @Column({ type: 'varchar', default: 0 })
+  maxBalance: string;
 }
 
