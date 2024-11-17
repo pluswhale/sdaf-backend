@@ -25,7 +25,7 @@ const router = express.Router();
 
 router.post('/save/wallet', authenticate, saveWallet);
 router.get('/wallets', authenticate, getAllWallets);
-router.post('/transaction', validateTransaction, authenticate, makeTransaction);
+// router.post('/transaction', validateTransaction, authenticate, makeTransaction);
 router.get('/balance', validateGetBalance, getBalanceOfAddress);
 router.put('/wallet/update-minmax/:id', validateSetUpMixMaxInWallet, setUpMinAndMaxWallet);
 
@@ -33,10 +33,10 @@ router.post('/login', loginUser);
 router.post('/refresh', refreshToken);
 
 //auto-send
-router.post('/auto-send/start', validateTransaction, authenticate, startAutoTransaction);
-router.delete('/auto-send/stop/:walletAddress', authenticate, stopAutoTransaction);
-router.get('/auto-send/transactions', authenticate, getAllAutoTransactions);
-router.get('/auto-send/transactions/drop-all', authenticate, dropAllAutoTransactions);
+// router.post('/auto-send/start', validateTransaction, authenticate, startAutoTransaction);
+// router.delete('/auto-send/stop/:walletAddress', authenticate, stopAutoTransaction);
+// router.get('/auto-send/transactions', authenticate, getAllAutoTransactions);
+// router.get('/auto-send/transactions/drop-all', authenticate, dropAllAutoTransactions);
 
 //quoting engine
 router.get('/quoting-engine/margins', getAllMarginsController);
