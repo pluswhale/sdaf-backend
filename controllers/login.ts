@@ -24,7 +24,7 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
         .setHeader('Access-Control-Allow-Credentials', 'true')
         .setHeader('Access-Control-Expose-Headers', 'Authorization, Set-Cookie')
         .cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'lax', secure: false })
-        .header('Authorization', accessToken)
+        .header('Authorization', `Bearer ${accessToken}`)
         .status(200)
         .send('Login successful');
     } else {
