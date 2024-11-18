@@ -15,15 +15,19 @@ export const checkBalanceInBNB = async (address: string) => {
 export const checkBalanceBTCToUSDT = async (btcAddress: string) => {
   const balanceInBTC = await getBitcoinBalance(btcAddress);
 
-  const response = await axios.get('https://api.binance.com/api/v3/ticker/price', {
-    params: {
-      symbol: 'BTCUSDT',
-    },
-  });
+  try {
+    const response = await axios.get('https://api.binance.com/api/v3/ticker/price', {
+      params: {
+        symbol: 'BTCUSDT',
+      },
+    });
 
-  const btcToUsdtRate = parseFloat(response.data.price);
-  const balanceInUSDT = balanceInBTC * btcToUsdtRate;
-  return { usd: balanceInUSDT.toFixed(2), btc: balanceInBTC };
+    const btcToUsdtRate = parseFloat(response.data.price);
+    const balanceInUSDT = balanceInBTC * btcToUsdtRate;
+    return { usd: balanceInUSDT.toFixed(2), btc: balanceInBTC };
+  } catch (error) {
+    console.log('error get btc price: ', error);
+  }
 };
 
 const USDT_ABI = [
