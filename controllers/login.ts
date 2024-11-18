@@ -11,10 +11,13 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
   try {
     const user = await userRepository.findOne({ where: { username } });
 
+    console.log('bod', req.body);
+    console.log('urser', user);
+
     if (user && (await bcrypt.compare(password, user.password))) {
       const secretKey = process.env.SECRET_JWT_KEY;
 
-      const accessToken = jwt.sign({ user }, secretKey as string, { expiresIn: '10s' });
+      const accessToken = jwt.sign({ user }, secretKey as string, { expiresIn: '1m' });
       const refreshToken = jwt.sign({ user }, secretKey as string, { expiresIn: '10m' });
 
       res
