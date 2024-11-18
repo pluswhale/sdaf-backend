@@ -24,7 +24,7 @@ import { authenticate } from '../middlewares';
 const router = express.Router();
 
 router.post('/save/wallet', authenticate, saveWallet);
-router.get('/wallets', getAllWallets);
+router.get('/wallets', authenticate, getAllWallets);
 // router.post('/transaction', validateTransaction, authenticate, makeTransaction);
 router.get('/balance', validateGetBalance, getBalanceOfAddress);
 router.put('/wallet/update-minmax/:id', validateSetUpMixMaxInWallet, setUpMinAndMaxWallet);
