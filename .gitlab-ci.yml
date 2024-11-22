@@ -13,6 +13,7 @@ variables:
   POSTGRES_VERSION: "13"
   DOCKER_HOST: "tcp://docker-dind.gitlab-managed-apps:2375"
 
+
 test:
   stage: test
   script:
