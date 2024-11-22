@@ -3,99 +3,76 @@ import { Request, Response } from 'express';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
+import crypto from 'crypto';
+
 interface AssetBalance {
   asset: string;
   free: string;
   locked: string;
 }
 
-export const getUserBalanceWithoutWalletId = async (req: Request, res: Response): Promise<void> => {
+export const getUserBalance = async (req: Request, res: Response): Promise<void> => {
   try {
     const timestamp = Date.now().toString();
-    const apiKeys = [
-      { apiKey: process.env.CEFFU_API_KEY_BTC!, apiSecret: process.env.CEFFU_API_SECRET_BTC! },
-      { apiKey: process.env.CEFFU_API_KEY_USDT!, apiSecret: process.env.CEFFU_API_SECRET_USDT! },
-      { apiKey: process.env.CEFFU_API_KEY_BNB!, apiSecret: process.env.CEFFU_API_SECRET_BNB! },
-    ];
 
-    const balances = [];
-    let totalUsdValue = 0;
+    const apiKey = process.env.CEFFU_API_KEY_WALLET!;
+    const apiSecret = process.env.CEFFU_API_SECRET_WALLET!;
 
-    for (const keyPair of apiKeys) {
-      const params = {
-        timestamp,
-        pageLimit: '500',
-        pageNo: '1',
-      };
+    const params = {
+      timestamp,
+      pageLimit: '500',
+      pageNo: '1',
+    };
 
-      const queryString = new URLSearchParams(params).toString();
-      const signature = signRequest(queryString, keyPair.apiSecret);
+    const queryString = new URLSearchParams(params).toString();
+    const signature = signRequest(queryString, apiSecret);
 
-      const headers = {
-        'open-apikey': keyPair.apiKey,
-        signature,
-        'Content-Type': 'application/json',
-      };
+    const headers = {
+      'open-apikey': apiKey,
+      signature,
+      'Content-Type': 'application/json',
+    };
 
-      const endpoint = 'https://open-api.ceffu.com/open-api/v1/wallet/asset/list';
+    const endpoint = 'https://open-api.ceffu.com/open-api/v1/wallet/asset/list';
 
-      try {
-        const response = await axios.get(endpoint, {
-          headers,
-          params,
+    try {
+      const response = await axios.get(endpoint, {
+        headers,
+        params,
+      });
+
+      if (response.data.code === '000000') {
+        const assetsData = response.data.data?.data || [];
+
+        const assets = assetsData.map((asset: any) => asset.asset);
+        const usdPrices = await fetchUsdPrices(assets);
+
+        let totalUsdValue = 0;
+        const balances = assetsData.map((asset: any) => {
+          const usdValue = parseFloat(asset.free) * (usdPrices[asset.asset] || 0);
+          totalUsdValue += usdValue;
+          return {
+            asset: asset.asset,
+            free: asset.free,
+            locked: asset.locked,
+            usdValue: usdValue.toFixed(2),
+          };
         });
 
-        if (response.data.code === '000000') {
-          const assetsData = response.data.data?.data || [];
-
-          break;
-        }
-      } catch (error: any) {
-        console.error(`Error with API key ${keyPair.apiKey}:`, error.response?.data || error.message);
-        continue;
+        res.status(200).json({ balances, totalUsdValue: totalUsdValue.toFixed(2) });
+      } else {
+        console.error('API Error:', response.data);
+        res.status(500).json({ error: 'Failed to fetch balances' });
       }
+    } catch (error: any) {
+      console.error('Error fetching balances:', error.response?.data || error.message);
+      res.status(500).json({ error: 'Failed to fetch balances' });
     }
   } catch (error: any) {
-    console.error('Error fetching balances:', error.response?.data || error.message);
-    res.status(500).json({ error: 'Failed to fetch balances' });
+    console.error('Unexpected Error:', error.message);
+    res.status(500).json({ error: 'An unexpected error occurred' });
   }
 };
-
-const fetchCeffuBalance = async (apiKey: string, apiSecret: string, asset: string): Promise<AssetBalance> => {
-  const timestamp = Date.now();
-  const params = {
-    timestamp,
-    bizType: 10,
-    walletType: 10,
-  };
-
-  const queryString = new URLSearchParams(params as any).toString();
-
-  const signature = signRequest(queryString, apiSecret);
-
-  const headers = {
-    'open-apikey': apiKey,
-    signature,
-  };
-
-  const endpoint = 'https://open-api.ceffu.com/open-api/v1/account';
-
-  const response = await axios.get(endpoint, {
-    headers,
-    params,
-  });
-
-  const balances: AssetBalance[] = response.data.data.balances;
-  const assetBalance = balances.find((b) => b.asset === asset);
-
-  if (!assetBalance) {
-    throw new Error(`Asset ${asset} not found in balances`);
-  }
-
-  return assetBalance;
-};
-
-import crypto from 'crypto';
 
 export const signRequest = (data: string, secret: string): string => {
   const privateKey = crypto.createPrivateKey({

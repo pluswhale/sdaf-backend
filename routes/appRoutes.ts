@@ -20,8 +20,8 @@ import {
   stopAutoTransaction,
 } from '../controllers/autoTransactor';
 import { authenticate } from '../middlewares';
-import { getUserBalanceWithoutWalletId } from '../controllers/getUserBalanceCeffu';
 import { getWalletList } from '../controllers/getWalletList';
+import { getUserBalance } from '../controllers/getUserBalanceCeffu';
 
 const router = express.Router();
 
@@ -46,7 +46,7 @@ router.put('/quoting-engine/margins/:id', validateEditMargin, editMarginControll
 router.get('/quoting-engine/orders', getOrders);
 
 // CEFFU Prime Wallets Balances
-router.get('/balance', getUserBalanceWithoutWalletId);
+router.get('/balance', getUserBalance);
 router.get('/wallet-ceffu', getWalletList);
 
 export default router;
