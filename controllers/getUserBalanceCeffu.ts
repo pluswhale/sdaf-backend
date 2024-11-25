@@ -46,62 +46,42 @@ export const getUserBalance = async (req: Request, res: Response): Promise<void>
 
     const endpoint = 'https://open-api.ceffu.com/open-api/v1/wallet/asset/list';
 
-    const response = await axios.get(endpoint, {
-      headers,
-      params,
-    });
+    try {
+      const response = await axios.get(endpoint, {
+        headers,
+        params,
+      });
 
-    if (response.data.code === '000000') {
-      const assetsData = response.data.data?.data || [];
-      res.status(200).json({ balance: assetsData });
-    } else {
-      res.status(500).json({ error: response.data.message });
+      if (response.data.code === '000000') {
+        const assetsData = response.data.data?.data || [];
+
+        const assets = assetsData.map((asset: any) => asset.coinSymbol);
+        const usdPrices = await fetchUsdPrices(assets);
+
+        let totalUsdValue = 0;
+        const balances: AssetBalance[] = assetsData.map((asset: any) => {
+          const usdValue = parseFloat(asset.amount) * (usdPrices[asset.coinSymbol] || 0);
+          totalUsdValue += usdValue;
+          return {
+            asset: asset.coinSymbol,
+            free: asset.availableAmount,
+            locked: asset.totalAmountWithMirror,
+            usdValue: usdValue.toFixed(2),
+          };
+        });
+
+        res.status(200).json({ balances, totalUsdValue: totalUsdValue.toFixed(2) });
+      } else {
+        console.error('API Error:', response.data);
+        res.status(500).json({ error: 'Failed to fetch balances' });
+      }
+    } catch (error: any) {
+      console.error('Error fetching balances:', error.response?.data || error.message);
+      res.status(500).json({ error: 'Failed to fetch balances' });
     }
-
-    // try {
-    //   const response = await axios.get(endpoint, {
-    //     headers,
-    //     params,
-    //   });
-
-    //   if (response.data.code === '000000') {
-    //     const assetsData = response.data.data?.data || [];
-
-    //     const assets = assetsData.map((asset: any) => asset.coinSymbol);
-    //     const usdPrices = await fetchUsdPrices(assets);
-
-    //     let totalUsdValue = 0;
-    //     const balances: AssetBalance[] = assetsData.map((asset: any) => {
-    //       const usdValue = parseFloat(asset.amount) * (usdPrices[asset.coinSymbol] || 0);
-    //       totalUsdValue += usdValue;
-    //       return {
-    //         asset: asset.coinSymbol,
-    //         free: asset.availableAmount,
-    //         locked: asset.totalAmountWithMirror,
-    //         usdValue: usdValue.toFixed(2),
-    //       };
-    //     });
-
-    //     res.status(200).json({ balances, totalUsdValue: totalUsdValue.toFixed(2) });
-    //   } else {
-    //     console.error('API Error:', response.data);
-    //     res.status(500).json({ error: 'Failed to fetch balances' });
-    //   }
-    // } catch (error: any) {
-    //   console.error('Error fetching balances:', error.response?.data || error.message);
-    //   res.status(500).json({ error: 'Failed to fetch balances' });
-    // }
   } catch (error: any) {
-    console.error('Error fetching assets balance list:', error.response?.data || error.message);
-    const errorDetails = error.response?.data || error.message;
-    const apiKey = process.env.CEFFU_API_KEY_WALLET!;
-    res.status(500).json({
-      error: 'Failed to fetch assets balance list',
-      details: {
-        errorDetails: errorDetails,
-        apiKey: apiKey,
-      },
-    });
+    console.error('Unexpected Error:', error.message);
+    res.status(500).json({ error: 'An unexpected error occurred' });
   }
 };
 
