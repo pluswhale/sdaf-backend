@@ -73,15 +73,24 @@ export const getUserBalance = async (req: Request, res: Response): Promise<void>
         res.status(200).json({ balances, totalUsdValue: totalUsdValue.toFixed(2) });
       } else {
         console.error('API Error:', response.data);
-        res.status(500).json({ error: 'Failed to fetch balances' });
+        res.status(500).json({
+          error: 'Failed to fetch balances',
+          details: response.data,
+        });
       }
     } catch (error: any) {
       console.error('Error fetching balances:', error.response?.data || error.message);
-      res.status(500).json({ error: 'Failed to fetch balances' });
+      res.status(500).json({
+        error: 'Failed to fetch balances',
+        details: error.response?.data || error.message,
+      });
     }
   } catch (error: any) {
     console.error('Unexpected Error:', error.message);
-    res.status(500).json({ error: 'An unexpected error occurred' });
+    res.status(500).json({
+      error: 'An unexpected error occurred',
+      details: error.message,
+    });
   }
 };
 
