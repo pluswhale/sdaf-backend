@@ -39,7 +39,11 @@ export const getWalletList = async (req: Request, res: Response): Promise<void> 
     }
   } catch (error: any) {
     console.error('Error fetching wallet list:', error.response?.data || error.message);
-    res.status(500).json({ error: 'Failed to fetch wallet list' });
+    const errorDetails = error.response?.data || error.message;
+    res.status(500).json({
+      error: 'Failed to fetch wallet list',
+      details: errorDetails,
+    });
   }
 };
 

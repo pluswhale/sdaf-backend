@@ -40,12 +40,6 @@ deploy to production-green:
         fi
       done
     - echo Final HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS}
-    - |
-      kubectl create secret generic ceffu-secrets \
-        --from-literal=CEFFU_API_KEY_WALLET=$CEFFU_API_KEY_WALLET \
-        --from-literal=CEFFU_API_SECRET_WALLET=$CEFFU_API_SECRET_WALLET \
-        --from-literal=COINGECKO_API_URL=$COINGECKO_API_URL \
-        --dry-run=client -o yaml | kubectl apply -f -
   script:
     - auto-deploy check_kube_domain
     - auto-deploy download_chart
