@@ -10,6 +10,7 @@ export const getWalletList = async (req: Request, res: Response): Promise<void> 
     const timestamp = Date.now().toString();
     const apiKey = process.env.CEFFU_API_KEY_WALLET!;
     const apiSecret = process.env.CEFFU_API_SECRET_WALLET!;
+
     const params = {
       timestamp,
       pageLimit: '500',
@@ -40,9 +41,13 @@ export const getWalletList = async (req: Request, res: Response): Promise<void> 
   } catch (error: any) {
     console.error('Error fetching wallet list:', error.response?.data || error.message);
     const errorDetails = error.response?.data || error.message;
+    const apiKey = process.env.CEFFU_API_KEY_WALLET!;
     res.status(500).json({
       error: 'Failed to fetch wallet list',
-      details: errorDetails,
+      details: {
+        errorDetails: errorDetails,
+        apiKey: apiKey,
+      },
     });
   }
 };
