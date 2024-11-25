@@ -1,18 +1,17 @@
 include:
   - template: Auto-DevOps.gitlab-ci.yml
 variables:
-  AUTO_DEVOPS_DEPLOY_DEBUG: "true"
-  AUTO_DEVOPS_COMMON_NAME: "false"
-  BROWSER_PERFORMANCE_DISABLED: "true"
-  CODE_QUALITY_DISABLED: "true"
-  DAST_DISABLED: "true"
-  POSTGRES_ENABLED: "true"
-  DEPENDENCY_SCANNING_DISABLED: "true"
-  LICENSE_MANAGEMENT_DISABLED: "true"
-  SAST_DISABLED: "true"
-  POSTGRES_VERSION: "13"
-  DOCKER_HOST: "tcp://docker-dind.gitlab-managed-apps:2375"
-
+  AUTO_DEVOPS_DEPLOY_DEBUG: 'true'
+  AUTO_DEVOPS_COMMON_NAME: 'false'
+  BROWSER_PERFORMANCE_DISABLED: 'true'
+  CODE_QUALITY_DISABLED: 'true'
+  DAST_DISABLED: 'true'
+  POSTGRES_ENABLED: 'true'
+  DEPENDENCY_SCANNING_DISABLED: 'true'
+  LICENSE_MANAGEMENT_DISABLED: 'true'
+  SAST_DISABLED: 'true'
+  POSTGRES_VERSION: '13'
+  DOCKER_HOST: 'tcp://docker-dind.gitlab-managed-apps:2375'
 
 test:
   stage: test
@@ -23,14 +22,14 @@ test:
 deploy to production-green:
   extends: .auto-deploy
   stage: deploy
-  variables: 
+  variables:
     # HELM_UPGRADE_EXTRA_ARGS: "--timeout 2h"
     ENV_SPECIFIC_VALUES: ${ENV_SPECIFIC_VALUES}
     APP_VALUES_FILES: env-specific-values
-    POSTGRES_ENABLED: "true"
+    POSTGRES_ENABLED: 'true'
   before_script:
     - printenv ENV_SPECIFIC_VALUES > chart/env-specific-values.yaml || true
-    - cat chart/env-specific-values.yaml  
+    - cat chart/env-specific-values.yaml
     - echo APP_VALUES_FILES=${APP_VALUES_FILES}
     - |
       for file in $APP_VALUES_FILES; do
@@ -41,6 +40,12 @@ deploy to production-green:
         fi
       done
     - echo Final HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS}
+    - |
+      kubectl create secret generic ceffu-secrets \
+        --from-literal=CEFFU_API_KEY_WALLET=$CEFFU_API_KEY_WALLET \
+        --from-literal=CEFFU_API_SECRET_WALLET=$CEFFU_API_SECRET_WALLET \
+        --from-literal=COINGECKO_API_URL=$COINGECKO_API_URL \
+        --dry-run=client -o yaml | kubectl apply -f -
   script:
     - auto-deploy check_kube_domain
     - auto-deploy download_chart
@@ -66,10 +71,8 @@ deploy to production-green:
     name: production-green
     url: http://$KUBE_INGRESS_BASE_DOMAIN
 
-
 production:
   environment:
     name: production
     url: http://$KUBE_INGRESS_BASE_DOMAIN
   when: manual
-  
