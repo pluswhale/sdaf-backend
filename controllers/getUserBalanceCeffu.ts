@@ -9,6 +9,7 @@ interface AssetBalance {
   asset: string;
   free: string;
   locked: string;
+  usdValue: string;
 }
 
 export const getUserBalance = async (req: Request, res: Response): Promise<void> => {
@@ -17,15 +18,25 @@ export const getUserBalance = async (req: Request, res: Response): Promise<void>
 
     const apiKey = process.env.CEFFU_API_KEY_WALLET!;
     const apiSecret = process.env.CEFFU_API_SECRET_WALLET!;
+    const walletId = 276251286620667900;
+
+    if (!apiKey || !apiSecret || !walletId) {
+      throw new Error('API key, secret, or wallet ID is missing.');
+    }
 
     const params = {
-      timestamp,
+      timestamp: timestamp,
+      walletId: walletId.toString(),
       pageLimit: '500',
       pageNo: '1',
     };
 
-    const queryString = new URLSearchParams(params).toString();
+    const queryString = new URLSearchParams(params as Record<string, string>).toString();
     const signature = signRequest(queryString, apiSecret);
+
+    if (!signature) {
+      throw new Error('Failed to generate signature.');
+    }
 
     const headers = {
       'open-apikey': apiKey,
@@ -44,17 +55,17 @@ export const getUserBalance = async (req: Request, res: Response): Promise<void>
       if (response.data.code === '000000') {
         const assetsData = response.data.data?.data || [];
 
-        const assets = assetsData.map((asset: any) => asset.asset);
+        const assets = assetsData.map((asset: any) => asset.coinSymbol);
         const usdPrices = await fetchUsdPrices(assets);
 
         let totalUsdValue = 0;
-        const balances = assetsData.map((asset: any) => {
-          const usdValue = parseFloat(asset.free) * (usdPrices[asset.asset] || 0);
+        const balances: AssetBalance[] = assetsData.map((asset: any) => {
+          const usdValue = parseFloat(asset.amount) * (usdPrices[asset.coinSymbol] || 0);
           totalUsdValue += usdValue;
           return {
-            asset: asset.asset,
-            free: asset.free,
-            locked: asset.locked,
+            asset: asset.coinSymbol,
+            free: asset.availableAmount,
+            locked: asset.totalAmountWithMirror,
             usdValue: usdValue.toFixed(2),
           };
         });
