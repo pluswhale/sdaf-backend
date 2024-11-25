@@ -18,7 +18,7 @@ export const getUserBalance = async (req: Request, res: Response): Promise<void>
 
     const apiKey = process.env.CEFFU_API_KEY_WALLET!;
     const apiSecret = process.env.CEFFU_API_SECRET_WALLET!;
-    const walletId = '276251286620667900';
+    const walletId = '276251286620667904';
 
     if (!apiKey || !apiSecret || !walletId) {
       throw new Error('API key, secret, or wallet ID is missing.');
