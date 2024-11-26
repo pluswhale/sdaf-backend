@@ -5,11 +5,13 @@ dotenv.config();
 
 import crypto from 'crypto';
 
-interface AssetBalance {
-  asset: string;
-  free: string;
-  locked: string;
-  usdValue: string;
+interface Asset {
+  coinSymbol: string;
+  network: string;
+  amount: string;
+  availableAmount: string;
+  totalAmountWithMirror: string;
+  usdValue: number;
 }
 
 export const getUserBalance = async (req: Request, res: Response): Promise<void> => {
@@ -55,14 +57,22 @@ export const getUserBalance = async (req: Request, res: Response): Promise<void>
       if (response.data.code === '000000') {
         const assetsData = response.data.data?.data || [];
 
-        const assetSymbols = assetsData.map((asset: any) => asset.coinSymbol);
+        const assetSymbols = assetsData.map((asset: Asset) => asset.coinSymbol);
         const prices = await fetchUsdPrices(assetSymbols);
 
-        const assetsWithUsdValue = assetsData.map((asset: any) => {
+        const assetsWithUsdValue = assetsData.map((asset: Asset) => {
           const usdValue = parseFloat(asset.availableAmount) * (prices[asset.coinSymbol] || 0);
           return { ...asset, usdValue };
         });
-        res.status(200).json({ balances: assetsWithUsdValue });
+
+        const totalUsdValue = assetsWithUsdValue.reduce(
+          (total: number, asset: Asset) => total + (asset.usdValue || 0),
+          0,
+        );
+        res.status(200).json({
+          balances: assetsWithUsdValue,
+          totalUsdValue: totalUsdValue.toFixed(2),
+        });
       } else {
         console.error('API Error:', response.data);
         res.status(500).json({
