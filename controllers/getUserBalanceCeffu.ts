@@ -54,23 +54,23 @@ export const getUserBalance = async (req: Request, res: Response): Promise<void>
 
       if (response.data.code === '000000') {
         const assetsData = response.data.data?.data || [];
+        res.status(200).json({ balances: assetsData });
+        // const assets = assetsData.map((asset: any) => asset.coinSymbol);
+        // const usdPrices = await fetchUsdPrices(assets);
 
-        const assets = assetsData.map((asset: any) => asset.coinSymbol);
-        const usdPrices = await fetchUsdPrices(assets);
+        // let totalUsdValue = 0;
+        // const balances: AssetBalance[] = assetsData.map((asset: any) => {
+        //   const usdValue = parseFloat(asset.amount) * (usdPrices[asset.coinSymbol] || 0);
+        //   totalUsdValue += usdValue;
+        //   return {
+        //     asset: asset.coinSymbol,
+        //     free: asset.availableAmount,
+        //     locked: asset.totalAmountWithMirror,
+        //     usdValue: usdValue.toFixed(2),
+        //   };
+        // });
 
-        let totalUsdValue = 0;
-        const balances: AssetBalance[] = assetsData.map((asset: any) => {
-          const usdValue = parseFloat(asset.amount) * (usdPrices[asset.coinSymbol] || 0);
-          totalUsdValue += usdValue;
-          return {
-            asset: asset.coinSymbol,
-            free: asset.availableAmount,
-            locked: asset.totalAmountWithMirror,
-            usdValue: usdValue.toFixed(2),
-          };
-        });
-
-        res.status(200).json({ balances, totalUsdValue: totalUsdValue.toFixed(2) });
+        // res.status(200).json({ balances, totalUsdValue: totalUsdValue.toFixed(2) });
       } else {
         console.error('API Error:', response.data);
         res.status(500).json({
