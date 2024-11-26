@@ -46,8 +46,8 @@ router.put('/quoting-engine/margins/:id', validateEditMargin, editMarginControll
 router.get('/quoting-engine/orders', getOrders);
 
 // CEFFU Prime Wallets Balances
-router.get('/balance-ceffu', getUserBalance);
-router.get('/wallet-ceffu', getWalletList);
+router.get('/balance-ceffu', authenticate, getUserBalance);
+router.get('/wallet-ceffu', authenticate, getWalletList);
 
 export default router;
 
