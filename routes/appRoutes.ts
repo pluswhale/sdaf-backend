@@ -1,4 +1,4 @@
-import makeTransaction, { validateTransaction } from '../controllers/makeTransaction';
+import { validateTransaction } from '../controllers/makeTransaction';
 import {
   editMarginController,
   getAllMarginsController,
@@ -35,10 +35,10 @@ router.post('/login', loginUser);
 router.post('/refresh', refreshToken);
 
 //auto-send
-// router.post('/auto-send/start', validateTransaction, authenticate, startAutoTransaction);
-// router.delete('/auto-send/stop/:walletAddress', authenticate, stopAutoTransaction);
-// router.get('/auto-send/transactions', authenticate, getAllAutoTransactions);
-// router.get('/auto-send/transactions/drop-all', authenticate, dropAllAutoTransactions);
+router.post('/auto-send/start', validateTransaction, authenticate, startAutoTransaction);
+router.delete('/auto-send/stop/:walletAddress', authenticate, stopAutoTransaction);
+router.get('/auto-send/transactions', authenticate, getAllAutoTransactions);
+router.get('/auto-send/transactions/drop-all', authenticate, dropAllAutoTransactions);
 
 //quoting engine
 router.get('/quoting-engine/margins', getAllMarginsController);
