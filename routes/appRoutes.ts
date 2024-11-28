@@ -22,6 +22,9 @@ import {
 import { authenticate } from '../middlewares';
 import { getWalletList } from '../controllers/getWalletList';
 import { getUserBalance } from '../controllers/getUserBalanceCeffu';
+import { getWithdrawalHistoryCeffu } from '../controllers/getWithdrawalHistoryCeffu';
+import { initiateWithdrawalCeffu } from '../controllers/initiateWithdrawalCeffu';
+import { getWithdrawalDetailsCeffu } from '../controllers/getWithdrawalDetailsCeffu';
 
 const router = express.Router();
 
@@ -48,6 +51,9 @@ router.get('/quoting-engine/orders', getOrders);
 // CEFFU Prime Wallets Balances
 router.get('/balance-ceffu', authenticate, getUserBalance);
 router.get('/wallet-ceffu', authenticate, getWalletList);
+router.get('/get-withdrawal-history-ceffu', authenticate, getWithdrawalHistoryCeffu);
+router.post('/initiate-withdrawal-ceffu', authenticate, initiateWithdrawalCeffu);
+router.get('/get-withdrawal-details-ceffu', authenticate, getWithdrawalDetailsCeffu);
 
 export default router;
 
