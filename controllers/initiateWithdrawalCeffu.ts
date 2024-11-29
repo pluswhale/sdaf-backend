@@ -12,7 +12,7 @@ export const initiateWithdrawalCeffu = async (req: Request, res: Response): Prom
     const apiKey = process.env.CEFFU_API_KEY_WALLET!;
     const apiSecret = process.env.CEFFU_API_SECRET_WALLET!;
 
-    const params = {
+    const params: Record<string, any> = {
       amount,
       coinSymbol,
       memo,
@@ -25,13 +25,17 @@ export const initiateWithdrawalCeffu = async (req: Request, res: Response): Prom
       customizeFeeAmount: '',
     };
 
-    const queryString = new URLSearchParams(params).toString();
+    const sortedParams = Object.keys(params)
+      .sort()
+      .map((key) => `${key}=${encodeURIComponent(params[key])}`)
+      .join('&');
+    const queryString = sortedParams;
+
     const signature = signRequest(queryString, apiSecret);
 
     const headers = {
       'open-apikey': apiKey,
       signature: signature,
-      'User-Agent': 'Your App/1.0',
       'Content-Type': 'application/json',
     };
 
