@@ -9,8 +9,8 @@ export const getWithdrawalHistoryCeffu = async (req: Request, res: Response): Pr
   try {
     const { walletId, coinSymbol, network } = req.query;
     const timestamp = Date.now().toString();
-    const apiKey = process.env.CEFFU_API_KEY_WALLET!;
-    const apiSecret = process.env.CEFFU_API_SECRET_WALLET!;
+    const apiKey = process.env.CEFFU_API_KEY_WALLET_WITHDRAWAL!;
+    const apiSecret = process.env.CEFFU_API_SECRET_WALLET_WITHDRAWAL!;
 
     const now = new Date();
     const startTime = now.getTime().toString();
