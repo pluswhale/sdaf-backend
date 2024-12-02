@@ -25,13 +25,9 @@ export const initiateWithdrawalCeffu = async (req: Request, res: Response): Prom
       customizeFeeAmount: '',
     };
 
-    const sortedParams = Object.keys(params)
-      .sort()
-      .map((key) => `${key}=${encodeURIComponent(params[key])}`)
-      .join('&');
-    const queryString = sortedParams;
+    const jsonBody = JSON.stringify(params);
 
-    const signature = signRequest(queryString, apiSecret);
+    const signature = signRequest(jsonBody, apiSecret);
 
     const headers = {
       'open-apikey': apiKey,
@@ -41,7 +37,7 @@ export const initiateWithdrawalCeffu = async (req: Request, res: Response): Prom
 
     const endpoint = 'https://open-api.ceffu.com/open-api/v2/wallet/withdrawal';
 
-    const response = await axios.post(endpoint, params, { headers });
+    const response = await axios.post(endpoint, jsonBody, { headers });
 
     if (response.data.code === '000000') {
       res.status(200).json({
