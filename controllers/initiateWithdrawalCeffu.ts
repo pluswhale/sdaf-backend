@@ -13,14 +13,15 @@ export const initiateWithdrawalCeffu = async (req: Request, res: Response): Prom
     const apiSecret = process.env.CEFFU_API_SECRET_WALLET_WITHDRAWAL!;
 
     const params: Record<string, any> = {
-      amount,
-      coinSymbol,
-      memo,
-      network,
-      requestId: timestamp,
-      timestamp,
-      walletId,
-      withdrawalAddress,
+      amount: '50',
+      coinSymbol: 'USDT',
+      memo: '82486739',
+      network: 'ETH',
+      requestId: '1733136321861',
+      timestamp: '1733136321861',
+      walletId: '276251286620667904',
+      withdrawalAddress: '0x168e3f5919fC3858D7911b3e302B826f0dE6B10b',
+      toWalletIdStr: '',
       customizeFeeAmount: '',
     };
 
