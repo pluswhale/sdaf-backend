@@ -1,4 +1,4 @@
-import { validateTransaction } from '../controllers/makeTransaction';
+import makeTransaction, { validateTransaction } from '../controllers/makeTransaction';
 import {
   editMarginController,
   getAllMarginsController,
@@ -30,7 +30,7 @@ const router = express.Router();
 
 router.post('/save/wallet', authenticate, saveWallet);
 router.get('/wallets', authenticate, getAllWallets);
-// router.post('/transaction', validateTransaction, authenticate, makeTransaction);
+router.post('/transaction', validateTransaction, authenticate, makeTransaction);
 router.get('/balance', validateGetBalance, getBalanceOfAddress);
 router.put('/wallet/update-minmax/:id', validateSetUpMixMaxInWallet, setUpMinAndMaxWallet);
 
