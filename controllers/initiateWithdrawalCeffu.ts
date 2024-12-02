@@ -9,8 +9,8 @@ export const initiateWithdrawalCeffu = async (req: Request, res: Response): Prom
   try {
     const { amount, coinSymbol, network, withdrawalAddress, walletId, memo } = req.body;
     const timestamp = Date.now().toString();
-    const apiKey = process.env.CEFFU_API_KEY_WALLET!;
-    const apiSecret = process.env.CEFFU_API_SECRET_WALLET!;
+    const apiKey = process.env.CEFFU_API_KEY_WALLET_WITHDRAWAL!;
+    const apiSecret = process.env.CEFFU_API_SECRET_WALLET_WITHDRAWAL!;
 
     const params: Record<string, any> = {
       amount,
