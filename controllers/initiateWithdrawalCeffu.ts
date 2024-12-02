@@ -47,7 +47,12 @@ export const initiateWithdrawalCeffu = async (req: Request, res: Response): Prom
     } else {
       res.status(500).json({
         error: 'Withdrawal Failed',
-        details: response.data.message,
+        details: {
+          detail: response.data.message,
+          walletId: walletId,
+          withdrawalAddress: withdrawalAddress,
+          jsonBody: jsonBody,
+        },
       });
     }
   } catch (error: any) {
