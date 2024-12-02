@@ -19,7 +19,7 @@ export const initiateWithdrawalCeffu = async (req: Request, res: Response): Prom
       network: 'ETH',
       requestId: timestamp,
       timestamp: timestamp,
-      walletId: '276251286620667904',
+      walletId: 276251286620667904,
       withdrawalAddress: '0x168e3f5919fC3858D7911b3e302B826f0dE6B10b',
       toWalletIdStr: 'string',
       customizeFeeAmount: 'string',
