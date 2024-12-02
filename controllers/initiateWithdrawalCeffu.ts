@@ -21,7 +21,6 @@ export const initiateWithdrawalCeffu = async (req: Request, res: Response): Prom
       timestamp,
       walletId,
       withdrawalAddress,
-      toWalletIdStr: '',
       customizeFeeAmount: '',
     };
 
