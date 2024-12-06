@@ -109,7 +109,7 @@ export const signRequest = (data: string, secret: string): string => {
   return signature;
 };
 
-const fetchUsdPrices = async (assets: string[]): Promise<Record<string, number>> => {
+export const fetchUsdPrices = async (assets: string[]): Promise<Record<string, number>> => {
   const ids = assets.map((asset) => mapAssetToCoinGeckoId(asset)).join(',');
   const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price`, {
     params: {

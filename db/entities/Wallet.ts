@@ -7,9 +7,11 @@ export enum WalletType {
 
 export enum CurrencyType {
   BTC = 'BTC',
+  USDT = 'USDT',
   USDT_BEP20 = 'USDT_BEP20',
   USDT_TRC20 = 'USDT_TRC20',
   USDT_ERC20 = 'USDT_ERC20',
+  BNB = 'BNB',
 }
 
 @Entity()

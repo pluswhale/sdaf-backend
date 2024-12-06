@@ -5,6 +5,7 @@ import { AppDataSource } from './db/AppDataSource';
 import appRoutes from './routes/appRoutes';
 import cookieParser from 'cookie-parser';
 import { seedMargins } from './db/seeders/MarginSeeder';
+import './middlewares/walletScheduler';
 
 dotenv.config();
 
