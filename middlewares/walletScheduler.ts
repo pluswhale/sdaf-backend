@@ -124,8 +124,10 @@ async function initiateWithdrawal(wallet: Wallet) {
     'Content-Type': 'application/json',
   };
 
+  console.log(payload);
+
   try {
-    const response = await axios.post(`https://sdafcwap.com/app/api/wallet/initiate-withdrawal-ceffu`, payload, {
+    const response = await axios.post(`https://sdafcwap.com/app/api/initiate-withdrawal-ceffu`, payload, {
       headers,
     });
     console.log(`Top up your wallet ${wallet.id} initiated:`, response.data);
