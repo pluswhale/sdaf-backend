@@ -175,7 +175,7 @@ async function checkAndInitiateWithdrawals() {
   }
 }
 
-cron.schedule('* * * * *', () => {
-  checkAndInitiateWithdrawals();
-});
+// cron.schedule('* * * * *', () => {
+//   checkAndInitiateWithdrawals();
+// });
 
