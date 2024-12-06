@@ -25,11 +25,13 @@ import { getUserBalance } from '../controllers/getUserBalanceCeffu';
 import { getWithdrawalHistoryCeffu } from '../controllers/getWithdrawalHistoryCeffu';
 import { initiateWithdrawalCeffu } from '../controllers/initiateWithdrawalCeffu';
 import { getWithdrawalDetailsCeffu } from '../controllers/getWithdrawalDetailsCeffu';
+import { getAllWalletsWithoutPrice } from '../controllers/getAllWalletsWithoutPrice';
 
 const router = express.Router();
 
 router.post('/save/wallet', authenticate, saveWallet);
-router.get('/wallets', authenticate, getAllWallets);
+router.get('/wallets', getAllWallets);
+router.get('/wallets-without-price', authenticate, getAllWalletsWithoutPrice);
 router.post('/transaction', validateTransaction, authenticate, makeTransaction);
 router.get('/balance', validateGetBalance, getBalanceOfAddress);
 router.put('/wallet/update-minmax/:id', validateSetUpMixMaxInWallet, setUpMinAndMaxWallet);
@@ -52,7 +54,7 @@ router.get('/quoting-engine/orders', getOrders);
 router.get('/balance-ceffu', authenticate, getUserBalance);
 router.get('/wallet-ceffu', authenticate, getWalletList);
 router.get('/get-withdrawal-history-ceffu', authenticate, getWithdrawalHistoryCeffu);
-router.post('/initiate-withdrawal-ceffu', authenticate, initiateWithdrawalCeffu);
+router.post('/initiate-withdrawal-ceffu', initiateWithdrawalCeffu);
 router.get('/get-withdrawal-details-ceffu', authenticate, getWithdrawalDetailsCeffu);
 
 export default router;
