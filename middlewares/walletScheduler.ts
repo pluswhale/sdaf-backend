@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { getWalletMapping } from '../utils';
 import { CurrencyType } from '../db/entities';
 import { fetchUsdPrices } from '../controllers/getUserBalanceCeffu';
+import { getCryptoPrice } from '../services/priceService';
 
 dotenv.config();
 
@@ -39,7 +40,7 @@ async function fetchAllWallets(): Promise<Wallet[]> {
   return response.data;
 }
 
-async function initiateWithdrawal(wallet: Wallet, cryptoPrices: Record<string, number>) {
+async function initiateWithdrawal(wallet: Wallet) {
   const minBalance = parseFloat(wallet.minBalance);
   const maxBalance = parseFloat(wallet.maxBalance);
 
@@ -92,9 +93,9 @@ async function initiateWithdrawal(wallet: Wallet, cryptoPrices: Record<string, n
     return;
   }
 
-  const cryptoPrice = cryptoPrices[wallet.currency_type] || 0;
+  const cryptoPrice = await getCryptoPrice(coinId);
   if (!cryptoPrice) {
-    console.error(`Failed to fetch crypto price for ${wallet.currency_type}, skipping wallet ${wallet.id}`);
+    console.error(`Failed to fetch crypto price for ${coinId}, skipping wallet ${wallet.id}`);
     return;
   }
 
@@ -164,12 +165,8 @@ async function checkAndInitiateWithdrawals() {
 
     console.log(`Found ${walletsToUpdate.length} wallets requiring replenishment.`);
 
-    const uniqueCurrencyTypes = Array.from(new Set(walletsToUpdate.map((wallet) => wallet.currency_type)));
-
-    const cryptoPrices = await fetchUsdPrices(uniqueCurrencyTypes);
-
     for (const wallet of walletsToUpdate) {
-      await limiter.schedule(() => initiateWithdrawal(wallet, cryptoPrices));
+      await limiter.schedule(() => initiateWithdrawal(wallet));
     }
   } catch (error) {
     console.error('Error checking wallets:', error);
