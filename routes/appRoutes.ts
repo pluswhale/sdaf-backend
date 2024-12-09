@@ -55,7 +55,7 @@ router.get('/balance-ceffu', authenticate, getUserBalance);
 router.get('/wallet-ceffu', authenticate, getWalletList);
 router.get('/get-withdrawal-history-ceffu', authenticate, getWithdrawalHistoryCeffu);
 router.post('/initiate-withdrawal-ceffu', initiateWithdrawalCeffu);
-router.get('/get-withdrawal-details-ceffu', authenticate, getWithdrawalDetailsCeffu);
+router.get('/get-withdrawal-details-ceffu', getWithdrawalDetailsCeffu);
 
 export default router;
 

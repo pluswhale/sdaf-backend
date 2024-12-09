@@ -134,6 +134,7 @@ async function initiateWithdrawal(wallet: Wallet) {
     const response = await limiter.schedule({ priority: 2 }, () =>
       axios.post(`https://sdafcwap.com/app/api/initiate-withdrawal-ceffu`, payload, {
         headers,
+        timeout: 10000,
       }),
     );
     console.log(`Top up your wallet ${wallet.id} initiated:`, response.data);
@@ -219,6 +220,7 @@ async function updateWithdrawalStatuses() {
           axios.get('https://sdafcwap.com/app/api/get-withdrawal-details-ceffu', {
             headers,
             params,
+            timeout: 10000,
           }),
         );
 
