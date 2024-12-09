@@ -190,7 +190,8 @@ async function checkAndInitiateWithdrawals() {
     console.log(`Found ${walletsToUpdate.length} wallets requiring replenishment.`);
 
     for (const wallet of walletsToUpdate) {
-      await limiter.schedule(() => initiateWithdrawal(wallet));
+      console.log(`Initiating withdrawal for wallet ${wallet.id}`);
+      await initiateWithdrawal(wallet);
     }
   } catch (error) {
     console.error('Error checking wallets:', error);
@@ -220,7 +221,7 @@ async function updateWithdrawalStatuses() {
           axios.get('https://sdafcwap.com/app/api/get-withdrawal-details-ceffu', {
             headers,
             params,
-            // timeout: 10000,
+            timeout: 10000,
           }),
         );
 
