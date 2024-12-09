@@ -228,7 +228,7 @@ async function updateWithdrawalStatuses() {
 
         console.log('API Response:', JSON.stringify(response.data, null, 2));
 
-        const status = response.data.data.withdrawalDetails.status;
+        const status = response.data.withdrawalDetails.status;
 
         if (status === 40) {
           await pendingWithdrawalRepository.remove(pw);
