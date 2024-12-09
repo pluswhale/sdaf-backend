@@ -4,10 +4,14 @@ import Bottleneck from 'bottleneck';
 import dotenv from 'dotenv';
 import { getWalletMapping } from '../utils';
 import { CurrencyType } from '../db/entities';
-import { fetchUsdPrices } from '../controllers/getUserBalanceCeffu';
 import { getCryptoPrice } from '../services/priceService';
+import { AppDataSource } from '../db/AppDataSource';
+import { PendingWithdrawal } from '../db/entities/PendingWithdrawal';
+import { Not } from 'typeorm';
 
 dotenv.config();
+
+const pendingWithdrawalRepository = AppDataSource.getRepository(PendingWithdrawal);
 
 const limiter = new Bottleneck({
   reservoir: 3,
@@ -127,10 +131,20 @@ async function initiateWithdrawal(wallet: Wallet) {
   console.log(payload);
 
   try {
-    const response = await axios.post(`https://sdafcwap.com/app/api/initiate-withdrawal-ceffu`, payload, {
-      headers,
-    });
+    const response = await limiter.schedule({ priority: 2 }, () =>
+      axios.post(`https://sdafcwap.com/app/api/initiate-withdrawal-ceffu`, payload, {
+        headers,
+      }),
+    );
     console.log(`Top up your wallet ${wallet.id} initiated:`, response.data);
+
+    const orderViewId = response.data.orderViewId;
+    const pendingWithdrawal = pendingWithdrawalRepository.create({
+      walletId: wallet.id,
+      orderViewId: orderViewId,
+      status: 10,
+    });
+    await pendingWithdrawalRepository.save(pendingWithdrawal);
   } catch (error: any) {
     console.error(`Error when replenishing wallet ${wallet.id}:`, error.response?.data || error.message);
   }
@@ -145,12 +159,19 @@ async function checkAndInitiateWithdrawals() {
       return;
     }
 
+    const pendingWithdrawals = await pendingWithdrawalRepository.find();
+    const walletIdsWithPending = pendingWithdrawals
+      .filter((pw) => pw.status !== 40 && pw.status !== 0)
+      .map((pw) => pw.walletId);
+
     const filteredWallets = wallets.filter((w: Wallet) => {
+      if (walletIdsWithPending.includes(w.id)) return false;
+
       return w.minBalance !== '0' && w.maxBalance !== '0' && w.price && w.price.usd;
     });
 
     if (filteredWallets.length === 0) {
-      console.log('There are no wallets with non-zero minBalance and maxBalance.');
+      console.log('There are no wallets with non-zero minBalance and maxBalance all have pending withdrawals.');
       return;
     }
 
@@ -168,14 +189,71 @@ async function checkAndInitiateWithdrawals() {
     console.log(`Found ${walletsToUpdate.length} wallets requiring replenishment.`);
 
     for (const wallet of walletsToUpdate) {
-      await limiter.schedule(() => initiateWithdrawal(wallet));
+      await limiter.schedule({ priority: 2 }, () => initiateWithdrawal(wallet));
     }
   } catch (error) {
     console.error('Error checking wallets:', error);
   }
 }
 
-// cron.schedule('* * * * *', () => {
-//   checkAndInitiateWithdrawals();
-// });
+async function updateWithdrawalStatuses() {
+  console.log('Updating pending withdrawal statuses...');
+  try {
+    const pendingWithdrawals = await pendingWithdrawalRepository.find({
+      where: { status: Not(40) },
+    });
+
+    if (pendingWithdrawals.length === 0) {
+      console.log('No pending withdrawals found.');
+      return;
+    }
+
+    for (const pw of pendingWithdrawals) {
+      try {
+        const params = { orderViewId: pw.orderViewId };
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+        };
+
+        const response = await limiter.schedule({ priority: 1 }, () =>
+          axios.get('https://sdafcwap.com/app/api/get-withdrawal-details-ceffu', {
+            headers,
+            params,
+          }),
+        );
+
+        const status = response.data.data.status;
+
+        if (status === 40) {
+          await pendingWithdrawalRepository.remove(pw);
+          console.log(`Withdrawal ${pw.orderViewId} confirmed and removed from pending.`);
+        } else {
+          pw.status = status;
+          await pendingWithdrawalRepository.save(pw);
+          console.log(`Withdrawal ${pw.orderViewId} updated status to ${status}.`);
+        }
+      } catch (error) {
+        console.error(`Failed to get details for withdrawal ${pw.orderViewId}:`, error);
+      }
+    }
+  } catch (error) {
+    console.error('Error updating withdrawal statuses:', error);
+  }
+}
+
+cron.schedule('* * * * *', () => {
+  (async () => {
+    try {
+      console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
+
+      await updateWithdrawalStatuses();
+
+      await checkAndInitiateWithdrawals();
+
+      console.log('Scheduled tasks completed successfully.');
+    } catch (error) {
+      console.error('Error during scheduled tasks:', error);
+    }
+  })();
+});
 
