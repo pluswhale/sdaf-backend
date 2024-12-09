@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { Margin, Wallet } from './entities';
 import { User } from './entities';
+import { PendingWithdrawal } from './entities/PendingWithdrawal';
 
 import dotenv from 'dotenv';
 
@@ -38,7 +39,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || 'test',
   synchronize: true,
   logging: false,
-  entities: [Wallet, User, Margin],
+  entities: [Wallet, User, Margin, PendingWithdrawal],
   migrations: [],
   subscribers: [],
 });
