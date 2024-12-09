@@ -226,6 +226,8 @@ async function updateWithdrawalStatuses() {
           }),
         );
 
+        console.log(response);
+
         const status = response.data.data.status;
 
         if (status === 40) {
