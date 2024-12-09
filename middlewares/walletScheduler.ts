@@ -139,7 +139,7 @@ async function initiateWithdrawal(wallet: Wallet) {
     );
     console.log(`Top up your wallet ${wallet.id} initiated:`, response.data);
 
-    const orderViewId = response.data.data.orderViewId;
+    const orderViewId = response.data.data.data.orderViewId;
     console.log(`Extracted orderViewId: ${orderViewId}`);
     const pendingWithdrawal = pendingWithdrawalRepository.create({
       walletId: wallet.id,
