@@ -226,7 +226,7 @@ async function updateWithdrawalStatuses() {
           }),
         );
 
-        const status = response.data.data.data.status;
+        const status = response.data.data.status;
 
         if (status === 40) {
           await pendingWithdrawalRepository.remove(pw);
