@@ -131,7 +131,7 @@ async function initiateWithdrawal(wallet: Wallet) {
   console.log(payload);
 
   try {
-    const response = await limiter.schedule({ priority: 2 }, () =>
+    const response = await limiter.schedule(() =>
       axios.post(`https://sdafcwap.com/app/api/initiate-withdrawal-ceffu`, payload, {
         headers,
         timeout: 10000,
@@ -190,7 +190,7 @@ async function checkAndInitiateWithdrawals() {
     console.log(`Found ${walletsToUpdate.length} wallets requiring replenishment.`);
 
     for (const wallet of walletsToUpdate) {
-      await limiter.schedule({ priority: 2 }, () => initiateWithdrawal(wallet));
+      await limiter.schedule(() => initiateWithdrawal(wallet));
     }
   } catch (error) {
     console.error('Error checking wallets:', error);
@@ -216,11 +216,11 @@ async function updateWithdrawalStatuses() {
           'Content-Type': 'application/json',
         };
 
-        const response = await limiter.schedule({ priority: 1 }, () =>
+        const response = await limiter.schedule(() =>
           axios.get('https://sdafcwap.com/app/api/get-withdrawal-details-ceffu', {
             headers,
             params,
-            timeout: 10000,
+            // timeout: 10000,
           }),
         );
 
