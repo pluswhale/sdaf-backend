@@ -139,7 +139,7 @@ async function initiateWithdrawal(wallet: Wallet) {
     );
     console.log(`Top up your wallet ${wallet.id} initiated:`, response.data);
 
-    const orderViewId = response.data.data.orderViewId;
+    const orderViewId = response.data.data.data.orderViewId;
     console.log(`Extracted orderViewId: ${orderViewId}`);
     const pendingWithdrawal = pendingWithdrawalRepository.create({
       walletId: wallet.id,
@@ -245,19 +245,19 @@ async function updateWithdrawalStatuses() {
   }
 }
 
-// cron.schedule('* * * * *', () => {
-//   (async () => {
-//     try {
-//       console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
+cron.schedule('* * * * *', () => {
+  (async () => {
+    try {
+      console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
 
-//       await updateWithdrawalStatuses();
+      await updateWithdrawalStatuses();
 
-//       await checkAndInitiateWithdrawals();
+      await checkAndInitiateWithdrawals();
 
-//       console.log('Scheduled tasks completed successfully.');
-//     } catch (error) {
-//       console.error('Error during scheduled tasks:', error);
-//     }
-//   })();
-// });
+      console.log('Scheduled tasks completed successfully.');
+    } catch (error) {
+      console.error('Error during scheduled tasks:', error);
+    }
+  })();
+});
 
