@@ -3,6 +3,10 @@ import { DataSource } from 'typeorm';
 import { Margin, Wallet } from './entities';
 import { User } from './entities';
 
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 const InitDataSource = () => {
   const dbHost = process.env.DB_HOST;
 

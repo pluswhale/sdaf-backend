@@ -1,7 +1,13 @@
 import axios from 'axios';
 
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 export const getBitcoinBalance = async (btcAddress: string): Promise<number> => {
   const network: string = process.env.NETWORK === 'mainnet' ? '' : 'testnet/';
+
+  console.log('network: ' + network);
 
   try {
     const response = await axios.get(`https://blockstream.info/${network}api/address/${btcAddress}`);
