@@ -11,6 +11,8 @@ import { Not } from 'typeorm';
 
 dotenv.config();
 
+let isRunning = false;
+
 const pendingWithdrawalRepository = AppDataSource.getRepository(PendingWithdrawal);
 
 const limiter = new Bottleneck({
@@ -248,6 +250,12 @@ async function updateWithdrawalStatuses() {
 }
 
 cron.schedule('* * * * *', () => {
+  if (isRunning) {
+    console.warn('Previous task is still running. Skipping current run.');
+    return;
+  }
+
+  isRunning = true;
   (async () => {
     try {
       console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
@@ -259,6 +267,8 @@ cron.schedule('* * * * *', () => {
       console.log('Scheduled tasks completed successfully.');
     } catch (error) {
       console.error('Error during scheduled tasks:', error);
+    } finally {
+      isRunning = false;
     }
   })();
 });
