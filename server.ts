@@ -6,6 +6,7 @@ import appRoutes from './routes/appRoutes';
 import cookieParser from 'cookie-parser';
 import { seedMargins } from './db/seeders/MarginSeeder';
 import './middlewares/walletScheduler';
+import { seedUsers } from './db/seeders/UserSeeder';
 
 dotenv.config();
 
@@ -30,10 +31,23 @@ app.get('/', async (req, res) => {
   }
 });
 
+async function runSeeders() {
+  console.log('Seeding users...');
+  await seedUsers(AppDataSource);
+  console.log('Seeding margins...');
+  await seedMargins(AppDataSource);
+}
+
 AppDataSource.initialize()
   .then(async () => {
     console.log('Database connected successfully');
-    await seedMargins(AppDataSource);
+    runSeeders()
+      .then(() => {
+        console.log('Seeding completed successfully.');
+      })
+      .catch((error) => {
+        console.error('Error during seeding:', error);
+      });
   })
   .catch((error) => console.log('Error connecting to database:', error));
 

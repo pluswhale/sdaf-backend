@@ -3,6 +3,10 @@ import { ethProvider } from '../config';
 import { Contract, formatEther, formatUnits } from 'ethers';
 import { getBitcoinBalance } from '../utils';
 
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 export const checkBalanceInBNB = async (address: string) => {
   const provider = ethProvider; // Ensure `ethProvider` is connected to the BNB mainnet
   const balanceInWei = await provider.getBalance(address);

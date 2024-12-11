@@ -7,6 +7,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 const InitDataSource = () => {
   const dbHost = process.env.DB_HOST;
 
