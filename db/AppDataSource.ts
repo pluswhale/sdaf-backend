@@ -1,8 +1,11 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import { Margin, Wallet } from './entities';
+import { Margin, PendingWithdrawal, Wallet } from './entities';
 import { User } from './entities';
-import { PendingWithdrawal } from './entities/PendingWithdrawal';
+
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 import dotenv from 'dotenv';
 
