@@ -3,8 +3,6 @@ import { DataSource } from 'typeorm';
 import { Margin, PendingWithdrawal, Wallet } from './entities';
 import { User } from './entities';
 
-import dotenv from 'dotenv';
-
 dotenv.config();
 
 import dotenv from 'dotenv';
