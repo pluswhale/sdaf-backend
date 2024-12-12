@@ -10,6 +10,6 @@ const bitcoinProvider = {
   testnet: '',
 } as { [key: string]: string };
 
-const ethProvider = ethProviders[process.env.NETWORK || 'testnet'];
+const ethProvider = ethProviders['mainnet'];
 export { ethProvider };
 
