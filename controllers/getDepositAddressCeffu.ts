@@ -32,13 +32,9 @@ export const getDepositAddressCeffu = async (req: Request, res: Response): Promi
 
     const response = await axios.get(endpoint, { headers, params });
 
-    if (response.data.code === '200') {
-      res.status(200).json({
-        DepositAddressCeffu: response.data.data?.walletAddress || [],
-      });
-    } else {
-      res.status(500).json({ error: response.data.message });
-    }
+    res.status(200).json({
+      DepositAddressCeffu: response.data.data?.walletAddress || [],
+    });
   } catch (error: any) {
     console.error('Error fetching deposit address:', error.response?.data || error.message);
     const errorDetails = error.response?.data || error.message;
