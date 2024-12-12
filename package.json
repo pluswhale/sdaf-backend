@@ -10,6 +10,7 @@
     "dev": "ts-node-dev --respawn ./server.ts"
   },
   "dependencies": {
+    "@kubernetes/client-node": "^0.22.3",
     "@types/express": "^5.0.0",
     "@types/node": "^22.7.4",
     "@types/node-cron": "^3.0.11",
