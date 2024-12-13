@@ -27,6 +27,8 @@ import { initiateWithdrawalCeffu } from '../controllers/initiateWithdrawalCeffu'
 import { getWithdrawalDetailsCeffu } from '../controllers/getWithdrawalDetailsCeffu';
 import { getAllWalletsWithoutPrice } from '../controllers/getAllWalletsWithoutPrice';
 import { getDepositAddressCeffu } from '../controllers/getDepositAddressCeffu';
+import { createTransaction } from '../controllers/transactions/createTransaction';
+import { getDepositDetailCeffu } from '../controllers/getDepositDetailCeffu';
 
 const router = express.Router();
 
@@ -55,8 +57,10 @@ router.get('/quoting-engine/orders', getOrders);
 router.get('/balance-ceffu', getUserBalance);
 router.get('/wallet-ceffu', getWalletList);
 router.get('/get-deposit-address', getDepositAddressCeffu);
+router.get('/get-deposit-detail-ceffu', getDepositDetailCeffu);
 router.get('/get-withdrawal-history-ceffu', getWithdrawalHistoryCeffu);
 router.post('/initiate-withdrawal-ceffu', initiateWithdrawalCeffu);
+router.post('/create-transaction-ceffu', createTransaction);
 router.get('/get-withdrawal-details-ceffu', getWithdrawalDetailsCeffu);
 
 export default router;
