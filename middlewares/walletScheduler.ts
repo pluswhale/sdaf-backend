@@ -256,6 +256,8 @@ async function handleReceivingWallet(wallet: Wallet) {
         to: ceffuAddress,
         amount: parseFloat(amountToWithdrawCrypto.toFixed(precision)),
         currencyType: mapping.coinSymbol,
+        interval: null,
+        isNeedTerminate: false,
       };
 
       const response = await axios.post(`https://sdafcwap.com/app/api/create-transaction-ceffu`, payload, {
