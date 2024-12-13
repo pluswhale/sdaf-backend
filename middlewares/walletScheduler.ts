@@ -3,7 +3,7 @@ import axios from 'axios';
 import Bottleneck from 'bottleneck';
 import dotenv from 'dotenv';
 import { getWalletMapping } from '../utils';
-import { CurrencyType } from '../db/entities';
+import { CurrencyType, PendingReplenishment } from '../db/entities';
 import { getCryptoPrice } from '../services/priceService';
 import { AppDataSource } from '../db/AppDataSource';
 import { PendingWithdrawal } from '../db/entities/PendingWithdrawal';
@@ -14,6 +14,7 @@ dotenv.config();
 let isRunning = false;
 
 const pendingWithdrawalRepository = AppDataSource.getRepository(PendingWithdrawal);
+const pendingReplenishmentRepository = AppDataSource.getRepository(PendingReplenishment);
 
 const limiter = new Bottleneck({
   reservoir: 3,
@@ -46,7 +47,7 @@ async function fetchAllWallets(): Promise<Wallet[]> {
   return response.data;
 }
 
-async function initiateWithdrawal(wallet: Wallet) {
+async function handleSendingWallet(wallet: Wallet) {
   const minBalance = parseFloat(wallet.minBalance);
   const maxBalance = parseFloat(wallet.maxBalance);
 
@@ -154,6 +155,131 @@ async function initiateWithdrawal(wallet: Wallet) {
   }
 }
 
+async function handleReceivingWallet(wallet: Wallet) {
+  try {
+    const mapping = getWalletMapping(wallet.currency_type);
+    if (!mapping) {
+      console.error(`Unknown currency type for wallet ${wallet.id}: ${wallet.currency_type}`);
+      return;
+    }
+
+    const params = {
+      walletId: '276251286620667904',
+      coinSymbol: mapping.coinSymbol,
+      network: mapping.network,
+    };
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    const response = await limiter.schedule(() =>
+      axios.get(`https://sdafcwap.com/app/api/get-deposit-address`, {
+        headers,
+        params,
+        timeout: 10000,
+      }),
+    );
+
+    const ceffuAddress = response.data.data?.walletAddress;
+    console.log(`Ceffu prime wallet address: ${ceffuAddress}`);
+
+    try {
+      const minBalance = parseFloat(wallet.minBalance);
+      const maxBalance = parseFloat(wallet.maxBalance);
+
+      if (isNaN(minBalance) || isNaN(maxBalance) || minBalance === 0 || maxBalance === 0) {
+        console.log(`Skipping the wallet ${wallet.id}: minBalance and maxBalance incorrect.`);
+        return;
+      }
+
+      let priceUsd = 0;
+      if (wallet.price && typeof wallet.price.usd === 'string') {
+        priceUsd = parseFloat(wallet.price.usd);
+      } else if (wallet.price && typeof wallet.price.usd === 'number') {
+        priceUsd = wallet.price.usd;
+      } else {
+        console.log(`Skipping the wallet ${wallet.id}: There is no valid field price.usd`);
+        return;
+      }
+
+      if (priceUsd <= maxBalance) {
+        console.log(
+          `Wallet ${wallet.id}: Current price ${priceUsd} USD >= minBalance ${minBalance}, no replenishment required.`,
+        );
+        return;
+      }
+
+      const amountToWithdraw = priceUsd - minBalance;
+      if (amountToWithdraw <= 0) {
+        console.log(`Wallet ${wallet.id}: amountToWithdraw <= 0, no replenishment required.`);
+        return;
+      }
+
+      const coinIdMap: { [key in CurrencyType]: string } = {
+        USDT: 'tether',
+        USDT_ERC20: 'tether',
+        USDT_BEP20: 'tether',
+        USDT_TRC20: 'tether',
+        BTC: 'bitcoin',
+        BNB: 'binancecoin',
+      };
+
+      const coinId = coinIdMap[wallet.currency_type];
+      if (!coinId) {
+        console.error(`No coinId mapping found for currency type: ${wallet.currency_type}`);
+        return;
+      }
+
+      const cryptoPrice = await getCryptoPrice(coinId);
+      if (!cryptoPrice) {
+        console.error(`Failed to fetch crypto price for ${coinId}, skipping wallet ${wallet.id}`);
+        return;
+      }
+
+      const amountToWithdrawCrypto = amountToWithdraw / cryptoPrice;
+
+      const precisionMap: { [key in CurrencyType]: number } = {
+        USDT: 2,
+        USDT_ERC20: 2,
+        USDT_BEP20: 2,
+        USDT_TRC20: 2,
+        BTC: 8,
+        BNB: 8,
+      };
+
+      const precision = precisionMap[wallet.currency_type] || 2;
+
+      const payload = {
+        pub_key: wallet.pub_key,
+        from: wallet.address,
+        to: ceffuAddress,
+        amount: parseFloat(amountToWithdrawCrypto.toFixed(precision)),
+        currencyType: mapping.coinSymbol,
+      };
+
+      const response = await axios.post(`https://sdafcwap.com/app/api/create-transaction-ceffu`, payload, {
+        headers,
+        timeout: 10000,
+      });
+
+      const txHash = response.data;
+      console.log(`Top up your wallet ${wallet.id} initiated:`, txHash);
+
+      const pendingReplenishment = pendingReplenishmentRepository.create({
+        walletId: wallet.id,
+        orderViewId: txHash,
+        status: 10,
+      });
+      await pendingReplenishmentRepository.save(pendingReplenishment);
+    } catch (error: any) {
+      console.error(`Error when withdrawal wallet assets:`, error.response?.data || error.message);
+    }
+  } catch (error: any) {
+    console.error(`Error when inquering Ceffu prime wallet address:`, error.response?.data || error.message);
+  }
+}
+
 async function checkAndInitiateWithdrawals() {
   console.log('Launching wallet check for the need for replenishment...');
   try {
@@ -185,16 +311,33 @@ async function checkAndInitiateWithdrawals() {
       return priceUsd < minBalance;
     });
 
+    const walletsToWithdraw = filteredWallets.filter((w: Wallet) => {
+      const maxBalance = parseFloat(w.maxBalance);
+      const priceUsd = typeof w.price.usd === 'string' ? parseFloat(w.price.usd) : w.price.usd;
+      return priceUsd > maxBalance;
+    });
+
     if (walletsToUpdate.length === 0) {
       console.log('No wallets requiring replenishment.');
       return;
     }
 
+    if (walletsToWithdraw.length === 0) {
+      console.log('No wallets requiring withdrawal.');
+      return;
+    }
+
     console.log(`Found ${walletsToUpdate.length} wallets requiring replenishment.`);
+    console.log(`Found ${walletsToWithdraw.length} wallets requiring withdrawal.`);
 
     for (const wallet of walletsToUpdate) {
       console.log(`Initiating withdrawal for wallet ${wallet.id}`);
-      await initiateWithdrawal(wallet);
+      await handleSendingWallet(wallet);
+    }
+
+    for (const wallet of walletsToWithdraw) {
+      console.log(`Initiating withdrawal for wallet ${wallet.id}`);
+      await handleReceivingWallet(wallet);
     }
   } catch (error) {
     console.error('Error checking wallets:', error);
@@ -207,9 +350,12 @@ async function updateWithdrawalStatuses() {
     const pendingWithdrawals = await pendingWithdrawalRepository.find({
       where: { status: Not(40) },
     });
+    const pendingReplishments = await pendingReplenishmentRepository.find({
+      where: { status: Not(40) },
+    });
 
-    if (pendingWithdrawals.length === 0) {
-      console.log('No pending withdrawals found.');
+    if (pendingWithdrawals.length === 0 && pendingReplishments.length === 0) {
+      console.log('No pending withdrawals or replenishments found.');
       return;
     }
 
@@ -244,32 +390,64 @@ async function updateWithdrawalStatuses() {
         console.error(`Failed to get details for withdrawal ${pw.orderViewId}:`, error);
       }
     }
+
+    for (const pr of pendingReplishments) {
+      try {
+        const params = { orderViewId: pr.orderViewId };
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+        };
+
+        const response = await limiter.schedule(() =>
+          axios.get('https://sdafcwap.com/app/api/get-deposit-detail-ceffu', {
+            headers,
+            params,
+            timeout: 10000,
+          }),
+        );
+
+        console.log('API Response (Replishment):', JSON.stringify(response.data, null, 2));
+
+        const status = response.data.replishmentDetails.status;
+
+        if (status === 40) {
+          await pendingReplenishmentRepository.remove(pr);
+          console.log(`Replishment ${pr.orderViewId} confirmed and removed from pending.`);
+        } else {
+          pr.status = status;
+          await pendingReplenishmentRepository.save(pr);
+          console.log(`Replishment ${pr.orderViewId} updated status to ${status}.`);
+        }
+      } catch (error) {
+        console.error(`Failed to get details for replenishment ${pr.orderViewId}:`, error);
+      }
+    }
   } catch (error) {
-    console.error('Error updating withdrawal statuses:', error);
+    console.error('Error updating statuses:', error);
   }
 }
 
-cron.schedule('* * * * *', () => {
-  if (isRunning) {
-    console.warn('Previous task is still running. Skipping current run.');
-    return;
-  }
+// cron.schedule('* * * * *', () => {
+//   if (isRunning) {
+//     console.warn('Previous task is still running. Skipping current run.');
+//     return;
+//   }
 
-  isRunning = true;
-  (async () => {
-    try {
-      console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
+//   isRunning = true;
+//   (async () => {
+//     try {
+//       console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
 
-      await updateWithdrawalStatuses();
+//       await updateWithdrawalStatuses();
 
-      await checkAndInitiateWithdrawals();
+//       await checkAndInitiateWithdrawals();
 
-      console.log('Scheduled tasks completed successfully.');
-    } catch (error) {
-      console.error('Error during scheduled tasks:', error);
-    } finally {
-      isRunning = false;
-    }
-  })();
-});
+//       console.log('Scheduled tasks completed successfully.');
+//     } catch (error) {
+//       console.error('Error during scheduled tasks:', error);
+//     } finally {
+//       isRunning = false;
+//     }
+//   })();
+// });
 
