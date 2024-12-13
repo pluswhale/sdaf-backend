@@ -60,7 +60,7 @@ router.get('/get-deposit-address', getDepositAddressCeffu);
 router.get('/get-deposit-detail-ceffu', getDepositDetailCeffu);
 router.get('/get-withdrawal-history-ceffu', getWithdrawalHistoryCeffu);
 router.post('/initiate-withdrawal-ceffu', initiateWithdrawalCeffu);
-router.post('/create-transaction-ceffu', createTransaction);
+router.post('/create-transaction-ceffu', makeTransaction);
 router.get('/get-withdrawal-details-ceffu', getWithdrawalDetailsCeffu);
 
 export default router;
