@@ -294,8 +294,13 @@ async function checkAndInitiateWithdrawals() {
       .filter((pw) => pw.status !== 40 && pw.status !== 0)
       .map((pw) => pw.walletId);
 
+    const pendingReplenishments = await pendingReplenishmentRepository.find();
+    const walletIdsWithPendingReplenishments = pendingReplenishments
+      .filter((pr) => pr.status !== 40 && pr.status !== 0)
+      .map((pr) => pr.walletId);
+
     const filteredWallets = wallets.filter((w: Wallet) => {
-      if (walletIdsWithPending.includes(w.id)) return false;
+      if (walletIdsWithPending.includes(w.id) || walletIdsWithPendingReplenishments.includes(w.id)) return false;
 
       return w.minBalance !== '0' && w.maxBalance !== '0' && w.price && w.price.usd;
     });
@@ -322,8 +327,12 @@ async function checkAndInitiateWithdrawals() {
     } else {
       console.log(`Found ${walletsToUpdate.length} wallets requiring replenishment.`);
       for (const wallet of walletsToUpdate) {
-        console.log(`Initiating withdrawal for wallet ${wallet.id}`);
-        await handleSendingWallet(wallet);
+        if (wallet.wallet_type === 'sending') {
+          console.log(`Initiating withdrawal for wallet ${wallet.id} (sending)`);
+          await handleSendingWallet(wallet);
+        } else {
+          console.log(`Skipping wallet ${wallet.id} (not sending)`);
+        }
       }
     }
 
@@ -332,8 +341,12 @@ async function checkAndInitiateWithdrawals() {
     } else {
       console.log(`Found ${walletsToWithdraw.length} wallets requiring withdrawal.`);
       for (const wallet of walletsToWithdraw) {
-        console.log(`Initiating withdrawal for wallet ${wallet.id}`);
-        await handleReceivingWallet(wallet);
+        if (wallet.wallet_type === 'receiving') {
+          console.log(`Initiating withdrawal for wallet ${wallet.id} (receiving)`);
+          await handleReceivingWallet(wallet);
+        } else {
+          console.log(`Skipping wallet ${wallet.id} (not receiving)`);
+        }
       }
     }
   } catch (error) {
