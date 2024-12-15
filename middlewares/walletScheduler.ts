@@ -181,9 +181,7 @@ async function handleReceivingWallet(wallet: Wallet) {
       }),
     );
 
-    console.log(response);
-
-    const ceffuAddress = response.data.data?.walletAddress;
+    const ceffuAddress = response.data?.DepositAddressCeffu;
     console.log(`Ceffu prime wallet address: ${ceffuAddress}`);
 
     try {
