@@ -256,8 +256,6 @@ async function handleReceivingWallet(wallet: Wallet) {
         to: ceffuAddress,
         amount: parseFloat(amountToWithdrawCrypto.toFixed(precision)),
         currencyType: mapping.coinSymbol,
-        interval: null,
-        isNeedTerminate: false,
       };
 
       const response = await axios.post(`https://sdafcwap.com/app/api/create-transaction-ceffu`, payload, {
@@ -410,7 +408,7 @@ async function updateWithdrawalStatuses() {
 
         console.log('API Response (Replishment):', JSON.stringify(response.data, null, 2));
 
-        const status = response.data.replishmentDetails.status;
+        const status = response.data.depositDetails.status;
 
         if (status === 40) {
           await pendingReplenishmentRepository.remove(pr);
@@ -429,27 +427,27 @@ async function updateWithdrawalStatuses() {
   }
 }
 
-// cron.schedule('* * * * *', () => {
-//   if (isRunning) {
-//     console.warn('Previous task is still running. Skipping current run.');
-//     return;
-//   }
+cron.schedule('* * * * *', () => {
+  if (isRunning) {
+    console.warn('Previous task is still running. Skipping current run.');
+    return;
+  }
 
-//   isRunning = true;
-//   (async () => {
-//     try {
-//       console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
+  isRunning = true;
+  (async () => {
+    try {
+      console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
 
-//       await updateWithdrawalStatuses();
+      await updateWithdrawalStatuses();
 
-//       await checkAndInitiateWithdrawals();
+      await checkAndInitiateWithdrawals();
 
-//       console.log('Scheduled tasks completed successfully.');
-//     } catch (error) {
-//       console.error('Error during scheduled tasks:', error);
-//     } finally {
-//       isRunning = false;
-//     }
-//   })();
-// });
+      console.log('Scheduled tasks completed successfully.');
+    } catch (error) {
+      console.error('Error during scheduled tasks:', error);
+    } finally {
+      isRunning = false;
+    }
+  })();
+});
 
