@@ -263,7 +263,7 @@ async function handleReceivingWallet(wallet: Wallet) {
         timeout: 10000,
       });
 
-      const txHash = response.data;
+      const txHash = response.data.transactionHash;
       console.log(`Top up your wallet ${wallet.id} initiated:`, txHash);
 
       const pendingReplenishment = pendingReplenishmentRepository.create({
