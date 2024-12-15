@@ -319,25 +319,22 @@ async function checkAndInitiateWithdrawals() {
 
     if (walletsToUpdate.length === 0) {
       console.log('No wallets requiring replenishment.');
-      return;
+    } else {
+      console.log(`Found ${walletsToUpdate.length} wallets requiring replenishment.`);
+      for (const wallet of walletsToUpdate) {
+        console.log(`Initiating withdrawal for wallet ${wallet.id}`);
+        await handleSendingWallet(wallet);
+      }
     }
 
     if (walletsToWithdraw.length === 0) {
       console.log('No wallets requiring withdrawal.');
-      return;
-    }
-
-    console.log(`Found ${walletsToUpdate.length} wallets requiring replenishment.`);
-    console.log(`Found ${walletsToWithdraw.length} wallets requiring withdrawal.`);
-
-    for (const wallet of walletsToUpdate) {
-      console.log(`Initiating withdrawal for wallet ${wallet.id}`);
-      await handleSendingWallet(wallet);
-    }
-
-    for (const wallet of walletsToWithdraw) {
-      console.log(`Initiating withdrawal for wallet ${wallet.id}`);
-      await handleReceivingWallet(wallet);
+    } else {
+      console.log(`Found ${walletsToWithdraw.length} wallets requiring withdrawal.`);
+      for (const wallet of walletsToWithdraw) {
+        console.log(`Initiating withdrawal for wallet ${wallet.id}`);
+        await handleReceivingWallet(wallet);
+      }
     }
   } catch (error) {
     console.error('Error checking wallets:', error);
