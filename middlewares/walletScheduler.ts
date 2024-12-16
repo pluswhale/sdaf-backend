@@ -403,7 +403,7 @@ async function updateWithdrawalStatuses() {
 
     for (const pr of pendingReplishments) {
       try {
-        const params = { orderViewId: pr.orderViewId };
+        const params = { txId: pr.orderViewId };
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
         };
@@ -416,7 +416,7 @@ async function updateWithdrawalStatuses() {
           }),
         );
 
-        console.log('API Response (Replishment):', response);
+        console.log('API Response (Replishment):', JSON.stringify(response.data, null, 2));
 
         const status = response.data.depositDetails.status;
 
