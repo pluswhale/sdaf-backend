@@ -418,7 +418,7 @@ async function updateWithdrawalStatuses() {
 
         console.log('API Response (Replishment):', JSON.stringify(response.data, null, 2));
 
-        const status = response.data.depositDetails.status;
+        const status = response.data.depositDetails[0]?.status;
 
         if (status === 40) {
           await pendingReplenishmentRepository.remove(pr);
