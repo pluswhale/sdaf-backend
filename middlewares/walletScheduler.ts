@@ -416,7 +416,7 @@ async function updateWithdrawalStatuses() {
           }),
         );
 
-        console.log('API Response (Replishment):', JSON.stringify(response, null, 2));
+        console.log('API Response (Replishment):', JSON.stringify(response.data.data, null, 2));
 
         const status = response.data.depositDetails.status;
 
