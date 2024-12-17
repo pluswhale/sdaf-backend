@@ -30,6 +30,7 @@ import { getDepositAddressCeffu } from '../controllers/getDepositAddressCeffu';
 import { createTransaction } from '../controllers/transactions/createTransaction';
 import { getDepositDetailCeffu } from '../controllers/getDepositDetailCeffu';
 import makeTransactionCeffu from '../controllers/makeTransactionCeffu';
+import { renameWallet, validateRenamingWallet } from '../controllers/renameWallet';
 
 const router = express.Router();
 
@@ -39,6 +40,7 @@ router.get('/wallets-without-price', authenticate, getAllWalletsWithoutPrice);
 router.post('/transaction', validateTransaction, authenticate, makeTransaction);
 router.get('/balance', validateGetBalance, getBalanceOfAddress);
 router.put('/wallet/update-minmax/:id', validateSetUpMixMaxInWallet, setUpMinAndMaxWallet);
+router.patch('/wallet/update-name/:id', validateRenamingWallet, renameWallet);
 
 router.post('/login', loginUser);
 router.post('/refresh', refreshToken);
