@@ -55,6 +55,16 @@ export const checkBalanceUSDT = async (walletAddress: string) => {
   const decimals = await usdtContract.decimals();
   const formattedBalance = parseFloat(formatUnits(balanceInUSDT, decimals));
 
-  return formattedBalance.toFixed(2);
+  const response = await axios.get('https://api.binance.com/api/v3/ticker/price', {
+    params: {
+      symbol: 'USDTUSDT',
+    },
+  });
+
+  const usdtToUsdRate = parseFloat(response.data.price);
+
+  const balanceInUSD = formattedBalance * usdtToUsdRate;
+
+  return { usdt: formattedBalance.toFixed(2), usd: balanceInUSD.toFixed(2) };
 };
 
