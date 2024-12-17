@@ -55,13 +55,14 @@ export const checkBalanceUSDT = async (walletAddress: string) => {
   const decimals = await usdtContract.decimals();
   const formattedBalance = parseFloat(formatUnits(balanceInUSDT, decimals));
 
-  const response = await axios.get('https://api.binance.com/api/v3/ticker/price', {
+  const response = await axios.get('https://api.coingecko.com/api/v3/simple/price', {
     params: {
-      symbol: 'USDTUSDT',
+      ids: 'tether',
+      vs_currencies: 'usd',
     },
   });
 
-  const usdtToUsdRate = parseFloat(response.data.price);
+  const usdtToUsdRate = parseFloat(response.data.tether.usd);
 
   const balanceInUSD = formattedBalance * usdtToUsdRate;
 
