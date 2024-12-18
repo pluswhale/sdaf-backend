@@ -1,5 +1,5 @@
 // wallet.controller.ts
-import { checkBalanceBTCToUSDT, checkBalanceInBNB, checkBalanceUSDT, getUSDTPriceInUSD } from '../services';
+import { checkBalanceBTCToUSDT, checkBalanceInBNB, checkBalanceUSDT, fetchUSDTPrice } from '../services';
 import { AppDataSource } from '../db/AppDataSource';
 import { Wallet } from '../db/entities';
 import { Request, Response } from 'express';
@@ -22,7 +22,7 @@ export const getAllWallets = async (req: Request, res: Response): Promise<any> =
         } else if (wallet.currency_type === 'USDT_BEP20') {
           const usd = await checkBalanceUSDT(wallet.address);
           const bnb = await checkBalanceInBNB(wallet.address);
-          const usdtPrice = await getUSDTPriceInUSD();
+          const usdtPrice = await fetchUSDTPrice();
           const usdValue = parseFloat(usd) * usdtPrice;
           return { ...wallet, price: { usd, bnb, usdValue: usdValue.toFixed(2) } };
         } else {
