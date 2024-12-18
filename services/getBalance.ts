@@ -34,6 +34,25 @@ export const checkBalanceBTCToUSDT = async (btcAddress: string) => {
   }
 };
 
+// USDT Block
+
+export const getUSDTPriceInUSD = async (): Promise<number> => {
+  try {
+    const response = await axios.get('https://api.coingecko.com/api/v3/simple/price', {
+      params: {
+        ids: 'tether',
+        vs_currencies: 'usd',
+      },
+    });
+
+    const price = response.data.tether.usd;
+    return price;
+  } catch (error) {
+    console.error('Error fetching USDT price:', error);
+    return 1;
+  }
+};
+
 const USDT_ABI = [
   'function balanceOf(address owner) view returns (uint256)',
   'function decimals() view returns (uint8)', // Add the decimals method
