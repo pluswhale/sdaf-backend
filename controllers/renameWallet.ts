@@ -30,7 +30,7 @@ export const renameWallet = async (req: Request, res: Response): Promise<any> =>
 
     const updatedWallet = await walletRepository.findOne({ where: { id } });
 
-    return res.json({ message: 'Wallet name updated successfully', wallet: updatedWallet });
+    return res.json({ message: 'Wallet name updated successfully!', wallet: updatedWallet });
   } catch (error) {
     console.error('Error updating wallet name:', error);
     return res.status(500).json({ message: 'Internal server error' });
