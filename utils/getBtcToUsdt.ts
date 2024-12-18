@@ -1,13 +1,20 @@
 import axios from 'axios';
 
 import dotenv from 'dotenv';
+import { getCache, setCache } from './cacheService';
 
 dotenv.config();
 
 export const getBitcoinBalance = async (btcAddress: string): Promise<number> => {
   const network: string = process.env.NETWORK === 'mainnet' ? '' : 'testnet/';
+  const cacheKey = `BTC_BALANCE_${network}${btcAddress}`;
 
-  console.log('network: ' + network);
+  const cachedBalance = getCache(cacheKey);
+  if (cachedBalance !== undefined) {
+    return cachedBalance;
+  }
+
+  console.log('Fetching balance for address:', btcAddress, 'on network:', network);
 
   try {
     const response = await axios.get(`https://blockstream.info/${network}api/address/${btcAddress}`);
@@ -16,6 +23,8 @@ export const getBitcoinBalance = async (btcAddress: string): Promise<number> => 
     const spent = response?.data.chain_stats?.spent_txo_sum;
 
     const balance = (funded - spent) / 1e8; // Convert from satoshis to BTC
+
+    setCache(cacheKey, balance, 60);
 
     return balance;
   } catch (error) {
