@@ -74,6 +74,8 @@ export const fetchUSDTPrice = async (): Promise<number> => {
     });
 
     const price = response.data.tether.usd;
+    console.log(`this is real price USDT in USD from CoinGeko: ${price} `);
+
     setCache(cacheKey, price, 60);
     return price;
   } catch (error) {
