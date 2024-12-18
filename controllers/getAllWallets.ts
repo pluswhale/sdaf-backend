@@ -14,6 +14,8 @@ export const getAllWallets = async (req: Request, res: Response): Promise<any> =
       return res.status(400).json({ message: 'Wallets not found' });
     }
 
+    const usdtPrice = await fetchUSDTPrice();
+
     const walletsWithPrice = await Promise.all(
       wallets.map(async (wallet) => {
         if (wallet.currency_type === 'BTC') {
@@ -22,7 +24,6 @@ export const getAllWallets = async (req: Request, res: Response): Promise<any> =
         } else if (wallet.currency_type === 'USDT_BEP20') {
           const usd = await checkBalanceUSDT(wallet.address);
           const bnb = await checkBalanceInBNB(wallet.address);
-          const usdtPrice = await fetchUSDTPrice();
           const usdValue = parseFloat(usd) * usdtPrice;
           return { ...wallet, price: { usd, bnb, usdValue: usdValue.toFixed(2) } };
         } else {
