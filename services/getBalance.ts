@@ -2,7 +2,6 @@ import axios from 'axios';
 import { ethProvider } from '../config';
 import { Contract, formatEther, formatUnits } from 'ethers';
 import { getBitcoinBalance } from '../utils';
-import NodeCache from 'node-cache';
 
 import dotenv from 'dotenv';
 import { getCache, setCache } from '../utils/cacheService';
