@@ -85,7 +85,7 @@ async function handleSendingWallet(wallet: Wallet) {
     return;
   }
 
-  const coinIdMap: { [key in CurrencyType]: string } = {
+  const coinIdMap: Partial<Record<CurrencyType, string>> = {
     USDT: 'tether',
     USDT_ERC20: 'tether',
     USDT_BEP20: 'tether',
@@ -108,7 +108,7 @@ async function handleSendingWallet(wallet: Wallet) {
 
   const amountToWithdrawCrypto = amountToWithdraw / cryptoPrice;
 
-  const precisionMap: { [key in CurrencyType]: number } = {
+  const precisionMap: Partial<Record<CurrencyType, number>> = {
     USDT: 2,
     USDT_ERC20: 2,
     USDT_BEP20: 2,
@@ -216,7 +216,7 @@ async function handleReceivingWallet(wallet: Wallet) {
         return;
       }
 
-      const coinIdMap: { [key in CurrencyType]: string } = {
+      const coinIdMap: Partial<Record<CurrencyType, string>> = {
         USDT: 'tether',
         USDT_ERC20: 'tether',
         USDT_BEP20: 'tether',
@@ -239,7 +239,7 @@ async function handleReceivingWallet(wallet: Wallet) {
 
       const amountToWithdrawCrypto = amountToWithdraw / cryptoPrice;
 
-      const precisionMap: { [key in CurrencyType]: number } = {
+      const precisionMap: Partial<Record<CurrencyType, number>> = {
         USDT: 2,
         USDT_ERC20: 2,
         USDT_BEP20: 2,
