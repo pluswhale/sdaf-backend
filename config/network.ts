@@ -5,6 +5,11 @@ export const ethProviders = {
   testnet: new JsonRpcProvider('https://data-seed-prebsc-1-s1.binance.org:8545/'),
 } as { [key: string]: JsonRpcProvider };
 
+export const CoinWebProviders = {
+  mainnet: new JsonRpcProvider('https://geth-devnet-l1b.coinweb.io'),
+  testnet: new JsonRpcProvider('https://geth-devnet-l1b.coinweb.io'),
+} as { [key: string]: JsonRpcProvider };
+
 const bitcoinProvider = {
   mainnet: '',
   testnet: '',
