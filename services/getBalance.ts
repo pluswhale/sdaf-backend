@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ethProvider } from '../config';
+import { ethProviders } from '../config';
 import { Contract, formatEther, formatUnits } from 'ethers';
 import { getBitcoinBalance } from '../utils';
 
@@ -8,8 +8,10 @@ import { getCache, setCache } from '../utils/cacheService';
 
 dotenv.config();
 
-export const checkBalanceInBNB = async (address: string) => {
-  const provider = ethProvider; // Ensure `ethProvider` is connected to the BNB mainnet
+//BNB Block
+
+export const checkBalanceInBNB = async (address: string, isMainnet: boolean) => {
+  const provider = isMainnet ? ethProviders['mainnet'] : ethProviders['testnet']; // Ensure `ethProvider` is connected to the BNB mainnet
   const balanceInWei = await provider.getBalance(address);
 
   const formattedBalance = parseFloat(formatEther(balanceInWei));
@@ -41,8 +43,8 @@ export const getBTCtoUSDTRate = async (): Promise<number> => {
   }
 };
 
-export const checkBalanceBTCToUSDT = async (btcAddress: string) => {
-  const balanceInBTC = await getBitcoinBalance(btcAddress);
+export const checkBalanceBTCToUSDT = async (btcAddress: string, isMainnet: boolean) => {
+  const balanceInBTC = await getBitcoinBalance(btcAddress, isMainnet);
 
   const btcToUsdtRate = await getBTCtoUSDTRate();
 
@@ -88,15 +90,13 @@ const USDT_ABI = [
   'function decimals() view returns (uint8)', // Add the decimals method
 ];
 
-const USDT_CONTRACT_ADDRESS: string =
-  (process.env.NETWORK === 'testnet'
-    ? process.env.USDT_CONTRACT_ADDRESS_TESTNET
-    : process.env.USDT_CONTRACT_ADDRESS_MAINNET) || '';
+export const checkBalanceUSDT = async (walletAddress: string, isMainnet: boolean) => {
+  const USDT_CONTRACT_ADDRESS: string =
+    (isMainnet ? process.env.USDT_CONTRACT_ADDRESS_MAINNET : process.env.USDT_CONTRACT_ADDRESS_TESTNET) || '';
 
-export const checkBalanceUSDT = async (walletAddress: string) => {
   console.log('usdt contract addres', USDT_CONTRACT_ADDRESS);
 
-  const provider = ethProvider;
+  const provider = isMainnet ? ethProviders['mainnet'] : ethProviders['testnet'];
   const usdtContract = new Contract(USDT_CONTRACT_ADDRESS, USDT_ABI, provider);
 
   // Get the balance of USDT in the wallet
