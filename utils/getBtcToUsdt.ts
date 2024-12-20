@@ -5,8 +5,8 @@ import { getCache, setCache } from './cacheService';
 
 dotenv.config();
 
-export const getBitcoinBalance = async (btcAddress: string): Promise<number> => {
-  const network: string = process.env.NETWORK === 'mainnet' ? '' : 'testnet/';
+export const getBitcoinBalance = async (btcAddress: string, isMainnet: boolean): Promise<number> => {
+  const network: string = isMainnet ? 'mainnet' : 'testnet';
   const cacheKey = `BTC_BALANCE_${network}${btcAddress}`;
 
   const cachedBalance = getCache(cacheKey);
