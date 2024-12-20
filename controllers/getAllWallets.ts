@@ -1,4 +1,10 @@
-import { checkBalanceBTCToUSDT, checkBalanceInBNB, checkBalanceUSDT, fetchUSDTPrice } from '../services';
+import {
+  checkBalanceBTCToUSDT,
+  checkBalanceInBNB,
+  checkBalanceUSDT,
+  checkBalanceUSDT_CT,
+  fetchUSDTPrice,
+} from '../services';
 import { AppDataSource } from '../db/AppDataSource';
 import { Wallet } from '../db/entities';
 import { Request, Response } from 'express';
@@ -19,6 +25,12 @@ const processUSDT_BEP20: WalletProcessor = async (wallet, usdtPrice, isMainnet) 
   return { ...wallet, price: { usd, bnb, usdValue: usdValue.toFixed(2) } };
 };
 
+const processUSDT_CT: WalletProcessor = async (wallet, usdtPrice, isMainnet) => {
+  const usd = await checkBalanceUSDT_CT(wallet.address, isMainnet);
+  const usdValue = parseFloat(usd) * usdtPrice;
+  return { ...wallet, price: { usd, usdValue: usdValue.toFixed(2) } };
+};
+
 const processDefault: WalletProcessor = async (wallet) => {
   return wallet;
 };
@@ -27,7 +39,7 @@ export const walletProcessors: { [key: string]: WalletProcessor } = {
   BTC: processBTC,
   BTC_T: processBTC,
   USDT_BEP20: processUSDT_BEP20,
-  USDT_CT: processUSDT_BEP20,
+  USDT_CT: processUSDT_CT,
   USDT_T: processUSDT_BEP20,
   USDT_TRC20: processUSDT_BEP20,
   USDT_ERC20: processUSDT_BEP20,

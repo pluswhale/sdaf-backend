@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ethProviders } from '../config';
+import { CoinWebProviders, ethProviders } from '../config';
 import { Contract, formatEther, formatUnits } from 'ethers';
 import { getBitcoinBalance } from '../utils';
 
@@ -97,6 +97,25 @@ export const checkBalanceUSDT = async (walletAddress: string, isMainnet: boolean
   console.log('usdt contract addres', USDT_CONTRACT_ADDRESS);
 
   const provider = isMainnet ? ethProviders['mainnet'] : ethProviders['testnet'];
+  const usdtContract = new Contract(USDT_CONTRACT_ADDRESS, USDT_ABI, provider);
+
+  // Get the balance of USDT in the wallet
+  const balanceInUSDT = await usdtContract.balanceOf(walletAddress);
+  const decimals = await usdtContract.decimals();
+  const formattedBalance = parseFloat(formatUnits(balanceInUSDT, decimals));
+
+  return formattedBalance.toFixed(2);
+};
+
+export const checkBalanceUSDT_CT = async (walletAddress: string, isMainnet: boolean) => {
+  const USDT_CONTRACT_ADDRESS: string =
+    (isMainnet
+      ? process.env.USDT_CONTRACT_ADDRESS_MAINNET
+      : process.env.USDT_CONTRACT_ADDRESS_MAINNET_DEVNET_COINWEB) || '';
+
+  console.log('usdt contract addres', USDT_CONTRACT_ADDRESS);
+
+  const provider = isMainnet ? CoinWebProviders['mainnet'] : CoinWebProviders['testnet'];
   const usdtContract = new Contract(USDT_CONTRACT_ADDRESS, USDT_ABI, provider);
 
   // Get the balance of USDT in the wallet
