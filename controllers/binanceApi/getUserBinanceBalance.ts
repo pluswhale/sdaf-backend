@@ -16,7 +16,7 @@ interface AssetBinance {
   usdValue: number;
 }
 
-export const getUserBalance = async (req: Request, res: Response): Promise<void> => {
+export const getUserBinanceBalance = async (req: Request, res: Response): Promise<void> => {
   try {
     const timestamp = Date.now().toString();
 

@@ -31,6 +31,7 @@ import { createTransaction } from '../controllers/transactions/createTransaction
 import { getDepositDetailCeffu } from '../controllers/getDepositDetailCeffu';
 import makeTransactionCeffu from '../controllers/makeTransactionCeffu';
 import { renameWallet, validateRenamingWallet } from '../controllers/renameWallet';
+import { getUserBinanceBalance } from '../controllers/binanceApi/getUserBinanceBalance';
 
 const router = express.Router();
 
@@ -67,7 +68,7 @@ router.post('/create-transaction-ceffu', makeTransactionCeffu);
 router.get('/get-withdrawal-details-ceffu', getWithdrawalDetailsCeffu);
 
 // BINANCE Wallets Balances
-router.get('/balance-binance', getUserBalance);
+router.get('/balance-binance', getUserBinanceBalance);
 
 export default router;
 
