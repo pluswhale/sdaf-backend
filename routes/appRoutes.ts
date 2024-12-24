@@ -66,5 +66,8 @@ router.post('/initiate-withdrawal-ceffu', initiateWithdrawalCeffu);
 router.post('/create-transaction-ceffu', makeTransactionCeffu);
 router.get('/get-withdrawal-details-ceffu', getWithdrawalDetailsCeffu);
 
+// BINANCE Wallets Balances
+router.get('/balance-binance', getUserBalance);
+
 export default router;
 
