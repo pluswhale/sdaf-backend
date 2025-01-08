@@ -20,9 +20,8 @@ const processBTC: WalletProcessor = async (wallet, assetPrice, isMainnet) => {
 
 const processUSDT_BEP20: WalletProcessor = async (wallet, assetPrice, isMainnet) => {
   const usd = await checkBalanceUSDT(wallet.address, isMainnet);
-  const bnb = await checkBalanceInBNB(wallet.address, isMainnet);
   const usdValue = parseFloat(usd) * assetPrice;
-  return { ...wallet, price: { usd, bnb, usdValue: usdValue.toFixed(2) } };
+  return { ...wallet, price: { usd, usdValue: usdValue.toFixed(2) } };
 };
 
 const processBNB: WalletProcessor = async (wallet, assetPrice, isMainnet) => {
