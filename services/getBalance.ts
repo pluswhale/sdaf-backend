@@ -69,7 +69,7 @@ export const fetchAssetPrice = async (symbol: string): Promise<number> => {
   const assetId = COINGECKO_IDS[symbol];
 
   if (!assetId) {
-    throw new Error(`Unsupported asset symbol: ${symbol}`);
+    return 1;
   }
 
   const cacheKey = `ASSET_PRICE_USD_${symbol}`;
