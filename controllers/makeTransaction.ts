@@ -27,7 +27,7 @@ export const makeTransaction = async (req: Request, res: Response): Promise<any>
   }
 
   try {
-    console.log('THIS IS START!');
+    console.log('WHATS GOING ON ????', req.body);
 
     const response = await axios.post(`${backendUrl()}/api/transaction`, req.body);
 
