@@ -16,7 +16,7 @@ export const checkBalanceInBNB = async (address: string, isMainnet: boolean) => 
 
   const formattedBalance = parseFloat(formatEther(balanceInWei));
 
-  return formattedBalance;
+  return formattedBalance.toFixed(2);
 };
 
 // Bitcoin block
@@ -58,8 +58,21 @@ export const checkBalanceBTCToUSDT = async (btcAddress: string, isMainnet: boole
 
 // USDT Block
 
-export const fetchUSDTPrice = async (): Promise<number> => {
-  const cacheKey = 'USDT_PRICE_USD';
+export const fetchAssetPrice = async (symbol: string): Promise<number> => {
+  const COINGECKO_IDS: { [symbol: string]: string } = {
+    ETH: 'ethereum',
+    BNB: 'binancecoin',
+    USDT_BEP20: 'tether',
+    BTC: 'bitcoin',
+  };
+
+  const assetId = COINGECKO_IDS[symbol];
+
+  if (!assetId) {
+    throw new Error(`Unsupported asset symbol: ${symbol}`);
+  }
+
+  const cacheKey = `ASSET_PRICE_USD_${symbol}`;
   const cachedPrice = getCache(cacheKey);
 
   if (cachedPrice !== undefined) {
@@ -69,18 +82,18 @@ export const fetchUSDTPrice = async (): Promise<number> => {
   try {
     const response = await axios.get('https://api.coingecko.com/api/v3/simple/price', {
       params: {
-        ids: 'tether',
+        ids: assetId,
         vs_currencies: 'usd',
       },
     });
 
-    const price = response.data.tether.usd;
-    console.log(`this is real price USDT in USD from CoinGeko: ${price} `);
+    const price = response.data[assetId].usd;
+    console.log(`Real price of ${symbol} in USD from CoinGecko: ${price}`);
 
     setCache(cacheKey, price, 60);
     return price;
   } catch (error) {
-    console.error('Error fetching USDT price:', error);
+    console.error(`Error fetching ${symbol} price:`, error);
     return 1;
   }
 };
