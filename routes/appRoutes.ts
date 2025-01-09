@@ -31,6 +31,7 @@ import { createTransaction } from '../controllers/transactions/createTransaction
 import { getDepositDetailCeffu } from '../controllers/getDepositDetailCeffu';
 import makeTransactionCeffu from '../controllers/makeTransactionCeffu';
 import { renameWallet, validateRenamingWallet } from '../controllers/renameWallet';
+import { getAssetPrice } from '../controllers/transactions/getAssetPrice';
 
 const router = express.Router();
 
@@ -65,6 +66,9 @@ router.get('/get-withdrawal-history-ceffu', getWithdrawalHistoryCeffu);
 router.post('/initiate-withdrawal-ceffu', initiateWithdrawalCeffu);
 router.post('/create-transaction-ceffu', makeTransactionCeffu);
 router.get('/get-withdrawal-details-ceffu', getWithdrawalDetailsCeffu);
+
+// CoinGeko prices
+router.get('/get-asset-price', getAssetPrice);
 
 export default router;
 
