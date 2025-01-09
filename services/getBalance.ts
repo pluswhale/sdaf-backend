@@ -16,7 +16,45 @@ export const checkBalanceInBNB = async (address: string, isMainnet: boolean) => 
 
   const formattedBalance = parseFloat(formatEther(balanceInWei));
 
-  return formattedBalance.toFixed(2);
+  return formattedBalance;
+};
+
+export const getBNBtoUSDRate = async (): Promise<number> => {
+  const cacheKey = 'BNB_USD_RATE';
+  const cachedRate = getCache(cacheKey);
+
+  if (cachedRate !== undefined) {
+    return cachedRate;
+  }
+
+  try {
+    const response = await axios.get('https://api.coingecko.com/api/v3/simple/price', {
+      params: {
+        ids: 'binancecoin',
+        vs_currencies: 'usd',
+      },
+    });
+
+    const BnbToUsdRate = response.data.binancecoin.usd;
+    setCache(cacheKey, BnbToUsdRate, 60);
+    return BnbToUsdRate;
+  } catch (error) {
+    console.error('Error fetching BNB to USD rate:', error);
+    return 0;
+  }
+};
+
+export const checkBalanceBNBToUSD = async (bnbAddress: string, isMainnet: boolean) => {
+  const balanceInBNB = await checkBalanceInBNB(bnbAddress, isMainnet);
+
+  const bnbToUsdRate = await getBNBtoUSDRate();
+
+  if (bnbToUsdRate === 0) {
+    return { usd: '0.00', bnb: balanceInBNB };
+  }
+
+  const balanceInUSD = balanceInBNB * bnbToUsdRate;
+  return { usd: balanceInUSD.toFixed(2), bnb: balanceInBNB };
 };
 
 // Bitcoin block
@@ -58,44 +96,17 @@ export const checkBalanceBTCToUSDT = async (btcAddress: string, isMainnet: boole
 
 // USDT Block
 
-export const fetchAssetPrice = async (symbol: string): Promise<number> => {
-  const COINGECKO_IDS: { [symbol: string]: string } = {
-    ETH: 'ethereum',
-    BNB: 'binancecoin',
-    USDT_BEP20: 'tether',
-    BTC: 'bitcoin',
-  };
+export const checkBalanceUSDTToUSD = async (usdtAddress: string, isMainnet: boolean) => {
+  const balanceInUSDT = await checkBalanceUSDT(usdtAddress, isMainnet);
 
-  const assetId = COINGECKO_IDS[symbol];
+  const usdtToUsdRate = await getUSDTtoUSDRate();
 
-  if (!assetId) {
-    return 1;
+  if (usdtToUsdRate === 0) {
+    return { usd: '0.00', usdt: balanceInUSDT };
   }
 
-  const cacheKey = `ASSET_PRICE_USD_${symbol}`;
-  const cachedPrice = getCache(cacheKey);
-
-  if (cachedPrice !== undefined) {
-    return cachedPrice;
-  }
-
-  try {
-    const response = await axios.get('https://api.coingecko.com/api/v3/simple/price', {
-      params: {
-        ids: assetId,
-        vs_currencies: 'usd',
-      },
-    });
-
-    const price = response.data[assetId].usd;
-    console.log(`Real price of ${symbol} in USD from CoinGecko: ${price}`);
-
-    setCache(cacheKey, price, 60);
-    return price;
-  } catch (error) {
-    console.error(`Error fetching ${symbol} price:`, error);
-    return 1;
-  }
+  const balanceInUSD = balanceInUSDT * usdtToUsdRate;
+  return { usd: balanceInUSD.toFixed(2), usdt: balanceInUSDT };
 };
 
 const USDT_ABI = [
@@ -117,7 +128,7 @@ export const checkBalanceUSDT = async (walletAddress: string, isMainnet: boolean
   const decimals = await usdtContract.decimals();
   const formattedBalance = parseFloat(formatUnits(balanceInUSDT, decimals));
 
-  return formattedBalance.toFixed(2);
+  return formattedBalance;
 };
 
 export const checkBalanceUSDT_CT = async (walletAddress: string, isMainnet: boolean) => {
@@ -137,5 +148,30 @@ export const checkBalanceUSDT_CT = async (walletAddress: string, isMainnet: bool
   const formattedBalance = parseFloat(formatUnits(balanceInUSDT, decimals));
 
   return formattedBalance.toFixed(2);
+};
+
+export const getUSDTtoUSDRate = async (): Promise<number> => {
+  const cacheKey = 'USDT_USD_RATE';
+  const cachedRate = getCache(cacheKey);
+
+  if (cachedRate !== undefined) {
+    return cachedRate;
+  }
+
+  try {
+    const response = await axios.get('https://api.coingecko.com/api/v3/simple/price', {
+      params: {
+        ids: 'tether',
+        vs_currencies: 'usd',
+      },
+    });
+
+    const BnbToUsdRate = response.data.tether.usd;
+    setCache(cacheKey, BnbToUsdRate, 60);
+    return BnbToUsdRate;
+  } catch (error) {
+    console.error('Error fetching USDT to USD rate:', error);
+    return 0;
+  }
 };
 
