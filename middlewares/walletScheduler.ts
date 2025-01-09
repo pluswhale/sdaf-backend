@@ -4,7 +4,6 @@ import Bottleneck from 'bottleneck';
 import dotenv from 'dotenv';
 import { getWalletMapping } from '../utils';
 import { CurrencyType, PendingReplenishment } from '../db/entities';
-import { getCryptoPrice } from '../services/priceService';
 import { AppDataSource } from '../db/AppDataSource';
 import { PendingWithdrawal } from '../db/entities/PendingWithdrawal';
 import { Not } from 'typeorm';
@@ -86,12 +85,13 @@ async function handleSendingWallet(wallet: Wallet) {
   }
 
   const coinIdMap: Partial<Record<CurrencyType, string>> = {
-    USDT: 'tether',
-    USDT_ERC20: 'tether',
-    USDT_BEP20: 'tether',
-    USDT_TRC20: 'tether',
-    BTC: 'bitcoin',
-    BNB: 'binancecoin',
+    USDT: 'USDT',
+    USDT_ERC20: 'USDT',
+    USDT_BEP20: 'USDT',
+    USDT_TRC20: 'USDT',
+    BTC: 'BTC',
+    BNB: 'BNB',
+    ETH: 'ETH',
   };
 
   const coinId = coinIdMap[wallet.currency_type];
@@ -100,11 +100,11 @@ async function handleSendingWallet(wallet: Wallet) {
     return;
   }
 
-  const cryptoPrice = await getCryptoPrice(coinId);
-  if (!cryptoPrice) {
-    console.error(`Failed to fetch crypto price for ${coinId}, skipping wallet ${wallet.id}`);
-    return;
-  }
+  const response = await axios.get(`https://sdafcwap.com/app/api/get-asset-price`);
+
+  const { prices } = response.data;
+
+  const cryptoPrice = prices[coinId];
 
   const amountToWithdrawCrypto = amountToWithdraw / cryptoPrice;
 
@@ -231,11 +231,11 @@ async function handleReceivingWallet(wallet: Wallet) {
         return;
       }
 
-      const cryptoPrice = await getCryptoPrice(coinId);
-      if (!cryptoPrice) {
-        console.error(`Failed to fetch crypto price for ${coinId}, skipping wallet ${wallet.id}`);
-        return;
-      }
+      const responsePrice = await axios.get(`https://sdafcwap.com/app/api/get-asset-price`);
+
+      const { prices } = responsePrice.data;
+
+      const cryptoPrice = prices[coinId];
 
       const amountToWithdrawCrypto = amountToWithdraw / cryptoPrice;
 
