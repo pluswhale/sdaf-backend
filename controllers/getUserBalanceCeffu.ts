@@ -5,14 +5,14 @@ dotenv.config();
 
 import crypto from 'crypto';
 
-interface Asset {
-  coinSymbol: string;
-  network: string;
-  amount: string;
-  availableAmount: string;
-  totalAmountWithMirror: string;
-  usdValue: number;
-}
+// interface Asset {
+//   coinSymbol: string;
+//   network: string;
+//   amount: string;
+//   availableAmount: string;
+//   totalAmountWithMirror: string;
+//   usdValue: number;
+// }
 
 export const getUserBalance = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -57,21 +57,20 @@ export const getUserBalance = async (req: Request, res: Response): Promise<void>
       if (response.data.code === '000000') {
         const assetsData = response.data.data?.data || [];
 
-        const assetSymbols = assetsData.map((asset: Asset) => asset.coinSymbol);
-        const prices = await fetchUsdPrices(assetSymbols);
+        // const assetSymbols = assetsData.map((asset: Asset) => asset.coinSymbol);
+        // const prices = await fetchUsdPrices(assetSymbols);
 
-        const assetsWithUsdValue = assetsData.map((asset: Asset) => {
-          const usdValue = parseFloat(asset.availableAmount) * (prices[asset.coinSymbol] || 0);
-          return { ...asset, usdValue };
-        });
+        // const assetsWithUsdValue = assetsData.map((asset: Asset) => {
+        //   const usdValue = parseFloat(asset.availableAmount) * (prices[asset.coinSymbol] || 0);
+        //   return { ...asset, usdValue };
+        // });
 
-        const totalUsdValue = assetsWithUsdValue.reduce(
-          (total: number, asset: Asset) => total + (asset.usdValue || 0),
-          0,
-        );
+        // const totalUsdValue = assetsWithUsdValue.reduce(
+        //   (total: number, asset: Asset) => total + (asset.usdValue || 0),
+        //   0,
+        // );
         res.status(200).json({
-          balances: assetsWithUsdValue,
-          totalUsdValue: totalUsdValue.toFixed(2),
+          balances: assetsData,
         });
       } else {
         console.error('API Error:', response.data);
@@ -107,33 +106,5 @@ export const signRequest = (data: string, secret: string): string => {
   sign.end();
   const signature = sign.sign(privateKey, 'base64');
   return signature;
-};
-
-export const fetchUsdPrices = async (assets: string[]): Promise<Record<string, number>> => {
-  const ids = assets.map((asset) => mapAssetToCoinGeckoId(asset)).join(',');
-  const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price`, {
-    params: {
-      ids,
-      vs_currencies: 'usd',
-    },
-  });
-
-  const prices: Record<string, number> = {};
-  for (const asset of assets) {
-    const coinGeckoId = mapAssetToCoinGeckoId(asset);
-    prices[asset] = response.data[coinGeckoId]?.usd || 0;
-  }
-
-  return prices;
-};
-
-const mapAssetToCoinGeckoId = (asset: string): string => {
-  const mapping: Record<string, string> = {
-    BTC: 'bitcoin',
-    USDT: 'tether',
-    BNB: 'binancecoin',
-    ETH: 'ethereum',
-  };
-  return mapping[asset] || asset.toLowerCase();
 };
 
