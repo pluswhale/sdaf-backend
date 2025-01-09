@@ -1,39 +1,30 @@
-import {
-  checkBalanceBTCToUSDT,
-  checkBalanceInBNB,
-  checkBalanceUSDT,
-  checkBalanceUSDT_CT,
-  fetchAssetPrice,
-} from '../services';
+import { checkBalanceBNBToUSD, checkBalanceBTCToUSDT, checkBalanceUSDT_CT, checkBalanceUSDTToUSD } from '../services';
 import { AppDataSource } from '../db/AppDataSource';
 import { Wallet } from '../db/entities';
 import { Request, Response } from 'express';
 
 const walletRepository = AppDataSource.getRepository(Wallet);
 
-type WalletProcessor = (wallet: Wallet, assetPrice: number, isMainnet: boolean) => Promise<any>;
+type WalletProcessor = (wallet: Wallet, isMainnet: boolean) => Promise<any>;
 
-const processBTC: WalletProcessor = async (wallet, assetPrice, isMainnet) => {
+const processBTC: WalletProcessor = async (wallet, isMainnet) => {
   const price = await checkBalanceBTCToUSDT(wallet.address, isMainnet);
   return { ...wallet, price };
 };
 
-const processUSDT_BEP20: WalletProcessor = async (wallet, assetPrice, isMainnet) => {
-  const usd = await checkBalanceUSDT(wallet.address, isMainnet);
-  const usdValue = parseFloat(usd) * assetPrice;
-  return { ...wallet, price: { usd, usdValue: usdValue.toFixed(2) } };
+const processUSDT_BEP20: WalletProcessor = async (wallet, isMainnet) => {
+  const price = await checkBalanceUSDTToUSD(wallet.address, isMainnet);
+  return { ...wallet, price };
 };
 
-const processBNB: WalletProcessor = async (wallet, assetPrice, isMainnet) => {
-  const bnb = await checkBalanceInBNB(wallet.address, isMainnet);
-  const usdValue = parseFloat(bnb) * assetPrice;
-  return { ...wallet, price: { bnb, usdValue: usdValue.toFixed(2) } };
+const processBNB: WalletProcessor = async (wallet, isMainnet) => {
+  const price = await checkBalanceBNBToUSD(wallet.address, isMainnet);
+  return { ...wallet, price };
 };
 
-const processUSDT_CT: WalletProcessor = async (wallet, assetPrice, isMainnet) => {
+const processUSDT_CT: WalletProcessor = async (wallet, isMainnet) => {
   const usd = await checkBalanceUSDT_CT(wallet.address, isMainnet);
-  const usdValue = parseFloat(usd) * assetPrice;
-  return { ...wallet, price: { usd, usdValue: usdValue.toFixed(2) } };
+  return { ...wallet, price: { usd, usdValue: 0 } };
 };
 
 const processDefault: WalletProcessor = async (wallet) => {
@@ -70,8 +61,7 @@ export const getAllWallets = async (req: Request, res: Response): Promise<any> =
       wallets.map(async (wallet) => {
         const isMainnet = wallet.currency_type in testWallets ? testWallets[wallet.currency_type] : true;
         const processor = walletProcessors[wallet.currency_type] || processDefault;
-        const assetPrice = await fetchAssetPrice(wallet.currency_type);
-        return await processor(wallet, assetPrice, isMainnet);
+        return await processor(wallet, isMainnet);
       }),
     );
 
