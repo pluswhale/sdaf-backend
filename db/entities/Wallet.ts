@@ -15,6 +15,7 @@ export enum CurrencyType {
   USDT_TRC20 = 'USDT_TRC20',
   USDT_ERC20 = 'USDT_ERC20',
   BNB = 'BNB',
+  ETH = 'ETH',
 }
 
 @Entity()
