@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Request, Response } from 'express';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 import * as dotenv from 'dotenv';
 import NodeCache from 'node-cache';
 dotenv.config();
@@ -8,12 +8,13 @@ const ASSETS = ['BTC', 'ETH', 'BNB', 'USDT'];
 
 const priceCache = new NodeCache({ stdTTL: 60, checkperiod: 120 });
 
-export const getAssetPrice = async (req: Request, res: Response): Promise<void> => {
+export const getAssetPrice: RequestHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const cachedPrices = priceCache.get<Record<string, number>>('prices');
 
     if (cachedPrices) {
       res.status(200).json({ prices: cachedPrices, source: 'cache' });
+      return;
     }
 
     const prices = await fetchUsdPrices(ASSETS);
@@ -21,9 +22,14 @@ export const getAssetPrice = async (req: Request, res: Response): Promise<void> 
     priceCache.set('prices', prices);
 
     res.status(200).json({ prices, source: 'api' });
+    return;
   } catch (error: any) {
     console.error('Error while getting asset prices:', error);
-    res.status(500).json({ error: 'Unable to retrieve asset prices.' });
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Unable to retrieve asset prices.' });
+      return;
+    }
+    next(error);
   }
 };
 
