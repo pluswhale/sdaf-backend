@@ -28,7 +28,7 @@ export const getUserBalance = async (req: Request, res: Response): Promise<void>
   try {
     const timestamp = Date.now().toString();
 
-    const userId = req.params.userId;
+    const userId = req.query.userId as string;
 
     if (!apiConfig[userId]) {
       throw new Error(`API configuration not found for user ID: ${userId}`);
