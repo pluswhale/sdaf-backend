@@ -10,7 +10,7 @@ const ASSETS = ['BTC', 'ETH', 'BNB', 'USDT'];
 const priceCache = new NodeCache({ stdTTL: 60, checkperiod: 120 });
 
 const api = axios.create({
-  baseURL: 'https://api.coingecko.com/api/v3/',
+  baseURL: 'https://pro-api.coingecko.com/api/v3/',
   timeout: 5000,
 });
 
@@ -73,6 +73,7 @@ export const fetchUsdPrices = async (assets: string[]): Promise<Record<string, n
       params: {
         ids,
         vs_currencies: 'usd',
+        x_cg_pro_api_key: 'CG-UtKRgQ7Ec5dFK1XehQrLrwr4',
       },
     });
 
