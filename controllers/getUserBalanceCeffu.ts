@@ -5,13 +5,36 @@ dotenv.config();
 
 import crypto from 'crypto';
 
+interface WalletConfig {
+  apiKey: string | undefined;
+  apiSecret: string | undefined;
+  walletId: string;
+}
+
+const apiConfig: Record<string, WalletConfig> = {
+  CeffuWallet1: {
+    apiKey: process.env.CEFFU_API_KEY_WALLET,
+    apiSecret: process.env.CEFFU_API_SECRET_WALLET,
+    walletId: '276251286620667904',
+  },
+  CeffuWallet2: {
+    apiKey: process.env.CEFFU_API_KEY_SECOND_WALLET_READ_BALANCE,
+    apiSecret: process.env.CEFFU_API_SECRET_SECOND_WALLET_READ_BALANCE,
+    walletId: '441257846101966848',
+  },
+};
+
 export const getUserBalance = async (req: Request, res: Response): Promise<void> => {
   try {
     const timestamp = Date.now().toString();
 
-    const apiKey = process.env.CEFFU_API_KEY_WALLET!;
-    const apiSecret = process.env.CEFFU_API_SECRET_WALLET!;
-    const walletId = '276251286620667904';
+    const userId = req.params.userId;
+
+    if (!apiConfig[userId]) {
+      throw new Error(`API configuration not found for user ID: ${userId}`);
+    }
+
+    const { apiKey, apiSecret, walletId } = apiConfig[userId];
 
     if (!apiKey || !apiSecret || !walletId) {
       throw new Error('API key, secret, or wallet ID is missing.');
