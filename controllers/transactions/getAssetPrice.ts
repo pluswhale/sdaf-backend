@@ -1,4 +1,5 @@
 import axios from 'axios';
+import axiosRetry from 'axios-retry';
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import * as dotenv from 'dotenv';
 import NodeCache from 'node-cache';
@@ -8,16 +9,32 @@ const ASSETS = ['BTC', 'ETH', 'BNB', 'USDT'];
 
 const priceCache = new NodeCache({ stdTTL: 60, checkperiod: 120 });
 
+const api = axios.create({
+  baseURL: 'https://api.coingecko.com/api/v3/',
+  timeout: 5000,
+});
+
+axiosRetry(api, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  retryCondition: (error) => {
+    return error.response?.status === 500 || error.code === 'ECONNABORTED';
+  },
+});
+
 export const getAssetPrice: RequestHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const cachedPrices = priceCache.get<Record<string, number>>('prices');
 
     if (cachedPrices) {
+      console.log('Returning cached prices');
       res.status(200).json({ prices: cachedPrices, source: 'cache' });
       return;
     }
 
+    console.log('Fetching prices from API...');
     const prices = await fetchUsdPrices(ASSETS);
+    console.log('Prices fetched:', prices);
 
     priceCache.set('prices', prices);
 
@@ -26,6 +43,7 @@ export const getAssetPrice: RequestHandler = async (req: Request, res: Response,
   } catch (error: any) {
     console.error('Error while getting asset prices:', error);
     if (!res.headersSent) {
+      console.log('Sending error response');
       res.status(500).json({ error: 'Unable to retrieve asset prices.' });
       return;
     }
@@ -51,7 +69,7 @@ export const fetchUsdPrices = async (assets: string[]): Promise<Record<string, n
   const ids = assets.map((asset) => mapAssetToCoinGeckoId(asset)).join(',');
 
   try {
-    const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price`, {
+    const response = await api.get('simple/price', {
       params: {
         ids,
         vs_currencies: 'usd',
