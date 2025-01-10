@@ -406,7 +406,14 @@ aws4@^1.8.0:
   resolved "https://registry.npmjs.org/aws4/-/aws4-1.13.2.tgz"
   integrity sha512-lHe62zvbTB5eEABUVi/AwVh0ZKY9rMMDhmm+eeyuuUQbQ3+J+fONVQOZyj+DdrvD4BY33uYniyRJ4UJIaSKAfw==
 
-axios@^1.7.7:
+axios-retry@^4.5.0:
+  version "4.5.0"
+  resolved "https://npm.coinweb.io/axios-retry/-/axios-retry-4.5.0.tgz"
+  integrity sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==
+  dependencies:
+    is-retry-allowed "^2.2.0"
+
+axios@^1.7.7, "axios@0.x || 1.x":
   version "1.7.7"
   resolved "https://npm.coinweb.io/axios/-/axios-1.7.7.tgz"
   integrity sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==
@@ -1251,6 +1258,11 @@ is-number@^7.0.0:
   version "7.0.0"
   resolved "https://npm.coinweb.io/is-number/-/is-number-7.0.0.tgz"
   integrity sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==
+
+is-retry-allowed@^2.2.0:
+  version "2.2.0"
+  resolved "https://npm.coinweb.io/is-retry-allowed/-/is-retry-allowed-2.2.0.tgz"
+  integrity sha512-XVm7LOeLpTW4jV19QSH38vkswxoLud8sQ57YwJVTPWdiaI9I8keEhGFpBlslyVsgdQy4Opg8QOLb8YRgsyZiQg==
 
 is-typedarray@~1.0.0:
   version "1.0.0"
