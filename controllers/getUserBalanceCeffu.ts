@@ -5,15 +5,6 @@ dotenv.config();
 
 import crypto from 'crypto';
 
-// interface Asset {
-//   coinSymbol: string;
-//   network: string;
-//   amount: string;
-//   availableAmount: string;
-//   totalAmountWithMirror: string;
-//   usdValue: number;
-// }
-
 export const getUserBalance = async (req: Request, res: Response): Promise<void> => {
   try {
     const timestamp = Date.now().toString();
@@ -56,19 +47,6 @@ export const getUserBalance = async (req: Request, res: Response): Promise<void>
 
       if (response.data.code === '000000') {
         const assetsData = response.data.data?.data || [];
-
-        // const assetSymbols = assetsData.map((asset: Asset) => asset.coinSymbol);
-        // const prices = await fetchUsdPrices(assetSymbols);
-
-        // const assetsWithUsdValue = assetsData.map((asset: Asset) => {
-        //   const usdValue = parseFloat(asset.availableAmount) * (prices[asset.coinSymbol] || 0);
-        //   return { ...asset, usdValue };
-        // });
-
-        // const totalUsdValue = assetsWithUsdValue.reduce(
-        //   (total: number, asset: Asset) => total + (asset.usdValue || 0),
-        //   0,
-        // );
         res.status(200).json({
           balances: assetsData,
         });
