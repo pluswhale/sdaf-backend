@@ -5,12 +5,38 @@ import { signRequest } from './getUserBalanceCeffu';
 
 dotenv.config();
 
+interface WalletConfig {
+  apiKey: string | undefined;
+  apiSecret: string | undefined;
+}
+
+const apiConfig: Record<string, WalletConfig> = {
+  CeffuWallet1: {
+    apiKey: process.env.CEFFU_API_KEY_WALLET_WITHDRAWAL,
+    apiSecret: process.env.CEFFU_API_SECRET_WALLET_WITHDRAWAL,
+  },
+  CeffuWallet2: {
+    apiKey: process.env.CEFFU_API_KEY_WALLET_WITHDRAWAL_SECOND_WALLET,
+    apiSecret: process.env.CEFFU_API_SECRET_WALLET_WITHDRAWAL_SECOND_WALLET,
+  },
+};
+
 export const initiateWithdrawalCeffu = async (req: Request, res: Response): Promise<void> => {
   try {
     const { amount, coinSymbol, network, withdrawalAddress, walletId, memo } = req.body;
     const timestamp = Date.now().toString();
-    const apiKey = process.env.CEFFU_API_KEY_WALLET_WITHDRAWAL!;
-    const apiSecret = process.env.CEFFU_API_SECRET_WALLET_WITHDRAWAL!;
+
+    const internalWalletCeffuId = req.query.internalWalletCeffuId as string;
+
+    if (!apiConfig[internalWalletCeffuId]) {
+      throw new Error(`API configuration not found for user ID: ${internalWalletCeffuId}`);
+    }
+
+    const { apiKey, apiSecret } = apiConfig[internalWalletCeffuId];
+
+    if (!apiKey || !apiSecret) {
+      throw new Error('API key, secret, or wallet ID is missing.');
+    }
 
     const params: Record<string, any> = {
       amount,

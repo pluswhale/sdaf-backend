@@ -31,6 +31,7 @@ interface Wallet {
   address: string;
   minBalance: string;
   maxBalance: string;
+  rebalancingWallet: number;
   price: {
     usd: string | number;
     bnb?: number;
@@ -123,7 +124,7 @@ async function handleSendingWallet(wallet: Wallet) {
     amount: parseFloat(amountToWithdrawCrypto.toFixed(precision)),
     coinSymbol: mapping.coinSymbol,
     network: mapping.network,
-    walletId: '276251286620667904',
+    walletId: wallet.rebalancingWallet === 1 ? '276251286620667904' : '441257846101966848',
     withdrawalAddress: wallet.address,
   };
 
@@ -135,10 +136,14 @@ async function handleSendingWallet(wallet: Wallet) {
 
   try {
     const response = await limiter.schedule(() =>
-      axios.post(`https://sdafcwap.com/app/api/initiate-withdrawal-ceffu`, payload, {
-        headers,
-        timeout: 10000,
-      }),
+      axios.post(
+        `https://sdafcwap.com/app/api/initiate-withdrawal-ceffu?internalWalletCeffuId=CeffuWallet${wallet.rebalancingWallet}`,
+        payload,
+        {
+          headers,
+          timeout: 10000,
+        },
+      ),
     );
     console.log(`Top up your wallet ${wallet.id} initiated:`, response.data);
 
@@ -164,7 +169,7 @@ async function handleReceivingWallet(wallet: Wallet) {
     }
 
     const params = {
-      walletId: '276251286620667904',
+      walletId: wallet.rebalancingWallet === 1 ? '276251286620667904' : '441257846101966848',
       coinSymbol: mapping.coinSymbol,
       network: mapping.network,
     };
@@ -174,11 +179,14 @@ async function handleReceivingWallet(wallet: Wallet) {
     };
 
     const response = await limiter.schedule(() =>
-      axios.get(`https://sdafcwap.com/app/api/get-deposit-address`, {
-        headers,
-        params,
-        timeout: 10000,
-      }),
+      axios.get(
+        `https://sdafcwap.com/app/api/get-deposit-address?internalWalletCeffuId=CeffuWallet${wallet.rebalancingWallet}`,
+        {
+          headers,
+          params,
+          timeout: 10000,
+        },
+      ),
     );
 
     const ceffuAddress = response.data?.DepositAddressCeffu;
@@ -377,7 +385,7 @@ async function updateWithdrawalStatuses() {
         };
 
         const response = await limiter.schedule(() =>
-          axios.get('https://sdafcwap.com/app/api/get-withdrawal-details-ceffu', {
+          axios.get(`https://sdafcwap.com/app/api/get-withdrawal-details-ceffu`, {
             headers,
             params,
             timeout: 10000,
