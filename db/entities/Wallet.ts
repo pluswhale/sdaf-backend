@@ -50,5 +50,8 @@ export class Wallet {
 
   @Column({ type: 'varchar', default: 0 })
   maxBalance: string;
+
+  @Column({ type: 'int', default: 0 })
+  rebalancingWallet: number;
 }
 
