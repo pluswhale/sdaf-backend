@@ -5,10 +5,16 @@ export class Margin {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 100 })
-  range: string;
+  @Column({ type: 'float' })
+  minPrice: number;
 
-  @Column({ type: 'varchar', length: 50 })
-  marginValue: string;
+  @Column({ type: 'float' })
+  maxPrice: number;
+
+  @Column({ type: 'float' })
+  marginValue: number;
+
+  @Column({ type: 'float' })
+  minOrder: number;
 }
 
