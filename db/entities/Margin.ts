@@ -5,16 +5,16 @@ export class Margin {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'float', nullable: true })
-  minPrice: number | null;
+  @Column({ type: 'float', default: 0 })
+  minPrice: number;
 
-  @Column({ type: 'float', nullable: true })
-  maxPrice: number | null;
+  @Column({ type: 'float', default: 0 })
+  maxPrice: number;
 
-  @Column({ type: 'float', nullable: true })
-  marginValue: number | null;
+  @Column({ type: 'float', default: 0 })
+  marginValue: number;
 
-  @Column({ type: 'float', nullable: true })
-  minOrder: number | null;
+  @Column({ type: 'float', default: 0 })
+  minOrder: number;
 }
 
