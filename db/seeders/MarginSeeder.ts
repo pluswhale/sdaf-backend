@@ -5,19 +5,21 @@ export const seedMargins = async (dataSource: DataSource) => {
   const marginRepository = dataSource.getRepository(Margin);
 
   const margins = [
-    { range: '$0 – $25', marginValue: '1.0' },
-    { range: '$25 – $50', marginValue: '0.9' },
-    { range: '$50 – $100', marginValue: '0.8' },
-    { range: '$100 – $250', marginValue: '0.7' },
-    { range: '$250 – $500', marginValue: '0.6' },
-    { range: '$500 – $1,000', marginValue: '0.5' },
-    { range: '$1000 – $5,000', marginValue: '0.4' },
-    { range: '$5000 – $10,000', marginValue: '0.3' },
-    { range: '$10,000 – $25,000', marginValue: '0.25' },
+    { minPrice: 0, maxPrice: 25, marginValue: 0.35, minOrder: 10 },
+    { minPrice: 25, maxPrice: 50, marginValue: 0.09, minOrder: 25 },
+    { minPrice: 50, maxPrice: 100, marginValue: 0.08, minOrder: 50 },
+    { minPrice: 100, maxPrice: 250, marginValue: 0.07, minOrder: 100 },
+    { minPrice: 250, maxPrice: 500, marginValue: 0.06, minOrder: 250 },
+    { minPrice: 500, maxPrice: 1000, marginValue: 0.05, minOrder: 500 },
+    { minPrice: 1000, maxPrice: 5000, marginValue: 0.04, minOrder: 1000 },
+    { minPrice: 5000, maxPrice: 10000, marginValue: 0.03, minOrder: 5000 },
+    { minPrice: 10000, maxPrice: 25000, marginValue: 0.02, minOrder: 10000 },
   ];
 
   for (const margin of margins) {
-    const existingMargin = await marginRepository.findOne({ where: { range: margin.range } });
+    const existingMargin = await marginRepository.findOne({
+      where: { minPrice: margin.minPrice, maxPrice: margin.maxPrice },
+    });
     if (!existingMargin) {
       await marginRepository.save(margin);
     }
