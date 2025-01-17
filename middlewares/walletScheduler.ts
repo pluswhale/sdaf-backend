@@ -211,8 +211,6 @@ async function handleReceivingWallet(wallet: Wallet) {
         return;
       }
 
-      console.log('THIS IS AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', priceUsd);
-
       if (priceUsd <= maxBalance) {
         console.log(
           `Wallet ${wallet.id}: Current price ${priceUsd} USD >= minBalance ${minBalance}, no replenishment required.`,
@@ -227,12 +225,13 @@ async function handleReceivingWallet(wallet: Wallet) {
       }
 
       const coinIdMap: Partial<Record<CurrencyType, string>> = {
-        USDT: 'tether',
-        USDT_ERC20: 'tether',
-        USDT_BEP20: 'tether',
-        USDT_TRC20: 'tether',
-        BTC: 'bitcoin',
-        BNB: 'binancecoin',
+        USDT: 'USDT',
+        USDT_ERC20: 'USDT',
+        USDT_BEP20: 'USDT',
+        USDT_TRC20: 'USDT',
+        BTC: 'BTC',
+        BNB: 'BNB',
+        ETH: 'ETH',
       };
 
       const coinId = coinIdMap[wallet.currency_type];
