@@ -211,6 +211,8 @@ async function handleReceivingWallet(wallet: Wallet) {
         return;
       }
 
+      console.log('THIS IS AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', priceUsd);
+
       if (priceUsd <= maxBalance) {
         console.log(
           `Wallet ${wallet.id}: Current price ${priceUsd} USD >= minBalance ${minBalance}, no replenishment required.`,
