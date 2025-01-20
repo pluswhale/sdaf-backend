@@ -6,8 +6,10 @@ import {
   getOrders,
   refreshToken,
   setUpMinAndMaxWallet,
+  updateBotOrderBodyController,
   validateEditMargin,
   validateSetUpMixMaxInWallet,
+  getBotOrderBodyController
 } from '../controllers';
 import { saveWallet } from '../controllers';
 import express from 'express';
@@ -32,6 +34,7 @@ import { getDepositDetailCeffu } from '../controllers/getDepositDetailCeffu';
 import makeTransactionCeffu from '../controllers/makeTransactionCeffu';
 import { renameWallet, validateRenamingWallet } from '../controllers/renameWallet';
 import { getAssetPrice } from '../controllers/transactions/getAssetPrice';
+import {  } from '../controllers';
 
 const router = express.Router();
 
@@ -69,6 +72,10 @@ router.get('/get-withdrawal-details-ceffu', getWithdrawalDetailsCeffu);
 
 // CoinGeko prices
 router.get('/get-asset-price', getAssetPrice);
+
+//Bot Order
+router.get('/bot-order', getBotOrderBodyController);
+router.patch('/bot-order/update', updateBotOrderBodyController)
 
 export default router;
 

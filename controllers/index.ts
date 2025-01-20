@@ -8,4 +8,6 @@ export * from './getAllMargins';
 export * from './editMargin';
 export * from './getOrders';
 export * from './setUpMinAndMaxBalance';
+export * from './getBotOrderBody';
+export * from './updateBotOrder'
 
