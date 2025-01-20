@@ -21,7 +21,6 @@ export const updateBotOrderController = async (req: Request, res: Response): Pro
       return res.status(404).json({ message: 'Bot order not found' });
     }
 
-    // Update the bot order properties
     botOrder.c1 = c1;
     botOrder.c2 = c2;
     botOrder.c1UsdtRate = c1UsdtRate;

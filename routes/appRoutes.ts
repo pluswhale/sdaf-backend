@@ -79,7 +79,7 @@ router.get('/get-asset-price', getAssetPrice);
 router.get('/bot-order', getBotOrdersController);
 router.put('/bot-order/create', createBotOrderController)
 router.patch('/bot-order/update/:id', updateBotOrderController)
-router.patch('/bot-order/delete/:id', deleteBotOrderController)
+router.delete('/bot-order/delete/:id', deleteBotOrderController)
 
 export default router;
 
