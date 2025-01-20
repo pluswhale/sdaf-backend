@@ -1,21 +1,27 @@
 import { Request, Response } from 'express';
 import { AppDataSource } from '../db/AppDataSource';
-import { getBotOrder } from '../services/getBotOrder';
+import { BotOrder } from '../db/entities';
 
-export const getBotOrderBodyController = async (req: Request, res: Response): Promise<any> => {
+
+const botOrderRepository = AppDataSource.getRepository(BotOrder);
+
+export const getBotOrdersController = async (req: Request, res: Response): Promise<any> => {
   try {
-    const botOrder = await getBotOrder(AppDataSource);
 
-    if (!botOrder) {
-      return res.status(400).json({ message: 'Bot order not found' });
+    const botOrders = await botOrderRepository.find();
+
+  
+    if (botOrders.length === 0) {
+      return res.status(404).json({ message: 'No bot orders found' });
     }
 
-    const botOrderResponseObject = JSON.parse(botOrder.orderBody);
-    
-
-    return res.status(200).send({ botOrder: botOrderResponseObject });
+    return res.json({  botOrders: botOrders?.map((botOrder) =>  {
+      const {id, ...rest} = botOrder;
+      return rest;
+    })});
   } catch (error) {
-    return res.status(400).send('Cant get bot order: ' + error);
+    console.error('Error fetching bot orders:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 

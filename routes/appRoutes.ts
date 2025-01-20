@@ -6,10 +6,11 @@ import {
   getOrders,
   refreshToken,
   setUpMinAndMaxWallet,
-  updateBotOrderBodyController,
+  updateBotOrderController,
   validateEditMargin,
   validateSetUpMixMaxInWallet,
-  getBotOrderBodyController
+  getBotOrdersController,
+  deleteBotOrderController
 } from '../controllers';
 import { saveWallet } from '../controllers';
 import express from 'express';
@@ -74,8 +75,9 @@ router.get('/get-withdrawal-details-ceffu', getWithdrawalDetailsCeffu);
 router.get('/get-asset-price', getAssetPrice);
 
 //Bot Order
-router.get('/bot-order', getBotOrderBodyController);
-router.patch('/bot-order/update', updateBotOrderBodyController)
+router.get('/bot-order', getBotOrdersController);
+router.patch('/bot-order/update/:id', updateBotOrderController)
+router.patch('/bot-order/delete/:id', deleteBotOrderController)
 
 export default router;
 
