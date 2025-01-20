@@ -10,7 +10,8 @@ import {
   validateEditMargin,
   validateSetUpMixMaxInWallet,
   getBotOrdersController,
-  deleteBotOrderController
+  deleteBotOrderController,
+  createBotOrderController
 } from '../controllers';
 import { saveWallet } from '../controllers';
 import express from 'express';
@@ -76,6 +77,7 @@ router.get('/get-asset-price', getAssetPrice);
 
 //Bot Order
 router.get('/bot-order', getBotOrdersController);
+router.put('/bot-order/create', createBotOrderController)
 router.patch('/bot-order/update/:id', updateBotOrderController)
 router.patch('/bot-order/delete/:id', deleteBotOrderController)
 
