@@ -11,6 +11,7 @@ import {
   validateSetUpMixMaxInWallet,
   getBotOrdersController,
   deleteBotOrderController,
+  createBotOrderController,
 } from '../controllers';
 import { saveWallet } from '../controllers';
 import express from 'express';
@@ -82,8 +83,9 @@ router.post('/create-headging-wallet', createHeadgingWallet);
 
 //Bot Order
 router.get('/bot-order', getBotOrdersController);
+router.put('/bot-order/create', createBotOrderController);
 router.patch('/bot-order/update/:id', updateBotOrderController);
-router.patch('/bot-order/delete/:id', deleteBotOrderController);
+router.delete('/bot-order/delete/:id', deleteBotOrderController);
 
 export default router;
 

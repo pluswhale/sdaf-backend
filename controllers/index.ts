@@ -11,4 +11,5 @@ export * from './setUpMinAndMaxBalance';
 export * from './getBotOrderBody';
 export * from './updateBotOrder'
 export * from './deleteBotOrder'
+export * from './createBotOrder';
 
