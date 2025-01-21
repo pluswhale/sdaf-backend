@@ -7,8 +7,8 @@ import { HedgingEngine } from '../db/entities/HedgingEngine';
 import Binance, { OrderType } from 'binance-api-node';
 
 const client = Binance({
-  apiKey: 'YOUR_BINANCE_API_KEY', // Replace with your Binance API key
-  apiSecret: 'YOUR_BINANCE_API_SECRET', // Replace with your Binance API secret
+  apiKey: process.env.BINANCE_API_KEY, // Replace with your Binance API key
+  apiSecret: process.env.BINANCE_API_KEY, // Replace with your Binance API secret
 });
 
 dotenv.config();
@@ -24,14 +24,24 @@ const limiter = new Bottleneck({
 
 const hedgingEngineRepo = AppDataSource.getRepository(HedgingEngine);
 
+const mapToSymbol = {
+  BNBUSDT: 'BNBUSDT',
+  USDTBNB: 'BNBUSDT',
+  BTCUSDT: 'BTCUSDT',
+  USDTBTC: 'BTCUSDT',
+};
+
 async function placeBinanceOrder(fromCoin: string, toCoin: string, amount: string): Promise<void> {
   try {
-    const symbol = `${fromCoin}${toCoin}`;
+    //@ts-ignore
+    const symbol = mapToSymbol[`${fromCoin}${toCoin}`];
+    //@ts-ignore
+    const side = mapToSymbol[`${fromCoin}${toCoin}`] === `${fromCoin}${toCoin}` ? 'SELL' : 'BUY';
     const quantity = amount;
 
     const order = await client.order({
-      symbol: symbol,
-      side: 'BUY', // BUY or SELL - which one according to the logic
+      symbol,
+      side, // BUY or SELL - which one according to the logic
       type: OrderType.LIMIT,
       price: '300', //think, it will be dinamicly compute
       quantity: quantity,
@@ -45,9 +55,12 @@ async function placeBinanceOrder(fromCoin: string, toCoin: string, amount: strin
 }
 
 async function checkOrderStatus(orderId: string, fromCoin: string, toCoin: string) {
+  //@ts-ignore
+  const symbol = mapToSymbol[`${fromCoin}${toCoin}`];
+
   try {
     const orderStatus = await client.getOrder({
-      symbol: `${fromCoin}${toCoin}`, // Trading pair
+      symbol, // Trading pair
       orderId: Number(orderId), // The ID of the order you want to check
     });
     console.log('Order Status:', orderStatus);

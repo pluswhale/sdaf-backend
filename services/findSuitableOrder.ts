@@ -13,10 +13,9 @@ const mapToSymbol = {
   USDTBTC: 'BTCUSDT',
 };
 
-export const findSuitableAskOrder = async (c1: string, c2: string, amount: number) => {
+export const findSuitableOrder = async (c1: string, c2: string, amount: number) => {
   try {
     //@ts-ignore
-    console.log(mapToSymbol[c1 + c2]);
     const { data }: AxiosResponse<BinanceOrderbook> = await axios.get('https://api.binance.com/api/v3/depth', {
       params: {
         //@ts-ignore
@@ -27,8 +26,12 @@ export const findSuitableAskOrder = async (c1: string, c2: string, amount: numbe
     let filteredOrders;
     //@ts-ignore
     if (mapToSymbol[c1 + c2] !== c1 + c2) {
+      //we buy here
+      console.log('ask order quote');
       filteredOrders = data.asks.filter((el) => Number(el[1]) >= amount);
     } else {
+      //we sell here
+      console.log('bid order quote');
       filteredOrders = data.bids.filter((el) => Number(el[1]) >= amount);
     }
     const sortedOrders = filteredOrders.toSorted((a, b) => Number(a[1]) - Number(b[1]));

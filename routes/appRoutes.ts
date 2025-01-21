@@ -39,6 +39,8 @@ import { getAssetPrice } from '../controllers/transactions/getAssetPrice';
 import {} from '../controllers';
 import { getTransactionConfirmations } from '../controllers/getTransactionConfirmations';
 import { createHeadgingWallet } from '../controllers/createHeadgingWallet';
+import { checkOrderStatus, placeLimitBuyOrder } from '../services/binanceTrade';
+import { findSuitableOrder } from '../services/findSuitableOrder';
 
 const router = express.Router();
 
@@ -80,6 +82,18 @@ router.get('/get-asset-price', getAssetPrice);
 // Headging Engine
 router.get('/get-confirmations', getTransactionConfirmations);
 router.post('/create-headging-wallet', createHeadgingWallet);
+router.post('/test-order', async (req, res) => {
+  //@ts-ignore
+  const [price, amount] = await findSuitableOrder(req.query.c1, req.query.c2, req.query.amount);
+  const result = await placeLimitBuyOrder(price, amount, 'BNBUSDT');
+  console.log('result order: ', [price, amount]);
+  res.status(200).send(result);
+});
+router.post('/check-status', async (req, res) => {
+  //@ts-ignore
+  const result = await checkOrderStatus(req.query.orderId, 'BNBUSDT');
+  res.status(200).send(result);
+});
 
 //Bot Order
 router.get('/bot-order', getBotOrdersController);

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { AppDataSource } from '../db/AppDataSource';
 import { BotOrder } from '../db/entities';
-import { findSuitableAskOrder } from '../services/findSuitableOrder';
+import { findSuitableOrder } from '../services/findSuitableOrder';
 
 const botOrderRepository = AppDataSource.getRepository(BotOrder);
 
@@ -15,13 +15,16 @@ export const getBotOrdersController = async (req: Request, res: Response): Promi
 
     for (const botOrder of botOrders) {
       const { mmSellsToken, mmBuysToken } = botOrder;
-      
-      const suitableAskOrder = await findSuitableAskOrder(mmSellsToken.includes('USDT') ? 'USDT' : mmSellsToken, mmBuysToken.includes('USDT') ? 'USDT' : mmBuysToken, 0);
-      if (suitableAskOrder) {
-        const rate = Number(suitableAskOrder[0]); 
 
-        console.log("RATE:" , rate);
-        
+      const suitableAskOrder = await findSuitableOrder(
+        mmSellsToken.includes('USDT') ? 'USDT' : mmSellsToken,
+        mmBuysToken.includes('USDT') ? 'USDT' : mmBuysToken,
+        0,
+      );
+      if (suitableAskOrder) {
+        const rate = Number(suitableAskOrder[0]);
+
+        console.log('RATE:', rate);
 
         botOrder.rateBinanceBuy1SellsForBuys = rate;
 

@@ -10,7 +10,7 @@ export async function placeLimitBuyOrder(priceCurrency: number, quantityAmount: 
   try {
     const symbol = symbolCurrency; // Trading pair BNB/USDT
     const quantity = quantityAmount; // Amount of BNB you want to buy
-    const price = priceCurrency; // The limit price you're willing to pay for BNB (in USDT)
+    const price = +priceCurrency; // The limit price you're willing to pay for BNB (in USDT)
 
     // Place a limit buy order
     const order = await client.order({
