@@ -6,21 +6,18 @@ export class BotOrder {
   id: string;
 
   @Column({ type: 'text' })
-  c1: string;
+  mmSellsToken: string;
 
   @Column({ type: 'text' })
-  c2: string;
+  mmBuysToken: string;
 
   @Column({ type: 'float' })
-  c1UsdtRate: number;
+  rateBinanceBuy1SellsForBuys: number;
 
-  @Column({ type: 'float' })
-  c2UsdtRate: number;
-
-  @Column('jsonb') 
+  @Column('jsonb')
   orders: Array<{
-    usdAmountC1: number;
-    number: number;
+    mmSellTokenAmount: number;
+    ordersNumber: number;
     marginPercent: number;
   }>;
 }

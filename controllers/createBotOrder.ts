@@ -7,19 +7,19 @@ import { BotOrder } from '../db/entities';
 const botOrderRepository = AppDataSource.getRepository(BotOrder);
 
 export const createBotOrderController = async (req: Request, res: Response): Promise<any> => {
-  const { c1, c2, c1UsdtRate, c2UsdtRate, orders } = req.body;
+  const { mmSellsToken, mmBuysToken, rateBinanceBuy1SellsForBuys, orders } = req.body;
 
-  if (!c1 || !c2 || !c1UsdtRate || !c2UsdtRate || !orders) {
+  if (!mmSellsToken || !mmBuysToken || !rateBinanceBuy1SellsForBuys  || !orders) {
     return res.status(400).json({ message: 'All fields (c1, c2, c1UsdtRate, c2UsdtRate, orders) are required' });
   }
 
-  try {
 
+
+  try {
     const botOrder = new BotOrder();
-    botOrder.c1 = c1;
-    botOrder.c2 = c2;
-    botOrder.c1UsdtRate = c1UsdtRate;
-    botOrder.c2UsdtRate = c2UsdtRate;
+    botOrder.mmSellsToken = mmSellsToken;
+    botOrder.mmBuysToken = mmBuysToken;
+    botOrder.rateBinanceBuy1SellsForBuys = rateBinanceBuy1SellsForBuys;
     botOrder.orders = orders;
 
     await botOrderRepository.save(botOrder);
