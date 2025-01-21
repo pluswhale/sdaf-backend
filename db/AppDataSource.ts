@@ -4,6 +4,7 @@ import { BotOrder, Margin, PendingReplenishment, PendingWithdrawal, Wallet } fro
 import { User } from './entities';
 
 import dotenv from 'dotenv';
+import { HedgingEngine } from './entities/HedgingEngine';
 
 dotenv.config();
 
@@ -38,7 +39,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || 'test',
   synchronize: true,
   logging: false,
-  entities: [Wallet, User, Margin, PendingWithdrawal, PendingReplenishment, BotOrder],
+  entities: [Wallet, User, Margin, PendingWithdrawal, PendingReplenishment, BotOrder, HedgingEngine],
   migrations: [],
   subscribers: [],
 });

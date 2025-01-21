@@ -11,7 +11,7 @@ import {
   validateSetUpMixMaxInWallet,
   getBotOrdersController,
   deleteBotOrderController,
-  createBotOrderController
+  createBotOrderController,
 } from '../controllers';
 import { saveWallet } from '../controllers';
 import express from 'express';
@@ -36,7 +36,9 @@ import { getDepositDetailCeffu } from '../controllers/getDepositDetailCeffu';
 import makeTransactionCeffu from '../controllers/makeTransactionCeffu';
 import { renameWallet, validateRenamingWallet } from '../controllers/renameWallet';
 import { getAssetPrice } from '../controllers/transactions/getAssetPrice';
-import {  } from '../controllers';
+import {} from '../controllers';
+import { getTransactionConfirmations } from '../controllers/getTransactionConfirmations';
+import { createHeadgingWallet } from '../controllers/createHeadgingWallet';
 
 const router = express.Router();
 
@@ -75,11 +77,15 @@ router.get('/get-withdrawal-details-ceffu', getWithdrawalDetailsCeffu);
 // CoinGeko prices
 router.get('/get-asset-price', getAssetPrice);
 
+// Headging Engine
+router.get('/get-confirmations', getTransactionConfirmations);
+router.post('/create-headging-wallet', createHeadgingWallet);
+
 //Bot Order
 router.get('/bot-order', getBotOrdersController);
-router.put('/bot-order/create', createBotOrderController)
-router.patch('/bot-order/update/:id', updateBotOrderController)
-router.delete('/bot-order/delete/:id', deleteBotOrderController)
+router.put('/bot-order/create', createBotOrderController);
+router.patch('/bot-order/update/:id', updateBotOrderController);
+router.delete('/bot-order/delete/:id', deleteBotOrderController);
 
 export default router;
 
