@@ -8,6 +8,7 @@ import { seedMargins } from './db/seeders/MarginSeeder';
 import './middlewares/walletScheduler';
 import { seedUsers } from './db/seeders/UserSeeder';
 import { seedBotOrdder } from './db/seeders/BotOrderSeeder';
+import './middlewares/hedgingEngine';
 
 dotenv.config();
 
@@ -37,7 +38,7 @@ async function runSeeders() {
   await seedUsers(AppDataSource);
   console.log('Seeding margins...');
   await seedMargins(AppDataSource);
-  console.log('Seeding bot order...')
+  console.log('Seeding bot order...');
   await seedBotOrdder(AppDataSource);
 }
 

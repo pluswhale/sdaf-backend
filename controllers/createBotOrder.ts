@@ -6,8 +6,7 @@ import { BotOrder } from '../db/entities';
 
 const botOrderRepository = AppDataSource.getRepository(BotOrder);
 
-export const updateBotOrderController = async (req: Request, res: Response): Promise<any> => {
-  const { id } = req.params;
+export const createBotOrderController = async (req: Request, res: Response): Promise<any> => {
   const { c1, c2, c1UsdtRate, c2UsdtRate, orders } = req.body;
 
   if (!c1 || !c2 || !c1UsdtRate || !c2UsdtRate || !orders) {
@@ -15,12 +14,8 @@ export const updateBotOrderController = async (req: Request, res: Response): Pro
   }
 
   try {
-    const botOrder = await botOrderRepository.findOne({ where: { id } });
 
-    if (!botOrder) {
-      return res.status(404).json({ message: 'Bot order not found' });
-    }
-
+    const botOrder = new BotOrder();
     botOrder.c1 = c1;
     botOrder.c2 = c2;
     botOrder.c1UsdtRate = c1UsdtRate;
@@ -29,7 +24,7 @@ export const updateBotOrderController = async (req: Request, res: Response): Pro
 
     await botOrderRepository.save(botOrder);
 
-    return res.json({ message: 'Bot order updated successfully', botOrder });
+    return res.json({ message: 'Bot order created successfully', botOrder });
   } catch (error) {
     console.error('Error updating bot order:', error);
     return res.status(500).json({ message: 'Internal server error' });

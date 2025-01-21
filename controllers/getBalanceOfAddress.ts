@@ -6,6 +6,7 @@ export enum Currency {
   BTC = 'BTC',
   USDT_BEP20 = 'USDT_BEP20',
   USDT_ERC20 = 'USDT_ERC20',
+  BNB = 'BNB'
 }
 
 export const validateGetBalance = [
