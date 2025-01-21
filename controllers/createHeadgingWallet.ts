@@ -12,22 +12,37 @@ export const createHeadgingWallet: RequestHandler = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const { walletAddress, txId } = req.body;
+    const { walletAddress, txId, fromCoin, toCoin, amount } = req.body;
 
-    if (!walletAddress || !txId) {
-      throw new Error('walletAddress or txId is missing.');
+    if (!walletAddress || !txId || !fromCoin || !toCoin || !amount) {
+      throw new Error('Required parameters missing.');
     }
 
     const newWallet = new HedgingEngine();
     newWallet.walletAddress = walletAddress;
     newWallet.transactionHash = txId;
     newWallet.confirmations = 0;
+    newWallet.fromCoin = fromCoin;
+    newWallet.toCoin = toCoin;
+    newWallet.amount = amount;
 
     await hedgingEngineRepo.save(newWallet);
 
-    console.log(`New hedging wallet added: ${walletAddress}, txId: ${txId}`);
+    console.log(
+      `New hedging wallet added: ${walletAddress}, txId: ${txId}, from ${fromCoin} to ${toCoin}, amount: ${amount}`,
+    );
 
-    res.status(200).json({ message: 'Wallet created successfully', walletAddress, txId, confirmations: 0 });
+    res
+      .status(200)
+      .json({
+        message: 'Wallet created successfully',
+        walletAddress,
+        txId,
+        confirmations: 0,
+        fromCoin,
+        toCoin,
+        amount,
+      });
   } catch (error: any) {
     console.error('Error while creating hedging wallet:', error);
     if (!res.headersSent) {

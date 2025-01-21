@@ -14,6 +14,15 @@ export class HedgingEngine {
   @Column({ type: 'int' })
   confirmations: number;
 
+  @Column()
+  fromCoin: string;
+
+  @Column()
+  toCoin: string;
+
+  @Column('decimal')
+  amount: string;
+
   @CreateDateColumn()
   createdAt: Date;
 }

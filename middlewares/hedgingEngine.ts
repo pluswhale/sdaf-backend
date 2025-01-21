@@ -4,6 +4,12 @@ import Bottleneck from 'bottleneck';
 import dotenv from 'dotenv';
 import { AppDataSource } from '../db/AppDataSource';
 import { HedgingEngine } from '../db/entities/HedgingEngine';
+import Binance, { OrderType } from 'binance-api-node';
+
+const client = Binance({
+  apiKey: 'YOUR_BINANCE_API_KEY', // Replace with your Binance API key
+  apiSecret: 'YOUR_BINANCE_API_SECRET', // Replace with your Binance API secret
+});
 
 dotenv.config();
 
@@ -17,6 +23,38 @@ const limiter = new Bottleneck({
 });
 
 const hedgingEngineRepo = AppDataSource.getRepository(HedgingEngine);
+
+async function placeBinanceOrder(fromCoin: string, toCoin: string, amount: string): Promise<void> {
+  try {
+    const symbol = `${fromCoin}${toCoin}`;
+    const quantity = amount;
+
+    const order = await client.order({
+      symbol: symbol,
+      side: 'BUY', // BUY or SELL - which one according to the logic
+      type: OrderType.LIMIT,
+      price: '300', //think, it will be dinamicly compute
+      quantity: quantity,
+      timeInForce: 'GTC',
+    });
+
+    console.log('Limit order placed:', order);
+  } catch (error) {
+    console.error('Error placing limit order on Binance:', error);
+  }
+}
+
+async function checkOrderStatus(orderId: string, fromCoin: string, toCoin: string) {
+  try {
+    const orderStatus = await client.getOrder({
+      symbol: `${fromCoin}${toCoin}`, // Trading pair
+      orderId: Number(orderId), // The ID of the order you want to check
+    });
+    console.log('Order Status:', orderStatus);
+  } catch (error) {
+    console.error('Error checking order status:', error);
+  }
+}
 
 async function getTransactionConfirmations(txHash: string): Promise<number> {
   try {
@@ -32,22 +70,22 @@ async function getTransactionConfirmations(txHash: string): Promise<number> {
 async function trackMultipleTransactions(): Promise<void> {
   const transactionsToTrack = await hedgingEngineRepo.find({ where: { confirmations: 0 } });
 
-  const txHashes = transactionsToTrack.map((transaction) => transaction.transactionHash);
+  for (const transaction of transactionsToTrack) {
+    const { transactionHash, fromCoin, toCoin, amount } = transaction;
 
-  for (const txHash of txHashes) {
     let confirmationsCount = 0;
 
     while (confirmationsCount <= 0) {
       try {
-        confirmationsCount = await getTransactionConfirmations(txHash);
-        console.log(`Transaction ${txHash}: Current confirmations: ${confirmationsCount}`);
+        confirmationsCount = await getTransactionConfirmations(transactionHash);
+        console.log(`Transaction ${transactionHash}: Current confirmations: ${confirmationsCount}`);
 
         if (confirmationsCount <= 0) {
-          console.log(`Transaction ${txHash}: Waiting for confirmations...`);
+          console.log(`Transaction ${transactionHash}: Waiting for confirmations...`);
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
       } catch (error) {
-        console.error(`Transaction ${txHash}: Error fetching confirmations`, error);
+        console.error(`Transaction ${transactionHash}: Error fetching confirmations`, error);
         break;
       }
     }
@@ -55,12 +93,16 @@ async function trackMultipleTransactions(): Promise<void> {
     // CONTINUE LOGIC WITH BINANCE API
     if (confirmationsCount > 0) {
       try {
-        await hedgingEngineRepo.delete({ transactionHash: txHash });
+        if (fromCoin === 'BNB' && toCoin === 'USDT') {
+          await placeBinanceOrder(fromCoin, toCoin, amount);
+        }
+
+        await hedgingEngineRepo.delete({ transactionHash });
         console.log(
-          `Transaction ${txHash}: Confirmed with ${confirmationsCount} confirmations. Deleted from database.`,
+          `Transaction ${transactionHash}: Confirmed with ${confirmationsCount} confirmations. Deleted from database.`,
         );
       } catch (error) {
-        console.error(`Error deleting transaction ${txHash} from database:`, error);
+        console.error(`Error deleting transaction ${transactionHash} from database:`, error);
       }
     }
   }
