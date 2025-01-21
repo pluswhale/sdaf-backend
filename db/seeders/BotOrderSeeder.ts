@@ -1,29 +1,31 @@
 import { DataSource } from 'typeorm';
 import { BotOrder } from '../entities';
-import { Currency } from '../../controllers';
+import { CurrencyForBotOrder } from '../../types/enum';
 
-export const seedBotOrdder = async (dataSource: DataSource) => {
+
+
+
+
+export const seedBotOrder = async (dataSource: DataSource) => {
   const botOrderRepository = dataSource.getRepository(BotOrder);
 
   const botOrders = [
     {
-      c1: Currency.BNB,
-      c2: Currency.USDT_BEP20,
-      c1UsdtRate: 300,
-      c2UsdtRate: 1,
+      mmSellsToken: CurrencyForBotOrder.BNB,
+      mmBuysToken: CurrencyForBotOrder.USDT_BNB,
+      rateBinanceBuy1SellsForBuys: 300,
       orders: [
-        { usdAmountC1: 10, number: 5, marginPercent: 2 },
-        { usdAmountC1: 30, number: 3, marginPercent: 2 },
+        { mmSellTokenAmount: 10, ordersNumber: 5, marginPercent: 2 },
+        { mmSellTokenAmount: 30, ordersNumber: 3, marginPercent: 2 },
       ],
     },
     {
-      c1: Currency.BTC,
-      c2: Currency.BNB,
-      c1UsdtRate: 1200,
-      c2UsdtRate: 12,
+      mmSellsToken: CurrencyForBotOrder.BTC,
+      mmBuysToken: CurrencyForBotOrder.BNB,
+      rateBinanceBuy1SellsForBuys: 1200,
       orders: [
-        { usdAmountC1: 15, number: 4, marginPercent: 2 },
-        { usdAmountC1: 18, number: 3, marginPercent: 2 },
+        { mmSellTokenAmount: 15, ordersNumber: 4, marginPercent: 2 },
+        { mmSellTokenAmount: 18, ordersNumber: 3, marginPercent: 2 },
       ],
     },
   ];

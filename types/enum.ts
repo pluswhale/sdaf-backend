@@ -14,3 +14,15 @@ export enum CoinSymbol {
   BTC = 'BTC',
   BNB = 'BNB',
 }
+
+
+export enum CurrencyForBotOrder {
+  BTC = 'BTC',
+  LTC = 'LTC',
+  EGLD = 'EGLD',
+  ETH = 'ETH',
+  BNB = 'BNB',
+  USDT_ETH = 'USDT_ETH',
+  USDT_BNB = 'USDT_BNB',
+  CWEB = 'CWEB',
+}
