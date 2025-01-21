@@ -8,9 +8,9 @@ const botOrderRepository = AppDataSource.getRepository(BotOrder);
 
 export const updateBotOrderController = async (req: Request, res: Response): Promise<any> => {
   const { id } = req.params;
-  const { c1, c2, c1UsdtRate, c2UsdtRate, orders } = req.body;
+  const { c1, c2, rateBinanceBuy1SellsForBuys, orders } = req.body;
 
-  if (!c1 || !c2 || !c1UsdtRate || !c2UsdtRate || !orders) {
+  if (!c1 || !c2 || !rateBinanceBuy1SellsForBuys  || !orders) {
     return res.status(400).json({ message: 'All fields (c1, c2, c1UsdtRate, c2UsdtRate, orders) are required' });
   }
 
@@ -21,10 +21,9 @@ export const updateBotOrderController = async (req: Request, res: Response): Pro
       return res.status(404).json({ message: 'Bot order not found' });
     }
 
-    botOrder.c1 = c1;
-    botOrder.c2 = c2;
-    botOrder.c1UsdtRate = c1UsdtRate;
-    botOrder.c2UsdtRate = c2UsdtRate;
+    botOrder.mmSellsToken = c1;
+    botOrder.mmBuysToken = c2;
+    botOrder.rateBinanceBuy1SellsForBuys = rateBinanceBuy1SellsForBuys;
     botOrder.orders = orders;
 
     await botOrderRepository.save(botOrder);
