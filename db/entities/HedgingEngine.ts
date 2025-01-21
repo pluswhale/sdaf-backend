@@ -14,13 +14,13 @@ export class HedgingEngine {
   @Column({ type: 'int' })
   confirmations: number;
 
-  @Column()
+  @Column({ default: '' })
   fromCoin: string;
 
-  @Column()
+  @Column({ default: '' })
   toCoin: string;
 
-  @Column('decimal')
+  @Column('decimal', { scale: 2, default: 0.0 })
   amount: string;
 
   @CreateDateColumn()
