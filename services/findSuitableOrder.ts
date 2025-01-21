@@ -6,15 +6,31 @@ type BinanceOrderbook = {
   asks: [string, string][];
 };
 
+const mapToSymbol = {
+  BNBUSDT: 'BNBUSDT',
+  USDTBNB: 'BNBUSDT',
+  BTCUSDT: 'BTCUSDT',
+  USDTBTC: 'BTCUSDT',
+};
+
 export const findSuitableAskOrder = async (c1: string, c2: string, amount: number) => {
   try {
+    //@ts-ignore
+    console.log(mapToSymbol[c1 + c2]);
     const { data }: AxiosResponse<BinanceOrderbook> = await axios.get('https://api.binance.com/api/v3/depth', {
       params: {
-        symbol: `${c1 + c2}`,
+        //@ts-ignore
+        symbol: `${mapToSymbol[c1 + c2]}`,
         limit: 500,
       },
     });
-    const filteredOrders = data.asks.filter((el) => Number(el[1]) >= amount);
+    let filteredOrders;
+    //@ts-ignore
+    if (mapToSymbol[c1 + c2] !== c1 + c2) {
+      filteredOrders = data.asks.filter((el) => Number(el[1]) >= amount);
+    } else {
+      filteredOrders = data.bids.filter((el) => Number(el[1]) >= amount);
+    }
     const sortedOrders = filteredOrders.toSorted((a, b) => Number(a[1]) - Number(b[1]));
     return sortedOrders[0];
   } catch (err) {
