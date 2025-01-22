@@ -31,5 +31,8 @@ export class HedgineEngineLog {
 
   @Column({ type: 'text', nullable: true })
   profitFromSwap: string | null;
+
+  @Column({ type: 'bool', default: false })
+  fullfil: boolean;
 }
 
