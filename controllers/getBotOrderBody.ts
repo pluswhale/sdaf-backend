@@ -21,7 +21,7 @@ export const getBotOrdersController = async (req: Request, res: Response): Promi
       if (suitableAskOrder) {
         const rate = Number(suitableAskOrder.bestOrder[0]);
         console.log('RATE:', rate);
-        botOrder.rateBinanceBuy1SellsForBuys = rate;
+        botOrder.rateBinanceBuy1SellsForBuys = mmSellsToken.includes('USDT') ? 1 / rate : rate;
         await botOrderRepository.save(botOrder);
       }
     }
