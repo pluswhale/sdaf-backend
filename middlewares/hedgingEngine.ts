@@ -54,7 +54,7 @@ async function placeBinanceOrderAndEnsureFulfillment(fromCoin: string, toCoin: s
       console.log(`Limit order placed. Order ID: ${order.orderId}`);
 
       // Check the order status
-      const maxRetries = 10; // Limit retries to avoid infinite loops
+      const maxRetries = 2; // Limit retries to avoid infinite loops
       let retries = 0;
 
       while (retries < maxRetries) {
@@ -69,7 +69,7 @@ async function placeBinanceOrderAndEnsureFulfillment(fromCoin: string, toCoin: s
         }
 
         console.log(`Order ${order.orderId} not fulfilled yet. Retrying in 5 seconds...`);
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         retries++;
       }
 

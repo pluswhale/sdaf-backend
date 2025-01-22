@@ -42,6 +42,7 @@ import { createHeadgingWallet } from '../controllers/createHeadgingWallet';
 import { checkOrderStatus, placeLimitBuyOrder } from '../services/binanceTrade';
 import { findSuitableOrder } from '../services/findSuitableOrder';
 import { getHedgingLogs } from '../controllers/getHedgingLogs';
+import { getHedgineEngineHistoryLog } from '../controllers/getHedgineEngineHistoryLog';
 
 const router = express.Router();
 
@@ -102,6 +103,9 @@ router.get('/bot-order', getBotOrdersController);
 router.put('/bot-order/create', createBotOrderController);
 router.patch('/bot-order/update/:id', updateBotOrderController);
 router.delete('/bot-order/delete/:id', deleteBotOrderController);
+
+//HE
+router.get('/hedgine-engine/history', getHedgineEngineHistoryLog);
 
 export default router;
 
