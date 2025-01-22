@@ -50,7 +50,6 @@ async function fetchTransactions() {
 }
 
 let isEnded = true;
-let retries = 0;
 
 async function monitorWallet(): Promise<void> {
   const transactions = await fetchTransactions();
@@ -60,7 +59,9 @@ async function monitorWallet(): Promise<void> {
     for (let transaction of transactions) {
       const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.hash);
 
-      if (heHistoryLog) continue;
+      if (heHistoryLog) {
+        continue;
+      }
 
       try {
         const fromCoin = 'BNB';
@@ -71,19 +72,14 @@ async function monitorWallet(): Promise<void> {
           console.log(`Initiating Binance order for ${amount} ${fromCoin} to ${toCoin}.`);
           //@ts-ignore
           const { direction, symbol, amount: quantity, bestOrder } = await findSuitableOrder(fromCoin, toCoin, +amount);
-
+          console.log(direction, symbol, quantity, bestOrder);
           //@ts-ignore
           const result = await placeBinanceOrder(bestOrder?.[0], quantity, symbol, direction);
 
           if (result) {
-            const orderRes = await checkOrderStatus(result.orderId, fromCoin, toCoin);
-            retries++;
-
             await createHedgineEngineLogWithOrderIdFromBinance(transaction.hash);
           }
         }
-
-        // await placeBinanceOrderAndEnsureFulfillment(fromCoin, toCoin, amount);
       } catch (error) {
         console.error('Error processing confirmed transaction:', error);
       }
