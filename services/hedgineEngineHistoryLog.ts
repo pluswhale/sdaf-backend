@@ -23,7 +23,7 @@ export const createHedgineEngineLogWithOrderIdFromBinance = async (
 };
 
 export const editHedgineEngineHistoryLog = async (
-  orderIdFromBinance: string,
+  txHash: string,
   values: {
     pairSwapDirectionOnSwap?: string;
     l1SwapAmount?: string;
@@ -35,7 +35,7 @@ export const editHedgineEngineHistoryLog = async (
     profitFromSwap?: string;
   },
 ): Promise<HedgineEngineLog | null> => {
-  const heCurrentHistoryLog = await getHedgineEngineHistoryLogByTxId(orderIdFromBinance);
+  const heCurrentHistoryLog = await getHedgineEngineHistoryLogByTxId(txHash);
 
   if (values && heCurrentHistoryLog) {
     if (values.pairSwapDirectionOnSwap) {
