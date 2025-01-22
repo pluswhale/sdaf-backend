@@ -4,7 +4,6 @@ import Bottleneck from 'bottleneck';
 import dotenv from 'dotenv';
 import { getWalletMapping } from '../utils';
 import { CurrencyType, PendingReplenishment } from '../db/entities';
-import { getCryptoPrice } from '../services/priceService';
 import { AppDataSource } from '../db/AppDataSource';
 import { PendingWithdrawal } from '../db/entities/PendingWithdrawal';
 import { Not } from 'typeorm';
@@ -32,6 +31,7 @@ interface Wallet {
   address: string;
   minBalance: string;
   maxBalance: string;
+  rebalancingWallet: number;
   price: {
     usd: string | number;
     bnb?: number;
@@ -86,12 +86,13 @@ async function handleSendingWallet(wallet: Wallet) {
   }
 
   const coinIdMap: Partial<Record<CurrencyType, string>> = {
-    USDT: 'tether',
-    USDT_ERC20: 'tether',
-    USDT_BEP20: 'tether',
-    USDT_TRC20: 'tether',
-    BTC: 'bitcoin',
-    BNB: 'binancecoin',
+    USDT: 'USDT',
+    USDT_ERC20: 'USDT',
+    USDT_BEP20: 'USDT',
+    USDT_TRC20: 'USDT',
+    BTC: 'BTC',
+    BNB: 'BNB',
+    ETH: 'ETH',
   };
 
   const coinId = coinIdMap[wallet.currency_type];
@@ -100,11 +101,11 @@ async function handleSendingWallet(wallet: Wallet) {
     return;
   }
 
-  const cryptoPrice = await getCryptoPrice(coinId);
-  if (!cryptoPrice) {
-    console.error(`Failed to fetch crypto price for ${coinId}, skipping wallet ${wallet.id}`);
-    return;
-  }
+  const response = await axios.get(`https://sdafcwap.com/app/api/get-asset-price`);
+
+  const { prices } = response.data;
+
+  const cryptoPrice = prices[coinId];
 
   const amountToWithdrawCrypto = amountToWithdraw / cryptoPrice;
 
@@ -123,7 +124,7 @@ async function handleSendingWallet(wallet: Wallet) {
     amount: parseFloat(amountToWithdrawCrypto.toFixed(precision)),
     coinSymbol: mapping.coinSymbol,
     network: mapping.network,
-    walletId: '276251286620667904',
+    walletId: wallet.rebalancingWallet === 1 ? '276251286620667904' : '441257846101966848',
     withdrawalAddress: wallet.address,
   };
 
@@ -135,10 +136,14 @@ async function handleSendingWallet(wallet: Wallet) {
 
   try {
     const response = await limiter.schedule(() =>
-      axios.post(`https://sdafcwap.com/app/api/initiate-withdrawal-ceffu`, payload, {
-        headers,
-        timeout: 10000,
-      }),
+      axios.post(
+        `https://sdafcwap.com/app/api/initiate-withdrawal-ceffu?internalWalletCeffuId=CeffuWallet${wallet.rebalancingWallet}`,
+        payload,
+        {
+          headers,
+          timeout: 10000,
+        },
+      ),
     );
     console.log(`Top up your wallet ${wallet.id} initiated:`, response.data);
 
@@ -164,7 +169,7 @@ async function handleReceivingWallet(wallet: Wallet) {
     }
 
     const params = {
-      walletId: '276251286620667904',
+      walletId: wallet.rebalancingWallet === 1 ? '276251286620667904' : '441257846101966848',
       coinSymbol: mapping.coinSymbol,
       network: mapping.network,
     };
@@ -174,11 +179,14 @@ async function handleReceivingWallet(wallet: Wallet) {
     };
 
     const response = await limiter.schedule(() =>
-      axios.get(`https://sdafcwap.com/app/api/get-deposit-address`, {
-        headers,
-        params,
-        timeout: 10000,
-      }),
+      axios.get(
+        `https://sdafcwap.com/app/api/get-deposit-address?internalWalletCeffuId=CeffuWallet${wallet.rebalancingWallet}`,
+        {
+          headers,
+          params,
+          timeout: 10000,
+        },
+      ),
     );
 
     const ceffuAddress = response.data?.DepositAddressCeffu;
@@ -217,12 +225,13 @@ async function handleReceivingWallet(wallet: Wallet) {
       }
 
       const coinIdMap: Partial<Record<CurrencyType, string>> = {
-        USDT: 'tether',
-        USDT_ERC20: 'tether',
-        USDT_BEP20: 'tether',
-        USDT_TRC20: 'tether',
-        BTC: 'bitcoin',
-        BNB: 'binancecoin',
+        USDT: 'USDT',
+        USDT_ERC20: 'USDT',
+        USDT_BEP20: 'USDT',
+        USDT_TRC20: 'USDT',
+        BTC: 'BTC',
+        BNB: 'BNB',
+        ETH: 'ETH',
       };
 
       const coinId = coinIdMap[wallet.currency_type];
@@ -231,11 +240,11 @@ async function handleReceivingWallet(wallet: Wallet) {
         return;
       }
 
-      const cryptoPrice = await getCryptoPrice(coinId);
-      if (!cryptoPrice) {
-        console.error(`Failed to fetch crypto price for ${coinId}, skipping wallet ${wallet.id}`);
-        return;
-      }
+      const responsePrice = await axios.get(`https://sdafcwap.com/app/api/get-asset-price`);
+
+      const { prices } = responsePrice.data;
+
+      const cryptoPrice = prices[coinId];
 
       const amountToWithdrawCrypto = amountToWithdraw / cryptoPrice;
 
@@ -377,7 +386,7 @@ async function updateWithdrawalStatuses() {
         };
 
         const response = await limiter.schedule(() =>
-          axios.get('https://sdafcwap.com/app/api/get-withdrawal-details-ceffu', {
+          axios.get(`https://sdafcwap.com/app/api/get-withdrawal-details-ceffu`, {
             headers,
             params,
             timeout: 10000,

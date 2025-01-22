@@ -6,6 +6,7 @@ import { check, validationResult } from 'express-validator';
 export const validateSetUpMixMaxInWallet = [
   check('minValue').isNumeric().withMessage('Min value must be a number'),
   check('maxValue').isNumeric().withMessage('Max value must be a number'),
+  check('rebalancingWallet').isNumeric().withMessage('rebalancingWallet value must be a number'),
 ];
 
 const walletRepository = AppDataSource.getRepository(Wallet);
@@ -17,7 +18,7 @@ export const setUpMinAndMaxWallet = async (req: Request, res: Response): Promise
   }
 
   const { id } = req.params;
-  const { maxValue, minValue } = req.body;
+  const { maxValue, minValue, rebalancingWallet } = req.body;
 
   try {
     const wallet = await walletRepository.findOne({ where: { id } });
@@ -28,6 +29,7 @@ export const setUpMinAndMaxWallet = async (req: Request, res: Response): Promise
 
     wallet.minBalance = minValue;
     wallet.maxBalance = maxValue;
+    wallet.rebalancingWallet = rebalancingWallet;
     await walletRepository.save(wallet);
 
     return res.json({ message: 'Wallet updated successfully', wallet });

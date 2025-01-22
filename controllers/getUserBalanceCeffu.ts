@@ -5,22 +5,36 @@ dotenv.config();
 
 import crypto from 'crypto';
 
-interface Asset {
-  coinSymbol: string;
-  network: string;
-  amount: string;
-  availableAmount: string;
-  totalAmountWithMirror: string;
-  usdValue: number;
+interface WalletConfig {
+  apiKey: string | undefined;
+  apiSecret: string | undefined;
+  walletId: string;
 }
+
+const apiConfig: Record<string, WalletConfig> = {
+  CeffuWallet1: {
+    apiKey: process.env.CEFFU_API_KEY_WALLET,
+    apiSecret: process.env.CEFFU_API_SECRET_WALLET,
+    walletId: '276251286620667904',
+  },
+  CeffuWallet2: {
+    apiKey: process.env.CEFFU_API_KEY_SECOND_WALLET_READ_BALANCE,
+    apiSecret: process.env.CEFFU_API_SECRET_SECOND_WALLET_READ_BALANCE,
+    walletId: '441257846101966848',
+  },
+};
 
 export const getUserBalance = async (req: Request, res: Response): Promise<void> => {
   try {
     const timestamp = Date.now().toString();
 
-    const apiKey = process.env.CEFFU_API_KEY_WALLET!;
-    const apiSecret = process.env.CEFFU_API_SECRET_WALLET!;
-    const walletId = '276251286620667904';
+    const userId = req.query.userId as string;
+
+    if (!apiConfig[userId]) {
+      throw new Error(`API configuration not found for user ID: ${userId}`);
+    }
+
+    const { apiKey, apiSecret, walletId } = apiConfig[userId];
 
     if (!apiKey || !apiSecret || !walletId) {
       throw new Error('API key, secret, or wallet ID is missing.');
@@ -56,22 +70,8 @@ export const getUserBalance = async (req: Request, res: Response): Promise<void>
 
       if (response.data.code === '000000') {
         const assetsData = response.data.data?.data || [];
-
-        const assetSymbols = assetsData.map((asset: Asset) => asset.coinSymbol);
-        const prices = await fetchUsdPrices(assetSymbols);
-
-        const assetsWithUsdValue = assetsData.map((asset: Asset) => {
-          const usdValue = parseFloat(asset.availableAmount) * (prices[asset.coinSymbol] || 0);
-          return { ...asset, usdValue };
-        });
-
-        const totalUsdValue = assetsWithUsdValue.reduce(
-          (total: number, asset: Asset) => total + (asset.usdValue || 0),
-          0,
-        );
         res.status(200).json({
-          balances: assetsWithUsdValue,
-          totalUsdValue: totalUsdValue.toFixed(2),
+          balances: assetsData,
         });
       } else {
         console.error('API Error:', response.data);
@@ -107,33 +107,5 @@ export const signRequest = (data: string, secret: string): string => {
   sign.end();
   const signature = sign.sign(privateKey, 'base64');
   return signature;
-};
-
-export const fetchUsdPrices = async (assets: string[]): Promise<Record<string, number>> => {
-  const ids = assets.map((asset) => mapAssetToCoinGeckoId(asset)).join(',');
-  const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price`, {
-    params: {
-      ids,
-      vs_currencies: 'usd',
-    },
-  });
-
-  const prices: Record<string, number> = {};
-  for (const asset of assets) {
-    const coinGeckoId = mapAssetToCoinGeckoId(asset);
-    prices[asset] = response.data[coinGeckoId]?.usd || 0;
-  }
-
-  return prices;
-};
-
-const mapAssetToCoinGeckoId = (asset: string): string => {
-  const mapping: Record<string, string> = {
-    BTC: 'bitcoin',
-    USDT: 'tether',
-    BNB: 'binancecoin',
-    ETH: 'ethereum',
-  };
-  return mapping[asset] || asset.toLowerCase();
 };
 

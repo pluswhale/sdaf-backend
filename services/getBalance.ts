@@ -4,7 +4,6 @@ import { Contract, formatEther, formatUnits } from 'ethers';
 import { getBitcoinBalance } from '../utils';
 
 import dotenv from 'dotenv';
-import { getCache, setCache } from '../utils/cacheService';
 
 dotenv.config();
 
@@ -19,34 +18,33 @@ export const checkBalanceInBNB = async (address: string, isMainnet: boolean) => 
   return formattedBalance;
 };
 
-// Bitcoin block
+export const checkBalanceBNBToUSD = async (bnbAddress: string, isMainnet: boolean) => {
+  const balanceInBNB = await checkBalanceInBNB(bnbAddress, isMainnet);
 
-export const getBTCtoUSDTRate = async (): Promise<number> => {
-  const cacheKey = 'BTC_USDT_RATE';
-  const cachedRate = getCache(cacheKey);
+  const response = await axios.get(`https://sdafcwap.com/app/api/get-asset-price`);
 
-  if (cachedRate !== undefined) {
-    return cachedRate;
+  const { prices } = response.data;
+
+  const bnbToUsdRate = prices.BNB;
+
+  if (bnbToUsdRate === 0) {
+    return { usd: '0.00', bnb: balanceInBNB };
   }
 
-  try {
-    const response = await axios.get('https://api.binance.com/api/v3/ticker/price', {
-      params: { symbol: 'BTCUSDT' },
-    });
-
-    const btcToUsdtRate = parseFloat(response.data.price);
-    setCache(cacheKey, btcToUsdtRate, 60);
-    return btcToUsdtRate;
-  } catch (error) {
-    console.error('Error fetching BTC to USDT rate:', error);
-    return 0;
-  }
+  const balanceInUSD = balanceInBNB * bnbToUsdRate;
+  return { usd: balanceInUSD.toFixed(2), bnb: balanceInBNB };
 };
+
+// Bitcoin block
 
 export const checkBalanceBTCToUSDT = async (btcAddress: string, isMainnet: boolean) => {
   const balanceInBTC = await getBitcoinBalance(btcAddress, isMainnet);
 
-  const btcToUsdtRate = await getBTCtoUSDTRate();
+  const response = await axios.get(`https://sdafcwap.com/app/api/get-asset-price`);
+
+  const { prices } = response.data;
+
+  const btcToUsdtRate = prices.BTC;
 
   if (btcToUsdtRate === 0) {
     return { usd: '0.00', btc: balanceInBTC };
@@ -58,31 +56,21 @@ export const checkBalanceBTCToUSDT = async (btcAddress: string, isMainnet: boole
 
 // USDT Block
 
-export const fetchUSDTPrice = async (): Promise<number> => {
-  const cacheKey = 'USDT_PRICE_USD';
-  const cachedPrice = getCache(cacheKey);
+export const checkBalanceUSDTToUSD = async (usdtAddress: string, isMainnet: boolean) => {
+  const balanceInUSDT = await checkBalanceUSDT(usdtAddress, isMainnet);
 
-  if (cachedPrice !== undefined) {
-    return cachedPrice;
+  const response = await axios.get(`https://sdafcwap.com/app/api/get-asset-price`);
+
+  const { prices } = response.data;
+
+  const usdtToUsdRate = prices.USDT;
+
+  if (usdtToUsdRate === 0) {
+    return { usd: '0.00', usdt: balanceInUSDT };
   }
 
-  try {
-    const response = await axios.get('https://api.coingecko.com/api/v3/simple/price', {
-      params: {
-        ids: 'tether',
-        vs_currencies: 'usd',
-      },
-    });
-
-    const price = response.data.tether.usd;
-    console.log(`this is real price USDT in USD from CoinGeko: ${price} `);
-
-    setCache(cacheKey, price, 60);
-    return price;
-  } catch (error) {
-    console.error('Error fetching USDT price:', error);
-    return 1;
-  }
+  const balanceInUSD = balanceInUSDT * usdtToUsdRate;
+  return { usd: balanceInUSD.toFixed(2), usdt: balanceInUSDT };
 };
 
 const USDT_ABI = [
@@ -104,7 +92,7 @@ export const checkBalanceUSDT = async (walletAddress: string, isMainnet: boolean
   const decimals = await usdtContract.decimals();
   const formattedBalance = parseFloat(formatUnits(balanceInUSDT, decimals));
 
-  return formattedBalance.toFixed(2);
+  return formattedBalance;
 };
 
 export const checkBalanceUSDT_CT = async (walletAddress: string, isMainnet: boolean) => {
