@@ -17,13 +17,23 @@ export async function placeBinanceOrder(
   try {
     const price = +priceCurrency; // The limit price you're willing to pay for BNB (in USDT)
 
+    const exchangeInfo = await client.exchangeInfo();
+    const symbolInfo = exchangeInfo.symbols.find((s: any) => s.symbol === symbolCurrency);
+    const lotSizeFilter = symbolInfo.filters.find((f: any) => f.filterType === 'LOT_SIZE');
+
+    // Adjust quantity based on LOT_SIZE
+    const stepSize = parseFloat(lotSizeFilter.stepSize);
+    const adjustedQuantity = (Math.floor(quantityAmount / stepSize) * stepSize).toFixed(
+      stepSize.toString().split('.')[1]?.length || 0,
+    );
+
     // Place a limit buy order
     const order = await client.order({
       symbol: symbolCurrency,
       side: direction, // 'BUY' side for the limit order
       type: 'LIMIT', // Limit order type
       price: price.toFixed(2), // Limit price to 2 decimal places
-      quantity: quantityAmount, // Quantity of BNB to buy
+      quantity: adjustedQuantity, // Quantity of BNB to buy
       timeInForce: 'GTC', // 'Good Till Canceled' - the order will remain open until filled or canceled
     });
 
