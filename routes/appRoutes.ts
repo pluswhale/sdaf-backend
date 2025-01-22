@@ -43,6 +43,7 @@ import { checkOrderStatus, placeBinanceOrder } from '../services/binanceTrade';
 import { findSuitableOrder } from '../services/findSuitableOrder';
 import { getHedgingLogs } from '../controllers/getHedgingLogs';
 import { getHedgineEngineHistoryLog } from '../controllers/getHedgineEngineHistoryLog';
+import { getUserBinanceBalance } from '../controllers/binanceApi/getUserBinanceBalance';
 
 const router = express.Router();
 
@@ -80,6 +81,9 @@ router.get('/get-withdrawal-details-ceffu', getWithdrawalDetailsCeffu);
 
 // CoinGeko prices
 router.get('/get-asset-price', getAssetPrice);
+
+//Binance
+router.get('/balance-binance', getUserBinanceBalance);
 
 // Headging Engine
 router.get('/get-confirmations', getTransactionConfirmations);
