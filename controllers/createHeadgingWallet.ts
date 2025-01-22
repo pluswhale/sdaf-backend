@@ -13,8 +13,10 @@ export const createHeadgingWallet: RequestHandler = async (
 ): Promise<void> => {
   try {
     const { walletAddress, txId, fromCoin, toCoin, amount } = req.body;
-
-    if (!walletAddress || !txId || !fromCoin || !toCoin || !amount) {
+    console.log(req.body);
+    console.log(req.body.txId);
+    if (!txId) {
+      res.status(400).send('No transaction id provided.');
       throw new Error('Required parameters missing.');
     }
 
@@ -32,17 +34,15 @@ export const createHeadgingWallet: RequestHandler = async (
       `New hedging wallet added: ${walletAddress}, txId: ${txId}, from ${fromCoin} to ${toCoin}, amount: ${amount}`,
     );
 
-    res
-      .status(200)
-      .json({
-        message: 'Wallet created successfully',
-        walletAddress,
-        txId,
-        confirmations: 0,
-        fromCoin,
-        toCoin,
-        amount,
-      });
+    res.status(200).json({
+      message: 'Wallet created successfully',
+      walletAddress,
+      txId,
+      confirmations: 0,
+      fromCoin,
+      toCoin,
+      amount,
+    });
   } catch (error: any) {
     console.error('Error while creating hedging wallet:', error);
     if (!res.headersSent) {

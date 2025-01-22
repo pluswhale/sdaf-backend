@@ -5,22 +5,22 @@ export class HedgingEngine {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  walletAddress: string;
+  @Column({ nullable: true })
+  walletAddress?: string;
 
   @Column()
   transactionHash: string;
 
-  @Column({ type: 'int' })
-  confirmations: number;
+  @Column({ type: 'int', default: 0, nullable: true })
+  confirmations?: number;
 
-  @Column({ default: '' })
+  @Column({ default: '', nullable: true })
   fromCoin: string;
 
-  @Column({ default: '' })
+  @Column({ default: '', nullable: true })
   toCoin: string;
 
-  @Column('decimal', { scale: 2, default: 0.0 })
+  @Column('decimal', { scale: 2, default: 0.0, nullable: true })
   amount: string;
 
   @CreateDateColumn()
