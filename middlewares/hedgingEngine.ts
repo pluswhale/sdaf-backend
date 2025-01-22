@@ -66,8 +66,8 @@ async function monitorWallet(): Promise<void> {
       try {
         const isBnb = transaction.input === '0x';
 
-        const fromCoin = isBnb ? 'USDT' : 'BNB';
-        const toCoin = isBnb ? 'BNB' : 'USDT';
+        const fromCoin = isBnb ? 'BNB' : 'USDT';
+        const toCoin = isBnb ? 'USDT' : 'BNB';
         const amount = ethers.formatUnits(transaction.value, 18);
 
         if (!isEnded) {
