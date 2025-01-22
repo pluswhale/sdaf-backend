@@ -1,3 +1,5 @@
+import { Direction } from './findSuitableOrder';
+
 const Binance = require('binance-api-node').default;
 
 const client = Binance({
@@ -5,20 +7,23 @@ const client = Binance({
   apiSecret: process.env.BINANCE_API_SECRET_KEY,
 });
 
-export async function placeLimitBuyOrder(priceCurrency: number, quantityAmount: number, symbolCurrency: string) {
+export async function placeBinanceOrder(
+  priceCurrency: number,
+  quantityAmount: number,
+  symbolCurrency: string,
+  direction: Direction,
+) {
   // symbol ex.BNBUSDT
   try {
-    const symbol = symbolCurrency; // Trading pair BNB/USDT
-    const quantity = quantityAmount; // Amount of BNB you want to buy
     const price = +priceCurrency; // The limit price you're willing to pay for BNB (in USDT)
 
     // Place a limit buy order
     const order = await client.order({
-      symbol: symbol,
-      side: 'BUY', // 'BUY' side for the limit order
+      symbol: symbolCurrency,
+      side: direction, // 'BUY' side for the limit order
       type: 'LIMIT', // Limit order type
       price: price.toFixed(2), // Limit price to 2 decimal places
-      quantity: quantity, // Quantity of BNB to buy
+      quantity: quantityAmount, // Quantity of BNB to buy
       timeInForce: 'GTC', // 'Good Till Canceled' - the order will remain open until filled or canceled
     });
 
