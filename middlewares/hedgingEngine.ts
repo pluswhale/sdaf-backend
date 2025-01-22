@@ -79,11 +79,7 @@ async function monitorWallet(): Promise<void> {
             const orderRes = await checkOrderStatus(result.orderId, fromCoin, toCoin);
             retries++;
 
-            if (orderRes.status === 'FILLED' || retries === 3) {
-              await createHedgineEngineLogWithOrderIdFromBinance(transaction.hash);
-              isEnded = true;
-              return;
-            }
+            await createHedgineEngineLogWithOrderIdFromBinance(transaction.hash);
           }
         }
 
