@@ -17,12 +17,13 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'https://sdafcwap.com', 'http://localhost:5000'], // Replace with your frontend's actual origin
-    credentials: true, // Allows cookies and other credentials
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Specify the methods your API supports
-    allowedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie'], // Specify necessary headers
+    origin: ['http://localhost:3000', 'https://sdafcwap.com', 'http://localhost:5000', 'https://cwap3.coinhq.store'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie'],
   }),
 );
+
 app.use(cookieParser());
 
 app.get('/', async (req, res) => {
