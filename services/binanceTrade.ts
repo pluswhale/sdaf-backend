@@ -23,8 +23,8 @@ export async function placeBinanceOrder(
 
     // Adjust quantity based on LOT_SIZE
     const stepSize = parseFloat(lotSizeFilter.stepSize);
-    const adjustedQuantity = (Math.floor(quantityAmount / stepSize) * stepSize).toFixed(
-      stepSize.toString().split('.')[1]?.length || 0,
+    const adjustedQuantity = (Math.floor(quantityAmount / stepSize) * stepSize)?.toFixed(
+      stepSize.toString()?.split('.')?.[1]?.length || 0,
     );
 
     // Place a limit buy order
