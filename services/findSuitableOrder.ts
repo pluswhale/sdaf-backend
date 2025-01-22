@@ -6,6 +6,11 @@ type BinanceOrderbook = {
   asks: [string, string][];
 };
 
+export enum Direction {
+  BUY = 'BUY',
+  SELL = 'SELL',
+}
+
 const mapToSymbol = {
   BNBUSDT: 'BNBUSDT',
   USDTBNB: 'BNBUSDT',
@@ -24,18 +29,22 @@ export const findSuitableOrder = async (c1: string, c2: string, amount: number) 
       },
     });
     let filteredOrders;
-    //@ts-ignore
+    let sortedOrders;
+    let direction;
+    // @ts-ignore
     if (mapToSymbol[c1 + c2] !== c1 + c2) {
       //we buy here
-      console.log('ask order quote');
-      filteredOrders = data.asks.filter((el) => Number(el[1]) >= amount);
+      direction = Direction.BUY;
+      filteredOrders = data.asks.filter((el) => Number(el[1]) >= Number(amount));
+      sortedOrders = filteredOrders.toSorted((a, b) => Number(a[0]) - Number(b[0]));
     } else {
       //we sell here
-      console.log('bid order quote');
-      filteredOrders = data.bids.filter((el) => Number(el[1]) >= amount);
+      direction = Direction.SELL;
+      filteredOrders = data.bids.filter((el) => Number(el[1]) >= Number(amount));
+      sortedOrders = filteredOrders.toSorted((a, b) => Number(b[0]) - Number(a[0]));
     }
-    const sortedOrders = filteredOrders.toSorted((a, b) => Number(a[1]) - Number(b[1]));
-    return sortedOrders[0];
+    //@ts-ignore
+    return { direction, symbol: mapToSymbol[c1 + c2], amount, bestOrder: sortedOrders[0] };
   } catch (err) {
     console.log(err);
   }
