@@ -5,8 +5,14 @@ import dotenv from 'dotenv';
 import { AppDataSource } from '../db/AppDataSource';
 import Binance from 'binance-api-node';
 import { ethers, Wallet } from 'ethers';
-import { placeLimitBuyOrder } from '../services/binanceTrade';
+import { placeBinanceOrder } from '../services/binanceTrade';
 import { HedgineEngineLog } from '../db/entities/HedgineEngineLog';
+
+import { findSuitableOrder } from '../services/findSuitableOrder';
+import {
+  createHedgineEngineLogWithOrderIdFromBinance,
+  getHedgineEngineHistoryLogByTxId,
+} from '../services/hedgineEngineHistoryLog';
 
 const client = Binance({
   apiKey: process.env.BINANCE_API_KEY,
@@ -48,29 +54,33 @@ let retries = 0;
 
 async function monitorWallet(): Promise<void> {
   const transactions = await fetchTransactions();
-
   isEnded = false;
 
   if (transactions) {
     for (let transaction of transactions) {
+      const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.hash);
+
+      if (heHistoryLog) continue;
+
       try {
-        const fromCoin = 'USDT';
-        const toCoin = 'BNB';
+        const fromCoin = 'BNB';
+        const toCoin = 'USDT';
         const amount = ethers.formatUnits(transaction.value, 18);
 
         if (!isEnded) {
           console.log(`Initiating Binance order for ${amount} ${fromCoin} to ${toCoin}.`);
           //@ts-ignore
-          const [price, _] = await findSuitableOrder(fromCoin, toCoin, +amount);
-          console.log('price', price);
+          const { direction, symbol, amount: quantity, bestOrder } = await findSuitableOrder(fromCoin, toCoin, +amount);
 
-          const result = await placeLimitBuyOrder(price, +amount, toCoin + fromCoin);
+          //@ts-ignore
+          const result = await placeBinanceOrder(bestOrder?.[0], quantity, symbol, direction);
 
           if (result) {
             const orderRes = await checkOrderStatus(result.orderId, fromCoin, toCoin);
             retries++;
 
             if (orderRes.status === 'FILLED' || retries === 3) {
+              await createHedgineEngineLogWithOrderIdFromBinance(transaction.hash);
               isEnded = true;
               return;
             }
@@ -220,25 +230,21 @@ async function checkOrderStatus(orderId: string, fromCoin: string, toCoin: strin
 //   console.log('All transactions are confirmed!');
 // }
 
-cron.schedule('* * * * *', () => {
+setInterval(async () => {
   if (isRunning) {
     console.warn('Previous task HedgingEngine is still running. Skipping current run.');
     return;
   }
 
   isRunning = true;
-  (async () => {
-    try {
-      console.log('Starting scheduled tasks: get Confirmations and Initiate Binance Buy/Sell');
-
-      await monitorWallet();
-
-      console.log('Scheduled tasks completed successfully.');
-    } catch (error) {
-      console.error('Error during scheduled tasks:', error);
-    } finally {
-      isRunning = false;
-    }
-  })();
-});
+  try {
+    console.log('Starting scheduled tasks: get Confirmations and Initiate Binance Buy/Sell');
+    await monitorWallet();
+    console.log('Scheduled tasks completed successfully.');
+  } catch (error) {
+    console.error('Error during scheduled tasks:', error);
+  } finally {
+    isRunning = false;
+  }
+}, 3000); // Run every 3 seconds
 

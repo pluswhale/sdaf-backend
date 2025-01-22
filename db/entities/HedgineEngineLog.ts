@@ -6,7 +6,7 @@ export class HedgineEngineLog {
   id: string;
 
   @Column({ type: 'text', nullable: true })
-  orderIdFromBinance: string | null;
+  txHash: string | null;
 
   @Column({ type: 'text', nullable: true })
   pairSwapDirectionOnSwap: string | null;

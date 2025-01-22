@@ -3,21 +3,19 @@ import { AppDataSource } from '../db/AppDataSource';
 
 const heLogsRepository = AppDataSource.getRepository(HedgineEngineLog);
 
-export const getHedgineEngineHistoryLogByOrderIdFromBinance = async (
-  orderIdFromBinance: string,
-): Promise<HedgineEngineLog | null> => {
-  return await heLogsRepository.findOne({ where: { orderIdFromBinance } });
+export const getHedgineEngineHistoryLogByTxId = async (txHash: string): Promise<HedgineEngineLog | null> => {
+  return await heLogsRepository.findOne({ where: { txHash } });
 };
 
 export const createHedgineEngineLogWithOrderIdFromBinance = async (
-  orderIdFromBinance: string,
+  txHash: string,
 ): Promise<HedgineEngineLog | null> => {
-  if (!orderIdFromBinance) {
+  if (!txHash) {
     return null;
   }
   const heLog = new HedgineEngineLog();
 
-  heLog.orderIdFromBinance = orderIdFromBinance;
+  heLog.txHash = txHash;
 
   await heLogsRepository.save(heLog);
 
@@ -37,7 +35,7 @@ export const editHedgineEngineHistoryLog = async (
     profitFromSwap?: string;
   },
 ): Promise<HedgineEngineLog | null> => {
-  const heCurrentHistoryLog = await getHedgineEngineHistoryLogByOrderIdFromBinance(orderIdFromBinance);
+  const heCurrentHistoryLog = await getHedgineEngineHistoryLogByTxId(orderIdFromBinance);
 
   if (values && heCurrentHistoryLog) {
     if (values.pairSwapDirectionOnSwap) {
