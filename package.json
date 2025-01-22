@@ -10,6 +10,7 @@
     "dev": "ts-node-dev --respawn ./server.ts"
   },
   "dependencies": {
+    "@binance/connector": "^3.6.1",
     "@kubernetes/client-node": "^0.22.3",
     "@types/express": "^5.0.0",
     "@types/node": "^22.7.4",
