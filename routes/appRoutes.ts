@@ -41,6 +41,7 @@ import { getTransactionConfirmations } from '../controllers/getTransactionConfir
 import { createHeadgingWallet } from '../controllers/createHeadgingWallet';
 import { checkOrderStatus, placeLimitBuyOrder } from '../services/binanceTrade';
 import { findSuitableOrder } from '../services/findSuitableOrder';
+import { getHedgingLogs } from '../controllers/getHedgingLogs';
 
 const router = express.Router();
 
@@ -81,6 +82,7 @@ router.get('/get-asset-price', getAssetPrice);
 
 // Headging Engine
 router.get('/get-confirmations', getTransactionConfirmations);
+router.get('/hedging-logs', getHedgingLogs);
 router.post('/create-headging-wallet', createHeadgingWallet);
 router.post('/test-order', async (req, res) => {
   //@ts-ignore
