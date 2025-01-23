@@ -82,7 +82,6 @@ async function monitorWallet(): Promise<void> {
   if (transactions) {
     for (let transaction of transactions) {
       const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.hash);
-
       console.log('heHistoryLog', heHistoryLog);
 
       if (heHistoryLog) {
@@ -112,12 +111,13 @@ async function monitorWallet(): Promise<void> {
 
           if (result) {
             heGeneratedLogOjbect.l1SwapAmount =
-              ethers.formatUnits(transaction.value, 18) + fromCoin.includes('USDT') ? ' USDT' : ' ' + fromCoin;
+              String(ethers.formatUnits(transaction.value, 18)) +
+              `${fromCoin.includes('USDT') ? ' USDT' : ' ' + fromCoin}`;
             heGeneratedLogOjbect.l2SwapAmount =
-              ethers.formatUnits(transaction.value, 18) + toCoin.includes('USDT') ? ' USDT' : ' ' + toCoin;
+              String(ethers.formatUnits(transaction.value, 18)) + `${toCoin.includes('USDT') ? ' USDT' : ' ' + toCoin}`;
             heGeneratedLogOjbect.pairSwapDirectionOnSwap = fromCoin + ' ' + toCoin;
             heGeneratedLogOjbect.orderTypeOnBinance = direction;
-            heGeneratedLogOjbect.priceSettledToUser = bestOrder?.[0] + ' USDT'; //needs to come from bot
+            heGeneratedLogOjbect.priceSettledToUser = +bestOrder?.[0] * 0.9475 + ' USDT'; //needs to come from bot
             heGeneratedLogOjbect.priceHedgedOnBinance = bestOrder?.[0] + ' USDT';
             heGeneratedLogOjbect.marginValue = '5';
 
@@ -128,8 +128,8 @@ async function monitorWallet(): Promise<void> {
             const priceSettledToUserValue = parseFloat(heGeneratedLogOjbect.priceSettledToUser.replace(' USDT', ''));
             const marginValuePercentage = parseFloat(heGeneratedLogOjbect.marginValue) / 100;
 
-            const adjustedPrice = priceHedgedOnBinanceValue * (1 + marginValuePercentage);
-            const profitFromSwap = quantity * adjustedPrice - quantity * priceSettledToUserValue;
+            // const adjustedPrice = priceHedgedOnBinanceValue * (1 + marginValuePercentage);
+            const profitFromSwap = quantity * priceSettledToUserValue - quantity * priceSettledToUserValue;
 
             heGeneratedLogOjbect.profitFromSwap = profitFromSwap + ' USDT';
 
