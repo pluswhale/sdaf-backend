@@ -35,7 +35,22 @@ const url = `https://api.bscscan.com/api?module=account&action=txlist&address=${
 async function fetchTransactions() {
   try {
     const response = await axios.get(url);
-    const transactions = response.data.result;
+    const usdtTransfers = await axios.get(`https://api.bscscan.com/api`, {
+      params: {
+        module: 'account',
+        action: 'tokentx',
+        contractaddress: '0x55d398326f99059fF775485246999027B3197955',
+        address: address,
+        startblock: 0,
+        endblock: 999999999,
+        page: 1,
+        offset: 10,
+        sort: 'desc',
+        apiKey: BSC_SCAN_API_KEY,
+      },
+    });
+    const transactions = response.data.result.concat(usdtTransfers.data.result);
+    console.log(transactions);
 
     if (transactions && transactions.length) {
       console.log('Latest transaction:', transactions[0]);
@@ -64,11 +79,15 @@ async function monitorWallet(): Promise<void> {
       }
 
       try {
-        const isBnb = transaction.input === '0x';
-
+        const isBnb = !transaction.tokenName;
+        console.log('isBNB: ', isBnb);
         const fromCoin = isBnb ? 'BNB' : 'USDT';
         const toCoin = isBnb ? 'USDT' : 'BNB';
-        const amount = ethers.formatUnits(transaction.value, 18);
+        const quoteToGetBnbPrice = await findSuitableOrder(fromCoin, toCoin, 0);
+        const amount = isBnb
+          ? ethers.formatUnits(transaction.value, 18)
+          : //@ts-ignore
+            +ethers.formatUnits(transaction.value, 18) / +quoteToGetBnbPrice?.bestOrder?.[0];
 
         if (!isEnded) {
           console.log(`Initiating Binance order for ${amount} ${fromCoin} to ${toCoin}.`);
