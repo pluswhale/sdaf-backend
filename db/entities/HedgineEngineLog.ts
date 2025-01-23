@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
 
 @Entity()
 export class HedgineEngineLog {
@@ -34,5 +34,8 @@ export class HedgineEngineLog {
 
   @Column({ type: 'bool', default: false })
   fullfil: boolean;
+
+  @CreateDateColumn()
+  createdAt: Date;
 }
 
