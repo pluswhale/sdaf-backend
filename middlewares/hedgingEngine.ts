@@ -105,17 +105,16 @@ async function monitorWallet(): Promise<void> {
             heGeneratedLogOjbect.priceHedgedOnBinance = bestOrder?.[0] + " USDT";
             heGeneratedLogOjbect.marginValue = "5";
 
-            // calculate margin
+            // Calculate profit margin using quantity
             const priceHedgedOnBinanceValue = parseFloat(heGeneratedLogOjbect.priceHedgedOnBinance.replace(' USDT', ''));
             const priceSettledToUserValue = parseFloat(heGeneratedLogOjbect.priceSettledToUser.replace(' USDT', ''));
             const marginValuePercentage = parseFloat(heGeneratedLogOjbect.marginValue) / 100;
+
             const adjustedPrice = priceHedgedOnBinanceValue * (1 + marginValuePercentage);
-            const profitFromSwap = adjustedPrice - priceSettledToUserValue;
+            const profitFromSwap = (quantity * adjustedPrice) - (quantity * priceSettledToUserValue);
             
             heGeneratedLogOjbect.profitFromSwap = profitFromSwap + ' USDT';
 
-
-            
             console.log('!!!!!!!!!!!!!!!---------------heGeneratedLogOjbect VALUES:  ', heGeneratedLogOjbect);
   
            const createdLog =  await createHedgineEngineLogWithOrderIdFromBinance(transaction.hash, heGeneratedLogOjbect);
