@@ -39,7 +39,7 @@ export class Wallet {
   @Column({ type: 'varchar', length: 100 })
   wallet_name: string;
 
-  @Column({ type: 'varchar', length: 256, unique: true })
+  @Column({ type: 'varchar', length: 256, unique: false })
   pub_key: string;
 
   @Column({ type: 'varchar', length: 256, unique: false, default: '' })
