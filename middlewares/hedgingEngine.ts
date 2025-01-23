@@ -111,15 +111,13 @@ async function monitorWallet(): Promise<void> {
           console.log('!!!!!!!!!!!!!!!!!!!!------------ result', result);
 
           if (result) {
-            heGeneratedLogOjbect.l1SwapAmount = fromCoin.includes('USDT')
-              ? bestOrder?.[0] * +amount + ' USDT'
-              : +amount / bestOrder?.[0] + fromCoin;
-            heGeneratedLogOjbect.l2SwapAmount = toCoin.includes('USDT')
-              ? bestOrder?.[0] * +amount + ' USDT'
-              : +amount / bestOrder?.[0] + toCoin;
+            heGeneratedLogOjbect.l1SwapAmount =
+              ethers.formatUnits(transaction.value, 18) + fromCoin.includes('USDT') ? ' USDT' : ' ' + fromCoin;
+            heGeneratedLogOjbect.l2SwapAmount =
+              ethers.formatUnits(transaction.value, 18) + toCoin.includes('USDT') ? ' USDT' : ' ' + toCoin;
             heGeneratedLogOjbect.pairSwapDirectionOnSwap = fromCoin + ' ' + toCoin;
             heGeneratedLogOjbect.orderTypeOnBinance = direction;
-            heGeneratedLogOjbect.priceSettledToUser = bestOrder?.[0] + ' USDT';
+            heGeneratedLogOjbect.priceSettledToUser = bestOrder?.[0] + ' USDT'; //needs to come from bot
             heGeneratedLogOjbect.priceHedgedOnBinance = bestOrder?.[0] + ' USDT';
             heGeneratedLogOjbect.marginValue = '5';
 
