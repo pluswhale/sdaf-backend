@@ -8,7 +8,7 @@ import { ethers, Wallet } from 'ethers';
 import { placeBinanceOrder } from '../services/binanceTrade';
 import { HedgineEngineLog } from '../db/entities/HedgineEngineLog';
 
-import { findSuitableOrder } from '../services/findSuitableOrder';
+import { Direction, findSuitableOrder } from '../services/findSuitableOrder';
 import {
   createHedgineEngineLogWithOrderIdFromBinance,
   getHedgineEngineHistoryLogByTxId,
@@ -114,10 +114,14 @@ async function monitorWallet(): Promise<void> {
               String(ethers.formatUnits(transaction.value, 18)) +
               `${fromCoin.includes('USDT') ? ' USDT' : ' ' + fromCoin}`;
             heGeneratedLogOjbect.l2SwapAmount =
-              String(ethers.formatUnits(transaction.value, 18)) + `${toCoin.includes('USDT') ? ' USDT' : ' ' + toCoin}`;
+              `${
+                direction === Direction.SELL
+                  ? String(+ethers.formatUnits(transaction.value, 18) / bestOrder?.[0])
+                  : String(+ethers.formatUnits(transaction.value, 18) * bestOrder?.[0])
+              }` + `${toCoin.includes('USDT') ? ' USDT' : ' ' + toCoin}`;
             heGeneratedLogOjbect.pairSwapDirectionOnSwap = fromCoin + ' ' + toCoin;
             heGeneratedLogOjbect.orderTypeOnBinance = direction;
-            heGeneratedLogOjbect.priceSettledToUser = +bestOrder?.[0] * 0.9475 + ' USDT'; //needs to come from bot
+            heGeneratedLogOjbect.priceSettledToUser = +bestOrder?.[0] * 0.95 + ' USDT'; //needs to come from bot
             heGeneratedLogOjbect.priceHedgedOnBinance = bestOrder?.[0] + ' USDT';
             heGeneratedLogOjbect.marginValue = '5';
 
@@ -129,7 +133,7 @@ async function monitorWallet(): Promise<void> {
             const marginValuePercentage = parseFloat(heGeneratedLogOjbect.marginValue) / 100;
 
             // const adjustedPrice = priceHedgedOnBinanceValue * (1 + marginValuePercentage);
-            const profitFromSwap = quantity * priceSettledToUserValue - quantity * priceSettledToUserValue;
+            const profitFromSwap = quantity * priceHedgedOnBinanceValue - quantity * priceSettledToUserValue;
 
             heGeneratedLogOjbect.profitFromSwap = profitFromSwap + ' USDT';
 
