@@ -115,7 +115,7 @@ async function monitorWallet(): Promise<void> {
               `${fromCoin.includes('USDT') ? ' USDT' : ' ' + fromCoin}`;
             heGeneratedLogOjbect.l2SwapAmount =
               `${
-                direction === Direction.SELL
+                direction === Direction.BUY
                   ? String(+ethers.formatUnits(transaction.value, 18) / bestOrder?.[0])
                   : String(+ethers.formatUnits(transaction.value, 18) * bestOrder?.[0])
               }` + `${toCoin.includes('USDT') ? ' USDT' : ' ' + toCoin}`;
