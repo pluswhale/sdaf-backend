@@ -135,7 +135,7 @@ async function monitorWallet(): Promise<void> {
             const marginValuePercentage = parseFloat(heGeneratedLogOjbect.marginValue) / 100;
 
             // const adjustedPrice = priceHedgedOnBinanceValue * (1 + marginValuePercentage);
-            const profitFromSwap = quantity * priceHedgedOnBinanceValue - quantity * priceSettledToUserValue;
+            const profitFromSwap = Math.abs(quantity * priceHedgedOnBinanceValue - quantity * priceSettledToUserValue);
 
             heGeneratedLogOjbect.profitFromSwap = profitFromSwap + ' USDT';
 
