@@ -121,9 +121,8 @@ async function monitorWallet(): Promise<void> {
               }` + `${toCoin.includes('USDT') ? ' USDT' : ' ' + toCoin}`;
             heGeneratedLogOjbect.pairSwapDirectionOnSwap = fromCoin + ' ' + toCoin;
             heGeneratedLogOjbect.orderTypeOnBinance = direction;
-            heGeneratedLogOjbect.priceSettledToUser = Direction.SELL
-              ? +bestOrder?.[0] * 0.95 + ' USDT'
-              : +bestOrder?.[0] * 1.05 + ' USDT'; //needs to come from bot
+            heGeneratedLogOjbect.priceSettledToUser =
+              direction === Direction.SELL ? +bestOrder?.[0] * 0.95 + ' USDT' : +bestOrder?.[0] * 1.05 + ' USDT'; //needs to come from bot
             heGeneratedLogOjbect.priceHedgedOnBinance = bestOrder?.[0] + ' USDT';
             heGeneratedLogOjbect.marginValue = '5';
 
