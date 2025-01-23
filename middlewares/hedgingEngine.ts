@@ -32,6 +32,17 @@ const BSC_SCAN_API_KEY = 'WTYZJUZD5RC99WNUAFTIMSII927UYCRG6G';
 const address = publicAddress; // Use the derived address
 const url = `https://api.bscscan.com/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=desc&apikey=${BSC_SCAN_API_KEY}`;
 
+const heGeneratedLogOjbect = {}  as {
+  pairSwapDirectionOnSwap?: string;
+  l1SwapAmount?: string;
+  l2SwapAmount?: string;
+  orderTypeOnBinance?: string;
+  priceSettledToUser?: string;
+  priceHedgedOnBinance?: string;
+  marginValue?: string;
+  profitFromSwap?: string;
+}
+
 async function fetchTransactions() {
   try {
     const response = await axios.get(url);
@@ -53,7 +64,6 @@ async function fetchTransactions() {
     console.log(transactions);
 
     if (transactions && transactions.length) {
-      console.log('Latest transaction:', transactions[0]);
       return transactions;
     } else {
       console.log('No transactions found for this address.');
@@ -73,6 +83,12 @@ async function monitorWallet(): Promise<void> {
   if (transactions) {
     for (let transaction of transactions) {
       const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.hash);
+
+      console.log(
+        'heHistoryLog', heHistoryLog
+
+      );
+      
 
       if (heHistoryLog) {
         continue;
@@ -97,8 +113,42 @@ async function monitorWallet(): Promise<void> {
           //@ts-ignore
           const result = await placeBinanceOrder(bestOrder?.[0], quantity, symbol, direction);
 
+          console.log('!!!!!!!!!!!!!!!!!!!!------------ result', result);
+
           if (result) {
-            await createHedgineEngineLogWithOrderIdFromBinance(transaction.hash);
+            heGeneratedLogOjbect.l1SwapAmount = fromCoin.includes('USDT') ? bestOrder?.[0] + " USDT" : (1 / bestOrder?.[0]) + fromCoin;
+            heGeneratedLogOjbect.l2SwapAmount = toCoin.includes('USDT') ? bestOrder?.[0] + " USDT" : (1 / bestOrder?.[0]) + toCoin;
+            heGeneratedLogOjbect.pairSwapDirectionOnSwap = fromCoin + " " + toCoin;
+            heGeneratedLogOjbect.orderTypeOnBinance = direction;
+            heGeneratedLogOjbect.priceSettledToUser = bestOrder?.[0] + " USDT";
+            heGeneratedLogOjbect.priceHedgedOnBinance = bestOrder?.[0] + " USDT";
+            heGeneratedLogOjbect.marginValue = "5";
+
+            // Calculate profit margin using quantity
+            const priceHedgedOnBinanceValue = parseFloat(heGeneratedLogOjbect.priceHedgedOnBinance.replace(' USDT', ''));
+            const priceSettledToUserValue = parseFloat(heGeneratedLogOjbect.priceSettledToUser.replace(' USDT', ''));
+            const marginValuePercentage = parseFloat(heGeneratedLogOjbect.marginValue) / 100;
+
+            const adjustedPrice = priceHedgedOnBinanceValue * (1 + marginValuePercentage);
+            const profitFromSwap = (quantity * adjustedPrice) - (quantity * priceSettledToUserValue);
+            
+            heGeneratedLogOjbect.profitFromSwap = profitFromSwap + ' USDT';
+
+            console.log('!!!!!!!!!!!!!!!---------------heGeneratedLogOjbect VALUES:  ', heGeneratedLogOjbect);
+  
+           const createdLog =  await createHedgineEngineLogWithOrderIdFromBinance(transaction.hash, heGeneratedLogOjbect);
+
+
+           console.log('!!!!!!!!!!!!!!!!!!!!------------ createdLog?.txHash', createdLog?.txHash);
+
+
+          //  if (createdLog?.txHash) {
+
+          //   console.log('!!!!!!!!!!!!!!!---------------heGeneratedLogOjbect VALUES:  ', heGeneratedLogOjbect);
+            
+            
+          //    await  editHedgineEngineHistoryLog(createdLog.txHash, heGeneratedLogOjbect);
+          //  }
           }
         }
       } catch (error) {
