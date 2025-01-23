@@ -8,7 +8,7 @@ import { ethers, Wallet } from 'ethers';
 import { placeBinanceOrder } from '../services/binanceTrade';
 import { HedgineEngineLog } from '../db/entities/HedgineEngineLog';
 
-import { findSuitableOrder } from '../services/findSuitableOrder';
+import { Direction, findSuitableOrder } from '../services/findSuitableOrder';
 import {
   createHedgineEngineLogWithOrderIdFromBinance,
   getHedgineEngineHistoryLogByTxId,
@@ -32,7 +32,7 @@ const BSC_SCAN_API_KEY = 'WTYZJUZD5RC99WNUAFTIMSII927UYCRG6G';
 const address = publicAddress; // Use the derived address
 const url = `https://api.bscscan.com/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=desc&apikey=${BSC_SCAN_API_KEY}`;
 
-const heGeneratedLogOjbect = {}  as {
+const heGeneratedLogOjbect = {} as {
   pairSwapDirectionOnSwap?: string;
   l1SwapAmount?: string;
   l2SwapAmount?: string;
@@ -41,12 +41,26 @@ const heGeneratedLogOjbect = {}  as {
   priceHedgedOnBinance?: string;
   marginValue?: string;
   profitFromSwap?: string;
-}
+};
 
 async function fetchTransactions() {
   try {
     const response = await axios.get(url);
-    const transactions = response.data.result;
+    const usdtTransfers = await axios.get(`https://api.bscscan.com/api`, {
+      params: {
+        module: 'account',
+        action: 'tokentx',
+        contractaddress: '0x55d398326f99059fF775485246999027B3197955',
+        address: address,
+        startblock: 0,
+        endblock: 999999999,
+        page: 1,
+        offset: 10,
+        sort: 'desc',
+        apiKey: BSC_SCAN_API_KEY,
+      },
+    });
+    const transactions = response.data.result.concat(usdtTransfers.data.result);
 
     if (transactions && transactions.length) {
       return transactions;
@@ -68,23 +82,22 @@ async function monitorWallet(): Promise<void> {
   if (transactions) {
     for (let transaction of transactions) {
       const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.hash);
-
-      console.log(
-        'heHistoryLog', heHistoryLog
-
-      );
-      
+      console.log('heHistoryLog', heHistoryLog);
 
       if (heHistoryLog) {
         continue;
       }
 
       try {
-        const isBnb = transaction.input === '0x';
-
+        const isBnb = !transaction.tokenName;
+        console.log('isBNB: ', isBnb);
         const fromCoin = isBnb ? 'BNB' : 'USDT';
         const toCoin = isBnb ? 'USDT' : 'BNB';
-        const amount = ethers.formatUnits(transaction.value, 18);
+        const quoteToGetBnbPrice = await findSuitableOrder(fromCoin, toCoin, 0);
+        const amount = isBnb
+          ? ethers.formatUnits(transaction.value, 18)
+          : //@ts-ignore
+            +ethers.formatUnits(transaction.value, 18) / +quoteToGetBnbPrice?.bestOrder?.[0];
 
         if (!isEnded) {
           console.log(`Initiating Binance order for ${amount} ${fromCoin} to ${toCoin}.`);
@@ -97,39 +110,49 @@ async function monitorWallet(): Promise<void> {
           console.log('!!!!!!!!!!!!!!!!!!!!------------ result', result);
 
           if (result) {
-            heGeneratedLogOjbect.l1SwapAmount = fromCoin.includes('USDT') ? bestOrder?.[0] + " USDT" : (1 / bestOrder?.[0]) + fromCoin;
-            heGeneratedLogOjbect.l2SwapAmount = toCoin.includes('USDT') ? bestOrder?.[0] + " USDT" : (1 / bestOrder?.[0]) + toCoin;
-            heGeneratedLogOjbect.pairSwapDirectionOnSwap = fromCoin + " " + toCoin;
+            heGeneratedLogOjbect.l1SwapAmount =
+              String(ethers.formatUnits(transaction.value, 18)) +
+              `${fromCoin.includes('USDT') ? ' USDT' : ' ' + fromCoin}`;
+            heGeneratedLogOjbect.l2SwapAmount =
+              `${
+                direction === Direction.BUY
+                  ? String(+ethers.formatUnits(transaction.value, 18) / bestOrder?.[0])
+                  : String(+ethers.formatUnits(transaction.value, 18) * bestOrder?.[0])
+              }` + `${toCoin.includes('USDT') ? ' USDT' : ' ' + toCoin}`;
+            heGeneratedLogOjbect.pairSwapDirectionOnSwap = fromCoin + ' ' + toCoin;
             heGeneratedLogOjbect.orderTypeOnBinance = direction;
-            heGeneratedLogOjbect.priceSettledToUser = bestOrder?.[0] + " USDT";
-            heGeneratedLogOjbect.priceHedgedOnBinance = bestOrder?.[0] + " USDT";
-            heGeneratedLogOjbect.marginValue = "5";
+            heGeneratedLogOjbect.priceSettledToUser =
+              direction === Direction.SELL ? +bestOrder?.[0] * 0.95 + ' USDT' : +bestOrder?.[0] * 1.05 + ' USDT'; //needs to come from bot
+            heGeneratedLogOjbect.priceHedgedOnBinance = bestOrder?.[0] + ' USDT';
+            heGeneratedLogOjbect.marginValue = '5';
 
             // Calculate profit margin using quantity
-            const priceHedgedOnBinanceValue = parseFloat(heGeneratedLogOjbect.priceHedgedOnBinance.replace(' USDT', ''));
+            const priceHedgedOnBinanceValue = parseFloat(
+              heGeneratedLogOjbect.priceHedgedOnBinance.replace(' USDT', ''),
+            );
             const priceSettledToUserValue = parseFloat(heGeneratedLogOjbect.priceSettledToUser.replace(' USDT', ''));
             const marginValuePercentage = parseFloat(heGeneratedLogOjbect.marginValue) / 100;
 
-            const adjustedPrice = priceHedgedOnBinanceValue * (1 + marginValuePercentage);
-            const profitFromSwap = (quantity * adjustedPrice) - (quantity * priceSettledToUserValue);
-            
+            // const adjustedPrice = priceHedgedOnBinanceValue * (1 + marginValuePercentage);
+            const profitFromSwap = Math.abs(quantity * priceHedgedOnBinanceValue - quantity * priceSettledToUserValue);
+
             heGeneratedLogOjbect.profitFromSwap = profitFromSwap + ' USDT';
 
             console.log('!!!!!!!!!!!!!!!---------------heGeneratedLogOjbect VALUES:  ', heGeneratedLogOjbect);
-  
-           const createdLog =  await createHedgineEngineLogWithOrderIdFromBinance(transaction.hash, heGeneratedLogOjbect);
 
+            const createdLog = await createHedgineEngineLogWithOrderIdFromBinance(
+              transaction.hash,
+              heGeneratedLogOjbect,
+            );
 
-           console.log('!!!!!!!!!!!!!!!!!!!!------------ createdLog?.txHash', createdLog?.txHash);
+            console.log('!!!!!!!!!!!!!!!!!!!!------------ createdLog?.txHash', createdLog?.txHash);
 
+            //  if (createdLog?.txHash) {
 
-          //  if (createdLog?.txHash) {
+            //   console.log('!!!!!!!!!!!!!!!---------------heGeneratedLogOjbect VALUES:  ', heGeneratedLogOjbect);
 
-          //   console.log('!!!!!!!!!!!!!!!---------------heGeneratedLogOjbect VALUES:  ', heGeneratedLogOjbect);
-            
-            
-          //    await  editHedgineEngineHistoryLog(createdLog.txHash, heGeneratedLogOjbect);
-          //  }
+            //    await  editHedgineEngineHistoryLog(createdLog.txHash, heGeneratedLogOjbect);
+            //  }
           }
         }
       } catch (error) {
