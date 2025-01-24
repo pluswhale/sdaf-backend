@@ -12,11 +12,11 @@ export enum Direction {
 }
 
 export const findSuitableOrder = async (symbol: string, direction: string, amount: number) => {
+  console.log('symbol', symbol);
+
   try {
-    //@ts-ignore
     const { data }: AxiosResponse<BinanceOrderbook> = await axios.get('https://api.binance.com/api/v3/depth', {
       params: {
-        //@ts-ignore
         symbol,
         limit: 500,
       },
@@ -26,11 +26,11 @@ export const findSuitableOrder = async (symbol: string, direction: string, amoun
 
     //we buy here
     if (direction === 'BUY') {
-      filteredOrders = data.asks.filter((el) => Number(el[1]) >= Number(amount));
+      filteredOrders = data?.asks?.filter((el) => Number(el[1]) >= Number(amount));
       sortedOrders = filteredOrders.toSorted((a, b) => Number(a[0]) - Number(b[0]));
       //we sell here
     } else {
-      filteredOrders = data.bids.filter((el) => Number(el[1]) >= Number(amount));
+      filteredOrders = data?.bids?.filter((el) => Number(el[1]) >= Number(amount));
       sortedOrders = filteredOrders.toSorted((a, b) => Number(b[0]) - Number(a[0]));
     }
     return { amount, bestOrder: sortedOrders[0] };

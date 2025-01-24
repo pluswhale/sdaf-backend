@@ -11,8 +11,8 @@ type Orders = {
 
 export const placeOrderToBinanceResolver = async (orders: Orders) => {
   if (orders) {
-    const fromCoin = orders.symbol.split('-')?.[0];
-    const toCoin = orders.symbol.split('-')?.[1];
+    const fromCoin = orders?.symbol?.split('-')?.[0];
+    const toCoin = orders?.symbol?.split('-')?.[1];
     for (let transaction of orders?.transactions) {
       let generatedObjectForSavingInDB = {} as {
         pairSwapDirectionOnSwap?: string;
@@ -28,16 +28,15 @@ export const placeOrderToBinanceResolver = async (orders: Orders) => {
       try {
         //@ts-ignore
         const { bestOrder, amount: quantity } = await findSuitableOrder(
-          orders.symbol.split('-').join(''),
+          orders?.symbol?.split('-')?.join(''),
           orders.direction,
           0,
         );
-        const amount = transaction.value
+        const amount = orders.direction === Direction.SELL
           ? ethers.formatUnits(transaction.value, 18)
-          : //@ts-ignore
-            +ethers.formatUnits(transaction.value, 18) / +quoteToGetBnbPrice?.bestOrder?.[0];
+          : +ethers.formatUnits(transaction.value, 18) / +bestOrder?.[0];
 
-        const result = await placeBinanceOrder(bestOrder?.[0], +amount, orders.symbol, orders.direction as Direction);
+        const result = await placeBinanceOrder(bestOrder?.[0], +amount,  orders?.symbol?.split('-')?.join(''), orders.direction as Direction);
 
         if (result && bestOrder) {
           generatedObjectForSavingInDB.l1SwapAmount =
