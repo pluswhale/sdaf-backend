@@ -1,0 +1,4 @@
+export const RECEIVER_WALLETS = {
+  "usdt_bnb": {walletAddress: '0x56Dd25A806D2B3096eD2d9dA220B3229313E8771', symbol: "BNBUSDT", direction: "BUY"},
+  "usdt_btc": {walletAddress: '0x66FBb823E5F53D5E8161CCcd3C5BC4d158b82F27', symbol: "BTCUSDT", direction: "BUY"},
+}
