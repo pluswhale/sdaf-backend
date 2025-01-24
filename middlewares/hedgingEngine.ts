@@ -30,7 +30,7 @@ const publicAddress = wallet.address;
 
 const BSC_SCAN_API_KEY = 'WTYZJUZD5RC99WNUAFTIMSII927UYCRG6G';
 const address = publicAddress; // Use the derived address
-const url = `https://api.bscscan.com/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=desc&apikey=${BSC_SCAN_API_KEY}`;
+// const url = `https://api.bscscan.com/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=desc&apikey=${BSC_SCAN_API_KEY}`; //url for normal transactions. bnb transactions for cwap are considered internal
 
 const heGeneratedLogOjbect = {} as {
   pairSwapDirectionOnSwap?: string;
@@ -45,7 +45,20 @@ const heGeneratedLogOjbect = {} as {
 
 async function fetchTransactions() {
   try {
-    const response = await axios.get(url);
+    // const response = await axios.get(url);
+    const response = await axios.get(`https://api.bscscan.com/api`, {
+      params: {
+        module: 'account',
+        action: 'txlistinternal',
+        address: address,
+        startblock: 0,
+        endblock: 999999999,
+        page: 1,
+        offset: 10,
+        sort: 'desc',
+        apiKey: BSC_SCAN_API_KEY,
+      },
+    });
     const usdtTransfers = await axios.get(`https://api.bscscan.com/api`, {
       params: {
         module: 'account',
@@ -82,7 +95,6 @@ async function monitorWallet(): Promise<void> {
   if (transactions) {
     for (let transaction of transactions) {
       const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.hash);
-      console.log('heHistoryLog', heHistoryLog);
 
       if (heHistoryLog) {
         continue;
@@ -98,6 +110,8 @@ async function monitorWallet(): Promise<void> {
           ? ethers.formatUnits(transaction.value, 18)
           : //@ts-ignore
             +ethers.formatUnits(transaction.value, 18) / +quoteToGetBnbPrice?.bestOrder?.[0];
+        console.log('amount in native', ethers.formatUnits(transaction.value, 18));
+        console.log('amount: ', amount);
 
         if (!isEnded) {
           console.log(`Initiating Binance order for ${amount} ${fromCoin} to ${toCoin}.`);
