@@ -20,3 +20,15 @@ export type UsdtTransaction = {
   confirmations: string;
   isError: string;
 }
+
+export type BtcTransaction = {
+  txid: string,
+  version: number,
+  locktime: number,
+  vin: [ [Object] ],
+  vout: [ [Object], [Object] ],
+  size: number,
+  weight: number,
+  fee: number,
+  status: { confirmed: boolean }
+}
