@@ -1,45 +1,52 @@
-import { Direction } from '../findSuitableOrder';
 import { ethers } from 'ethers';
-import { placeBinanceOrder } from '../binanceTrade';
-import { createHedgineEngineLogWithOrderIdFromBinance } from '../hedgineEngineHistoryLog';
+import {  HeObjectForSavingInDb } from '../../types/hedgingEngine';
+import { Direction } from '../../types/enum';
 
-type OrdersType = 'BTCUSDT' | 'BNBUSDT' | 'USDTBNB' | 'USDTBTC';
+export const BinancePlaceOrdersSwitcher = async (fromCoin: string, toCoin: string, transaction: any, direction: string, amount: string | number, bestOrder: any): Promise<{
+  txHash: string;
+  heObjectForSavingInDb: HeObjectForSavingInDb
+}> => {
+  let pair = fromCoin + toCoin;
+  let generatedObjectForSavingInDB = {} as HeObjectForSavingInDb;
 
-export const BinancePlaceOrdersSwitcher = (symbol: OrdersType, generetedObject: any) => {
-  switch (symbol) {
+  switch (pair) {
     case 'BTCUSDT': {
+      generatedObjectForSavingInDB.l1SwapAmount =
+        String(ethers.formatUnits(transaction.value, 18)) +
+        ' ' + fromCoin
+      generatedObjectForSavingInDB.l2SwapAmount =
+        `${String(+ethers.formatUnits(transaction.value, 18) / +bestOrder[0])}` + ' USDT';
+      generatedObjectForSavingInDB.pairSwapDirectionOnSwap = fromCoin + ' ' + toCoin;
+      generatedObjectForSavingInDB.orderTypeOnBinance = direction as string;
+      generatedObjectForSavingInDB.priceSettledToUser =+bestOrder?.[0] * 0.95 + ' USDT'; //needs to come from bot
+      generatedObjectForSavingInDB.priceHedgedOnBinance = +bestOrder?.[0] + ' USDT';
+      generatedObjectForSavingInDB.marginValue = '5';
+      // Calculate profit margin using quantity
+      const priceHedgedOnBinanceValue = parseFloat(
+        generatedObjectForSavingInDB.priceHedgedOnBinance.replace(' USDT', ''),
+      );
+
+      const priceSettledToUserValue = parseFloat(
+        generatedObjectForSavingInDB.priceSettledToUser.replace(' USDT', ''),
+      );
+      const marginValuePercentage = parseFloat(generatedObjectForSavingInDB.marginValue) / 100;
+      // const adjustedPrice = priceHedgedOnBinanceValue * (1 + marginValuePercentage);
+      const profitFromSwap = Math.abs(+amount * priceHedgedOnBinanceValue - +amount * priceSettledToUserValue);
+      generatedObjectForSavingInDB.profitFromSwap = profitFromSwap + ' USDT';
+      break;
     }
 
     case 'BNBUSDT': {
-      const amount =
-        orders.direction === Direction.SELL
-          ? ethers.formatUnits(transaction.value, 18)
-          : +ethers.formatUnits(transaction.value, 18) / +bestOrder?.[0];
-
-      const result = await placeBinanceOrder(
-        bestOrder?.[0],
-        +amount,
-        orders?.symbol?.split('-')?.join(''),
-        orders.direction as Direction,
-      );
-
-      if (result && bestOrder) {
         generatedObjectForSavingInDB.l1SwapAmount =
           String(ethers.formatUnits(transaction.value, 18)) +
-          `${fromCoin.includes('USDT') ? ' USDT' : ' ' + fromCoin}`;
+           ' ' + fromCoin
         generatedObjectForSavingInDB.l2SwapAmount =
-          `${
-            orders.direction === Direction.BUY
-              ? String(+ethers.formatUnits(transaction.value, 18) / +bestOrder[0])
-              : String(+ethers.formatUnits(transaction.value, 18) * +bestOrder?.[0])
-          }` + `${toCoin.includes('USDT') ? ' USDT' : ' ' + toCoin}`;
+          `${String(+ethers.formatUnits(transaction.value, 18) / +bestOrder[0])}` + ' USDT';
         generatedObjectForSavingInDB.pairSwapDirectionOnSwap = fromCoin + ' ' + toCoin;
-        generatedObjectForSavingInDB.orderTypeOnBinance = orders.direction;
-        generatedObjectForSavingInDB.priceSettledToUser =
-          orders.direction === Direction.SELL ? +bestOrder?.[0] * 0.95 + ' USDT' : +bestOrder?.[0] * 1.05 + ' USDT'; //needs to come from bot
+        generatedObjectForSavingInDB.orderTypeOnBinance = direction as string;
+        generatedObjectForSavingInDB.priceSettledToUser =+bestOrder?.[0] * 0.95 + ' USDT'; //needs to come from bot
         generatedObjectForSavingInDB.priceHedgedOnBinance = +bestOrder?.[0] + ' USDT';
         generatedObjectForSavingInDB.marginValue = '5';
-
         // Calculate profit margin using quantity
         const priceHedgedOnBinanceValue = parseFloat(
           generatedObjectForSavingInDB.priceHedgedOnBinance.replace(' USDT', ''),
@@ -51,18 +58,56 @@ export const BinancePlaceOrdersSwitcher = (symbol: OrdersType, generetedObject: 
         const marginValuePercentage = parseFloat(generatedObjectForSavingInDB.marginValue) / 100;
         // const adjustedPrice = priceHedgedOnBinanceValue * (1 + marginValuePercentage);
         const profitFromSwap = Math.abs(+amount * priceHedgedOnBinanceValue - +amount * priceSettledToUserValue);
-
         generatedObjectForSavingInDB.profitFromSwap = profitFromSwap + ' USDT';
-
-        // saving hedge engine log
-        await createHedgineEngineLogWithOrderIdFromBinance(transaction.hash, generatedObjectForSavingInDB);
-      }
+        break;
     }
 
     case 'USDTBNB': {
+      generatedObjectForSavingInDB.l1SwapAmount = String(ethers.formatUnits(transaction.value, 18)) + 'USDT';
+      generatedObjectForSavingInDB.l2SwapAmount = `${String(+ethers.formatUnits(transaction.value, 18) / +bestOrder[0])}` +  ' ' + toCoin
+      generatedObjectForSavingInDB.pairSwapDirectionOnSwap = fromCoin + ' ' + toCoin;
+      generatedObjectForSavingInDB.orderTypeOnBinance = direction as string;
+      generatedObjectForSavingInDB.priceSettledToUser = +bestOrder?.[0] * 1.05 + ' USDT'; //needs to come from bot
+      generatedObjectForSavingInDB.priceHedgedOnBinance = +bestOrder?.[0] + ' USDT';
+      generatedObjectForSavingInDB.marginValue = '5';
+      // Calculate profit margin using quantity
+      const priceHedgedOnBinanceValue = parseFloat(
+        generatedObjectForSavingInDB.priceHedgedOnBinance.replace(' USDT', ''),
+      );
+
+      const priceSettledToUserValue = parseFloat(
+        generatedObjectForSavingInDB.priceSettledToUser.replace(' USDT', ''),
+      );
+      const marginValuePercentage = parseFloat(generatedObjectForSavingInDB.marginValue) / 100;
+      // const adjustedPrice = priceHedgedOnBinanceValue * (1 + marginValuePercentage);
+      const profitFromSwap = Math.abs(+amount * priceHedgedOnBinanceValue - +amount * priceSettledToUserValue);
+      generatedObjectForSavingInDB.profitFromSwap = profitFromSwap + ' USDT';
+      break;
     }
 
     case 'USDTBTC': {
+      generatedObjectForSavingInDB.l1SwapAmount = String(ethers.formatUnits(transaction.value, 18)) + 'USDT';
+      generatedObjectForSavingInDB.l2SwapAmount = `${String(+ethers.formatUnits(transaction.value, 18) / +bestOrder[0])}` +  ' ' + toCoin
+      generatedObjectForSavingInDB.pairSwapDirectionOnSwap = fromCoin + ' ' + toCoin;
+      generatedObjectForSavingInDB.orderTypeOnBinance = direction as string;
+      generatedObjectForSavingInDB.priceSettledToUser = +bestOrder?.[0] * 1.05 + ' USDT'; //needs to come from bot
+      generatedObjectForSavingInDB.priceHedgedOnBinance = +bestOrder?.[0] + ' USDT';
+      generatedObjectForSavingInDB.marginValue = '5';
+      // Calculate profit margin using quantity
+      const priceHedgedOnBinanceValue = parseFloat(
+        generatedObjectForSavingInDB.priceHedgedOnBinance.replace(' USDT', ''),
+      );
+
+      const priceSettledToUserValue = parseFloat(
+        generatedObjectForSavingInDB.priceSettledToUser.replace(' USDT', ''),
+      );
+      const marginValuePercentage = parseFloat(generatedObjectForSavingInDB.marginValue) / 100;
+      // const adjustedPrice = priceHedgedOnBinanceValue * (1 + marginValuePercentage);
+      const profitFromSwap = Math.abs(+amount * priceHedgedOnBinanceValue - +amount * priceSettledToUserValue);
+      generatedObjectForSavingInDB.profitFromSwap = profitFromSwap + ' USDT';
+      break;
     }
   }
+
+  return {txHash: transaction.hash, heObjectForSavingInDb: generatedObjectForSavingInDB }
 };

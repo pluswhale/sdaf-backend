@@ -6,16 +6,14 @@ type BinanceOrderbook = {
   asks: [string, string][];
 };
 
-export enum Direction {
-  BUY = 'BUY',
-  SELL = 'SELL',
-}
+
 
 export const findSuitableOrder = async (symbol: string, direction: string, amount: number) => {
   console.log('symbol', symbol);
 
   try {
     const { data }: AxiosResponse<BinanceOrderbook> = await axios.get('https://api.binance.com/api/v3/depth', {
+      //@ts-ignore
       params: {
         symbol,
         limit: 500,

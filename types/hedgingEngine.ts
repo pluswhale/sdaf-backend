@@ -1,3 +1,5 @@
+import { Direction } from './enum';
+
 export type UsdtTransaction = {
   blockNumber: string;
   blockHash: string;
@@ -31,4 +33,23 @@ export type BtcTransaction = {
   weight: number,
   fee: number,
   status: { confirmed: boolean }
+}
+
+export type BinanceOrders = 'BTCUSDT' | 'BNBUSDT' | 'USDTBNB' | 'USDTBTC';
+
+export type OrdersWithTxs = {
+  symbol: string;
+  direction: string;
+  transactions: any[];
+};
+
+export type HeObjectForSavingInDb =  {
+  pairSwapDirectionOnSwap?: string;
+  l1SwapAmount?: string;
+  l2SwapAmount?: string;
+  orderTypeOnBinance?: string;
+  priceSettledToUser?: string;
+  priceHedgedOnBinance?: string;
+  marginValue?: string;
+  profitFromSwap?: string;
 }

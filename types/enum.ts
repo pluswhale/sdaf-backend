@@ -26,3 +26,8 @@ export enum CurrencyForBotOrder {
   USDT_BNB = 'USDT_BNB',
   CWEB = 'CWEB',
 }
+
+export enum Direction {
+  BUY = 'BUY',
+  SELL = 'SELL',
+}

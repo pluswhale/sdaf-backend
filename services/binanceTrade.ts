@@ -1,4 +1,4 @@
-import { Direction } from './findSuitableOrder';
+import { Direction } from '../types/enum';
 
 const Binance = require('binance-api-node').default;
 

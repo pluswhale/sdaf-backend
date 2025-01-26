@@ -5,9 +5,6 @@ import {
 } from '../hedgineEngineHistoryLog';
 
 
-
-export type TypeWalletToCheck = 'usdt_bnb' | 'usdt_btc'
-
 export type NeededResolveOrders = {
   symbol: string,
   direction: string,
