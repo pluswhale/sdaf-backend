@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import {  HeObjectForSavingInDb } from '../../types/hedgingEngine';
-import { Direction } from '../../types/enum';
+
 
 export const BinancePlaceOrdersSwitcher = async (fromCoin: string, toCoin: string, transaction: any, direction: string, amount: string | number, bestOrder: any): Promise<{
   txHash: string;

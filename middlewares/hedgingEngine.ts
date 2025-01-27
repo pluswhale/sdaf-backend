@@ -20,13 +20,13 @@ async function hedgerMonitoringService(): Promise<void> {
     RECEIVER_WALLETS.btc_usdt.direction,
   );
 
-  if (usdtOrdersNeedToBeResolved) {
-    await placeOrderToBinanceResolver(usdtOrdersNeedToBeResolved);
-  }
+  // if (usdtOrdersNeedToBeResolved) {
+  //   await placeOrderToBinanceResolver(usdtOrdersNeedToBeResolved);
+  // }
 
-  if (btcOrdersNeedToBeResolved) {
-    await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved);
-  }
+  // if (btcOrdersNeedToBeResolved) {
+  //   await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved);
+  // }
 }
 
 setInterval(async () => {

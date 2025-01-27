@@ -4,53 +4,60 @@ import {
   getHedgineEngineHistoryLogByTxId,
 } from '../hedgineEngineHistoryLog';
 
-
-
-
 export type NeededResolveOrders = {
   symbol: string;
   direction: string;
   transactions: ExtendedBtcTransaction[];
 };
 
-// make field for amount as in eth like response object for tx
 export type ExtendedBtcTransaction = BtcTransaction & {
   value: number;
 };
 
-export const BtcTransactionsChecker =
-  async (walletAddress: string, symbol: string, direction: string): Promise<NeededResolveOrders | null> => {
-    let neededResolveOrders: NeededResolveOrders = {
-      symbol,
-      direction,
-      transactions: [] as ExtendedBtcTransaction[],
-    };
+export const BtcTransactionsChecker = async (
+  walletAddress: string,
+  symbol: string,
+  direction: string
+): Promise<NeededResolveOrders | null> => {
+  let neededResolveOrders: NeededResolveOrders = {
+    symbol,
+    direction,
+    transactions: [] as ExtendedBtcTransaction[],
+  };
 
-    try {
-      const btcTransfers: BtcTransaction[] = (await axios.get(`https://mempool.space/api/address/${walletAddress}/txs/mempool`))?.data;
+  try {
+    const btcTransactionsResponse = await axios.get(
+      `https://mempool.space/api/address/${walletAddress}/txs`
+    );
 
-      if (btcTransfers && btcTransfers.length > 0) {
-        for (let transaction of btcTransfers) {
+    console.log('btcTransactionsResponse', btcTransactionsResponse);
+    const btcTransfers = btcTransactionsResponse?.data;
 
-          const amountInBtc = transaction.vout
-            ?.filter((output: any) => output?.scriptpubkey_address === walletAddress)
-            ?.reduce((sum: number, output: any) => sum + output.value, 0) / 1e8;
+    console.log('btcTransfers', btcTransfers);
 
-          const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.txid);
+    if (btcTransfers && btcTransfers.length > 0) {
+      for (let transaction of btcTransfers) {
+        // Calculate the amount (value) of the transaction outputs relevant to the wallet
+        const amountInBtc = transaction.vout
+          .filter((output: any) => output?.scriptpubkey_address === walletAddress)
+          .reduce((sum: number, output: any) => sum + output.value, 0) / 1e8;
 
-          if (!heHistoryLog && amountInBtc > 0) { // Ensure transaction is valid and amount > 0
-            const extendedTransaction: ExtendedBtcTransaction = {
-              ...transaction,
-              value: amountInBtc,
-            };
+        const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.txid);
 
-            neededResolveOrders.transactions.push(extendedTransaction);
-          }
+        if (!heHistoryLog && amountInBtc > 0) {
+          const extendedTransaction = {
+            ...transaction,
+            value: amountInBtc, // Set the value (amount in BTC)
+          };
+
+          //@ts-ignore
+          neededResolveOrders.transactions.push(extendedTransaction);
         }
       }
-    } catch (error) {
-      console.error('Error fetching BTC transactions:', error);
     }
+  } catch (error) {
+    console.error('Error fetching BTC transactions:', error);
+  }
 
-    return neededResolveOrders.transactions.length > 0 ? neededResolveOrders : null;
-  };
+  return neededResolveOrders.transactions.length > 0 ? neededResolveOrders : null;
+};
