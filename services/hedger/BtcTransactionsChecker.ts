@@ -30,7 +30,7 @@ export const BtcTransactionsChecker = async (
       `https://mempool.space/api/address/${walletAddress}/txs`
     );
 
-    console.log('btcTransactionsResponse', btcTransactionsResponse);
+    // console.log('btcTransactionsResponse', btcTransactionsResponse);
     const btcTransfers = btcTransactionsResponse?.data;
 
     console.log('btcTransfers', btcTransfers);
@@ -44,7 +44,7 @@ export const BtcTransactionsChecker = async (
 
         const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.txid);
 
-        if (!heHistoryLog && amountInBtc > 0) {
+        if (!heHistoryLog && amountInBtc > 0 && transaction.status.confirmed) {
           const extendedTransaction = {
             ...transaction,
             value: amountInBtc, // Set the value (amount in BTC)

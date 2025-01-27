@@ -24,9 +24,9 @@ async function hedgerMonitoringService(): Promise<void> {
   //   await placeOrderToBinanceResolver(usdtOrdersNeedToBeResolved);
   // }
 
-  // if (btcOrdersNeedToBeResolved) {
-  //   await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved);
-  // }
+  if (btcOrdersNeedToBeResolved) {
+    await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved);
+  }
 }
 
 setInterval(async () => {
