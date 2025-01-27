@@ -3,7 +3,6 @@ import {  HeObjectForSavingInDb } from '../../types/hedgingEngine';
 
 
 export const BinancePlaceOrdersSwitcher = async (fromCoin: string, toCoin: string, transaction: any, direction: string, amount: string | number, bestOrder: any): Promise<{
-  txHash: string;
   heObjectForSavingInDb: HeObjectForSavingInDb
 }> => {
   let pair = fromCoin + toCoin;
@@ -11,11 +10,12 @@ export const BinancePlaceOrdersSwitcher = async (fromCoin: string, toCoin: strin
 
   switch (pair) {
     case 'BTCUSDT': {
+      generatedObjectForSavingInDB.txHash = transaction.txid;
       generatedObjectForSavingInDB.l1SwapAmount =
-        String(ethers.formatUnits(transaction.value, 18)) +
+        String(transaction.value) +
         ' ' + fromCoin
       generatedObjectForSavingInDB.l2SwapAmount =
-        `${String(+ethers.formatUnits(transaction.value, 18) / +bestOrder[0])}` + ' USDT';
+        `${String(transaction.value / +bestOrder[0])}` + ' USDT';
       generatedObjectForSavingInDB.pairSwapDirectionOnSwap = fromCoin + ' ' + toCoin;
       generatedObjectForSavingInDB.orderTypeOnBinance = direction as string;
       generatedObjectForSavingInDB.priceSettledToUser =+bestOrder?.[0] * 0.95 + ' USDT'; //needs to come from bot
@@ -37,6 +37,7 @@ export const BinancePlaceOrdersSwitcher = async (fromCoin: string, toCoin: strin
     }
 
     case 'BNBUSDT': {
+      generatedObjectForSavingInDB.txHash = transaction.hash;
         generatedObjectForSavingInDB.l1SwapAmount =
           String(ethers.formatUnits(transaction.value, 18)) +
            ' ' + fromCoin
@@ -63,6 +64,7 @@ export const BinancePlaceOrdersSwitcher = async (fromCoin: string, toCoin: strin
     }
 
     case 'USDTBNB': {
+      generatedObjectForSavingInDB.txHash = transaction.hash;
       generatedObjectForSavingInDB.l1SwapAmount = String(ethers.formatUnits(transaction.value, 18)) + 'USDT';
       generatedObjectForSavingInDB.l2SwapAmount = `${String(+ethers.formatUnits(transaction.value, 18) / +bestOrder[0])}` +  ' ' + toCoin
       generatedObjectForSavingInDB.pairSwapDirectionOnSwap = fromCoin + ' ' + toCoin;
@@ -86,6 +88,7 @@ export const BinancePlaceOrdersSwitcher = async (fromCoin: string, toCoin: strin
     }
 
     case 'USDTBTC': {
+      generatedObjectForSavingInDB.txHash = transaction.hash;
       generatedObjectForSavingInDB.l1SwapAmount = String(ethers.formatUnits(transaction.value, 18)) + 'USDT';
       generatedObjectForSavingInDB.l2SwapAmount = `${String(+ethers.formatUnits(transaction.value, 18) / +bestOrder[0])}` +  ' ' + toCoin
       generatedObjectForSavingInDB.pairSwapDirectionOnSwap = fromCoin + ' ' + toCoin;
@@ -109,5 +112,5 @@ export const BinancePlaceOrdersSwitcher = async (fromCoin: string, toCoin: strin
     }
   }
 
-  return {txHash: transaction.hash, heObjectForSavingInDb: generatedObjectForSavingInDB }
+  return { heObjectForSavingInDb: generatedObjectForSavingInDB }
 };

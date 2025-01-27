@@ -35,10 +35,11 @@ export const placeOrderToBinanceResolver = async (orders: OrdersWithTxs) => {
           orders?.symbol?.split('-')?.join('') as string,
           orders.direction as Direction,
         );
-
+        console.log('result: ', result)
         if (result) {
-          const {txHash, heObjectForSavingInDb } = await BinancePlaceOrdersSwitcher(fromCoin , toCoin, transaction,  orders.direction, amount, bestOrder);
-          await createHedgineEngineLogWithOrderIdFromBinance(txHash, heObjectForSavingInDb);
+          const dbObj = await BinancePlaceOrdersSwitcher(fromCoin , toCoin, transaction,  orders.direction, amount, bestOrder);
+          console.log('dbObj: ', dbObj)
+          await createHedgineEngineLogWithOrderIdFromBinance(dbObj.heObjectForSavingInDb);
         }
 
       } catch (err) {

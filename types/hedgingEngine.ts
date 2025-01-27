@@ -71,6 +71,7 @@ export type OrdersWithTxs = {
 };
 
 export type HeObjectForSavingInDb =  {
+  txHash: string;
   pairSwapDirectionOnSwap?: string;
   l1SwapAmount?: string;
   l2SwapAmount?: string;
