@@ -1,4 +1,4 @@
-import { Direction } from './findSuitableOrder';
+import { Direction } from '../types/enum';
 
 const Binance = require('binance-api-node').default;
 
@@ -13,7 +13,7 @@ export async function placeBinanceOrder(
   symbolCurrency: string,
   direction: Direction,
 ) {
-  // symbol ex.BNBUSDT
+
   try {
     const price = +priceCurrency; // The limit price you're willing to pay for BNB (in USDT)
 

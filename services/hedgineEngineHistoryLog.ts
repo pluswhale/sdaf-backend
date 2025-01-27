@@ -8,8 +8,8 @@ export const getHedgineEngineHistoryLogByTxId = async (txHash: string): Promise<
 };
 
 export const createHedgineEngineLogWithOrderIdFromBinance = async (
-  txHash: string,
   values: {
+    txHash: string;
     pairSwapDirectionOnSwap?: string;
     l1SwapAmount?: string;
     l2SwapAmount?: string;
@@ -22,7 +22,7 @@ export const createHedgineEngineLogWithOrderIdFromBinance = async (
 ): Promise<HedgineEngineLog | null> => {
 
 
-  if (!txHash) {
+  if (!values.txHash) {
     return null;
   }
 
@@ -30,7 +30,7 @@ export const createHedgineEngineLogWithOrderIdFromBinance = async (
   const heCurrentHistoryLog = new HedgineEngineLog();
 
 
-  heCurrentHistoryLog.txHash = txHash;
+  heCurrentHistoryLog.txHash = values.txHash;
 
   
 
