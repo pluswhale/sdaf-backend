@@ -1,33 +1,41 @@
 import axios from 'axios';
-import { UsdtTransaction } from '../../types/hedgingEngine';
 import { getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
 
+type BnbTransactionType = {
+  blocknumber: string;
+  timestamp: string;
+  hash: string;
+  from: string;
+  to: string;
+  value: string;
+  contractAddress: string;
+  input: string;
+  type: string;
+  gas: string;
+  gasUsed: string;
+  traceId: string;
+  isError: string;
+  errCode: string;
+};
 
 export type NeededResolveOrders = {
   symbol: string;
   direction: string;
-  transactions: UsdtTransaction[];
+  transactions: BnbTransactionType[];
 };
 
-// const BSC_SCAN_API_KEY = 'WTYZJUZD5RC99WNUAFTIMSII927UYCRG6G';
-
-export const UsdtTransactionsChecker = async (
-  walletAddress: string,
-  symbol: string,
-  direction: string,
-): Promise<NeededResolveOrders | null> => {
+export const BnbTransactionsChecker = async (walletAddress: string, symbol: string, direction: string) => {
   let neededResolveOrders: NeededResolveOrders = {
     symbol,
     direction,
-    transactions: [] as any,
+    transactions: [] as BnbTransactionType[],
   };
 
   try {
-    const usdtTransfers = await axios.get(`https://api.bscscan.com/api`, {
+    const bnbTransfers = await axios.get(`https://api.bscscan.com/api`, {
       params: {
         module: 'account',
-        action: 'tokentx',
-        contractaddress: '0x55d398326f99059fF775485246999027B3197955',
+        action: 'txlistinternal',
         address: walletAddress,
         startblock: 0,
         endblock: 999999999,
@@ -37,7 +45,8 @@ export const UsdtTransactionsChecker = async (
         apiKey: process.env.BSC_SCAN_API_KEY,
       },
     });
-    const transactions: UsdtTransaction[] = usdtTransfers?.data?.result;
+
+    const transactions: BnbTransactionType[] = bnbTransfers.data.result;
 
     if (transactions) {
       for (let transaction of transactions) {
@@ -51,7 +60,7 @@ export const UsdtTransactionsChecker = async (
       }
     }
   } catch (error) {
-    console.error('Error fetching transactions:', error);
+    console.log(error);
   }
 
   if (neededResolveOrders) {

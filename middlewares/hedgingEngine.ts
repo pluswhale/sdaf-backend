@@ -3,6 +3,7 @@ import { UsdtTransactionsChecker } from '../services/hedger/UsdtTransactionsChec
 import { RECEIVER_WALLETS } from '../services/hedger/utils';
 import { placeOrderToBinanceResolver } from '../services/hedger/PlaceOrderToBinanceResolver';
 import { BtcTransactionsChecker } from '../services/hedger/BtcTransactionsChecker';
+import { BnbTransactionsChecker } from '../services/hedger/BnbTransactionsChecker';
 
 dotenv.config();
 
@@ -14,15 +15,24 @@ async function hedgerMonitoringService(): Promise<void> {
     RECEIVER_WALLETS.usdt_bnb.symbol,
     RECEIVER_WALLETS.usdt_bnb.direction,
   );
+  const bnbOrdersToBeResolved = await BnbTransactionsChecker(
+    RECEIVER_WALLETS.bnb_usdt.walletAddress,
+    RECEIVER_WALLETS.bnb_usdt.symbol,
+    RECEIVER_WALLETS.bnb_usdt.direction,
+  );
   const btcOrdersNeedToBeResolved = await BtcTransactionsChecker(
     RECEIVER_WALLETS.btc_usdt.walletAddress,
     RECEIVER_WALLETS.btc_usdt.symbol,
     RECEIVER_WALLETS.btc_usdt.direction,
   );
 
-  // if (usdtOrdersNeedToBeResolved) {
-  //   await placeOrderToBinanceResolver(usdtOrdersNeedToBeResolved);
-  // }
+  if (usdtOrdersNeedToBeResolved) {
+    await placeOrderToBinanceResolver(usdtOrdersNeedToBeResolved);
+  }
+
+  if (bnbOrdersToBeResolved) {
+    await placeOrderToBinanceResolver(bnbOrdersToBeResolved);
+  }
 
   if (btcOrdersNeedToBeResolved) {
     await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved);
