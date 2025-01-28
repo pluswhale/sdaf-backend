@@ -1,3 +1,4 @@
+import { Margin } from '../db/entities';
 import { Direction } from './enum';
 
 export type UsdtTransaction = {
@@ -71,13 +72,18 @@ export type OrdersWithTxs = {
 };
 
 export type HeObjectForSavingInDb =  {
-  txHash: string;
-  pairSwapDirectionOnSwap?: string;
-  l1SwapAmount?: string;
-  l2SwapAmount?: string;
-  orderTypeOnBinance?: string;
-  priceSettledToUser?: string;
-  priceHedgedOnBinance?: string;
-  marginValue?: string;
-  profitFromSwap?: string;
+  txHash: string,
+  fromCoin?: string | null,
+  toCoin?: string | null,
+  l1SwapAmount?: string | null,
+  l2SwapAmount?: string | null,
+  direction?: string | null,
+  targetWalletAddress?: string | null,
+  priceSettledToUser?: string | null,
+  profitFromSwap?: string | null,
+  priceHedgedOnBinance?: string | null,
+  amountSettledToUser?: string | null,
+  amountHedged?: string | null,
+  fulfilled?: boolean | null,
+  margin: Margin | null
 }

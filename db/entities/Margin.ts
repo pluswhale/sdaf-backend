@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'typeorm';
+import { HedgineEngineLog } from './HedgineEngineLog';
 
 @Entity()
 export class Margin {
@@ -16,5 +17,8 @@ export class Margin {
 
   @Column({ type: 'float', default: 0 })
   minOrder: number;
+
+  @OneToMany(type => HedgineEngineLog, heLog => heLog.margin, {nullable: true})
+  hedgingEngineLogs: HedgineEngineLog[] | null;
 }
 
