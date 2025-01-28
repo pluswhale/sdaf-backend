@@ -15,7 +15,7 @@ export const BinancePlaceOrdersSwitcher = async (fromCoin: string, toCoin: strin
         String(transaction.value) +
         ' ' + fromCoin
       generatedObjectForSavingInDB.l2SwapAmount =
-        `${String(transaction.value / +bestOrder[0])}` + ' USDT';
+        `${String(transaction.value * +bestOrder[0])}` + ' USDT';
       generatedObjectForSavingInDB.pairSwapDirectionOnSwap = fromCoin + ' ' + toCoin;
       generatedObjectForSavingInDB.orderTypeOnBinance = direction as string;
       generatedObjectForSavingInDB.priceSettledToUser =+bestOrder?.[0] * 0.95 + ' USDT'; //needs to come from bot
