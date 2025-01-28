@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { UsdtTransactionsChecker } from '../services/hedger/UsdtTransactionsChecker';
-import { RECEIVER_WALLETS } from '../services/hedger/utils';
+import { FINALISE_WALLETS, RECEIVER_WALLETS } from '../services/hedger/utils';
 import { placeOrderToBinanceResolver } from '../services/hedger/PlaceOrderToBinanceResolver';
 import { BtcTransactionsChecker } from '../services/hedger/BtcTransactionsChecker';
 import { BnbTransactionsChecker } from '../services/hedger/BnbTransactionsChecker';
@@ -14,17 +14,46 @@ async function hedgerMonitoringService(): Promise<void> {
     RECEIVER_WALLETS.usdt_bnb.walletAddress,
     RECEIVER_WALLETS.usdt_bnb.symbol,
     RECEIVER_WALLETS.usdt_bnb.direction,
+    'receiver',
   );
   const bnbOrdersToBeResolved = await BnbTransactionsChecker(
     RECEIVER_WALLETS.bnb_usdt.walletAddress,
     RECEIVER_WALLETS.bnb_usdt.symbol,
     RECEIVER_WALLETS.bnb_usdt.direction,
+    'receiver',
   );
   const btcOrdersNeedToBeResolved = await BtcTransactionsChecker(
     RECEIVER_WALLETS.btc_usdt.walletAddress,
     RECEIVER_WALLETS.btc_usdt.symbol,
     RECEIVER_WALLETS.btc_usdt.direction,
+    'receiver',
   );
+
+  //TODO: add others finalise
+  // const btcTransactionsThatFinalised = await BtcTransactionsChecker(
+  //   FINALISE_WALLETS.btc_usdt.walletAddress,
+  //   FINALISE_WALLETS.btc_usdt.symbol,
+  //   FINALISE_WALLETS.btc_usdt.direction,
+  //   'finalise',
+  // );
+  // const bnbTransactionsThatFinalised = await BnbTransactionsChecker(
+  //   FINALISE_WALLETS.bnb_usdt.walletAddress,
+  //   FINALISE_WALLETS.bnb_usdt.symbol,
+  //   FINALISE_WALLETS.bnb_usdt.direction,
+  //   'finalise',
+  // );
+  // const usdtBnbTransactionsThatFinalised = await UsdtTransactionsChecker(
+  //   FINALISE_WALLETS.usdt_bnb.walletAddress,
+  //   FINALISE_WALLETS.usdt_bnb.symbol,
+  //   FINALISE_WALLETS.usdt_bnb.direction,
+  //   'finalise',
+  // );
+  // const usdtBtcTransactionsThatFinalised = await UsdtTransactionsChecker(
+  //   FINALISE_WALLETS.usdt_bnb.walletAddress,
+  //   FINALISE_WALLETS.usdt_bnb.symbol,
+  //   FINALISE_WALLETS.usdt_bnb.direction,
+  //   'finalise',
+  // );
 
   if (usdtOrdersNeedToBeResolved) {
     await placeOrderToBinanceResolver(usdtOrdersNeedToBeResolved);

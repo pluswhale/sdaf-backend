@@ -2,7 +2,6 @@ import axios from 'axios';
 import { UsdtTransaction } from '../../types/hedgingEngine';
 import { getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
 
-
 export type NeededResolveOrders = {
   symbol: string;
   direction: string;
@@ -15,6 +14,7 @@ export const UsdtTransactionsChecker = async (
   walletAddress: string,
   symbol: string,
   direction: string,
+  walletType: 'receiver' | 'finalise',
 ): Promise<NeededResolveOrders | null> => {
   let neededResolveOrders: NeededResolveOrders = {
     symbol,
@@ -41,12 +41,18 @@ export const UsdtTransactionsChecker = async (
 
     if (transactions) {
       for (let transaction of transactions) {
-        const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.hash);
-        if (!heHistoryLog) {
-          neededResolveOrders = {
-            ...neededResolveOrders,
-            transactions: neededResolveOrders.transactions.concat(transaction),
-          };
+        if (walletType === 'receiver') {
+          const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.hash);
+          if (!heHistoryLog) {
+            neededResolveOrders = {
+              ...neededResolveOrders,
+              transactions: neededResolveOrders.transactions.concat(transaction),
+            };
+          }
+        } else if (walletType === 'finalise') {
+          if (transaction.from === walletAddress) {
+            //TODO: call service that will save finilase fields
+          }
         }
       }
     }
@@ -60,4 +66,3 @@ export const UsdtTransactionsChecker = async (
     return null;
   }
 };
-

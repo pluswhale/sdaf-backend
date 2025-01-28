@@ -1,8 +1,6 @@
 import axios from 'axios';
 import { BtcTransaction } from '../../types/hedgingEngine';
-import {
-  getHedgineEngineHistoryLogByTxId,
-} from '../hedgineEngineHistoryLog';
+import { getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
 
 export type NeededResolveOrders = {
   symbol: string;
@@ -17,7 +15,8 @@ export type ExtendedBtcTransaction = BtcTransaction & {
 export const BtcTransactionsChecker = async (
   walletAddress: string,
   symbol: string,
-  direction: string
+  direction: string,
+  typeWallet: 'receiver' | 'finalise',
 ): Promise<NeededResolveOrders | null> => {
   let neededResolveOrders: NeededResolveOrders = {
     symbol,
@@ -26,9 +25,7 @@ export const BtcTransactionsChecker = async (
   };
 
   try {
-    const btcTransactionsResponse = await axios.get(
-      `https://mempool.space/api/address/${walletAddress}/txs`
-    );
+    const btcTransactionsResponse = await axios.get(`https://mempool.space/api/address/${walletAddress}/txs`);
 
     // console.log('btcTransactionsResponse', btcTransactionsResponse);
     const btcTransfers = btcTransactionsResponse?.data;
@@ -37,21 +34,26 @@ export const BtcTransactionsChecker = async (
 
     if (btcTransfers && btcTransfers.length > 0) {
       for (let transaction of btcTransfers) {
-        // Calculate the amount (value) of the transaction outputs relevant to the wallet
-        const amountInBtc = transaction.vout
-          .filter((output: any) => output?.scriptpubkey_address === walletAddress)
-          .reduce((sum: number, output: any) => sum + output.value, 0) / 1e8;
+        if (typeWallet === 'receiver') {
+          // Calculate the amount (value) of the transaction outputs relevant to the wallet
+          const amountInBtc =
+            transaction.vout
+              .filter((output: any) => output?.scriptpubkey_address === walletAddress)
+              .reduce((sum: number, output: any) => sum + output.value, 0) / 1e8;
 
-        const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.txid);
+          const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.txid);
 
-        if (!heHistoryLog && amountInBtc > 0 && transaction.status.confirmed) {
-          const extendedTransaction = {
-            ...transaction,
-            value: amountInBtc, // Set the value (amount in BTC)
-          };
+          if (!heHistoryLog && amountInBtc > 0 && transaction.status.confirmed) {
+            const extendedTransaction = {
+              ...transaction,
+              value: amountInBtc, // Set the value (amount in BTC)
+            };
 
-          //@ts-ignore
-          neededResolveOrders.transactions.push(extendedTransaction);
+            //@ts-ignore
+            neededResolveOrders.transactions.push(extendedTransaction);
+          }
+        } else if (typeWallet === 'finalise') {
+          //TODO: call service that will save finilase fields
         }
       }
     }
