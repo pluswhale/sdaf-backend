@@ -1,6 +1,7 @@
 import { HedgineEngineLog } from '../db/entities/HedgineEngineLog';
 import { AppDataSource } from '../db/AppDataSource';
 import { getMarginByPrice } from '../db/repos/marginRepo';
+import { HeObjectForSavingInDb } from '../types/hedgingEngine';
 
 const heLogsRepository = AppDataSource.getRepository(HedgineEngineLog);
 
@@ -20,21 +21,8 @@ export const createHedgineEngineLogWithOrderIdFromBinance = async ({
   profitFromSwap,
   priceHedgedOnBinance,
   amountSettledToUser,
-  amountHedged,
-  fulfilled }: 
-  {txHash: string,
-  fromCoin: string,
-  toCoin: string,
-  l1SwapAmount: string,
-  l2SwapAmount: string,
-  direction: string,
-  targetWalletAddress: string,
-  priceSettledToUser: string,
-  profitFromSwap: string,
-  priceHedgedOnBinance: string,
-  amountSettledToUser?: string,
-  amountHedged?: string,
-  fulfilled?: boolean,}
+  amountHedged, 
+  margin }: HeObjectForSavingInDb
 ): Promise<HedgineEngineLog | null> => {
 
 
@@ -47,15 +35,18 @@ export const createHedgineEngineLogWithOrderIdFromBinance = async ({
 
 
   heCurrentHistoryLog.txHash = txHash;
-  heCurrentHistoryLog.fromCoin = fromCoin;
-  heCurrentHistoryLog.toCoin = toCoin;
-  heCurrentHistoryLog.l1SwapAmount = l1SwapAmount;
-  heCurrentHistoryLog.l2SwapAmount = l2SwapAmount;
-  heCurrentHistoryLog.direction = direction;
-  heCurrentHistoryLog.priceHedgedOnBinance = priceHedgedOnBinance;
-  heCurrentHistoryLog.priceSettledToUser = priceSettledToUser;
-  heCurrentHistoryLog.margin = await getMarginByPrice(priceSettledToUser) || null;
-  heCurrentHistoryLog.profitFromSwap = profitFromSwap;
+  heCurrentHistoryLog.fromCoin = fromCoin || null;
+  heCurrentHistoryLog.toCoin = toCoin || null;
+  heCurrentHistoryLog.l1SwapAmount = l1SwapAmount || null;
+  heCurrentHistoryLog.l2SwapAmount = l2SwapAmount || null;
+  heCurrentHistoryLog.direction = direction || null;
+  heCurrentHistoryLog.targetWalletAddress = targetWalletAddress as string;
+  heCurrentHistoryLog.priceHedgedOnBinance = priceHedgedOnBinance || null;
+  heCurrentHistoryLog.priceSettledToUser = priceSettledToUser || null;
+  heCurrentHistoryLog.amountSettledToUser = amountSettledToUser || null;
+  heCurrentHistoryLog.amountHedged = amountHedged || null;
+  heCurrentHistoryLog.margin = margin;
+  heCurrentHistoryLog.profitFromSwap = profitFromSwap || null;
   heCurrentHistoryLog.fulfilled = true;
 
   return await heLogsRepository.save(heCurrentHistoryLog);;
