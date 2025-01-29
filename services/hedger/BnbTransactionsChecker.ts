@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
+import { createFinaliseLog, getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
+import { ethers } from 'ethers';
 
 type BnbTransactionType = {
   blocknumber: string;
@@ -66,6 +67,12 @@ export const BnbTransactionsChecker = async (
         } else if (walletType === 'finalise') {
           if (transaction.from === walletAddress) {
             //TODO: call service that will save finilase fields
+
+            await createFinaliseLog({
+              txHash: transaction.hash,
+              currency: 'BNB',
+              l1SwapAmount: String(ethers.formatUnits(transaction.value, 18)),
+            });
           }
         }
       }

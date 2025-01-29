@@ -43,18 +43,18 @@ async function hedgerMonitoringService(): Promise<void> {
   //   FINALISE_WALLETS.btc_usdt.direction,
   //   'finalise',
   // );
-  // const bnbTransactionsThatFinalised = await BnbTransactionsChecker(
-  //   FINALISE_WALLETS.bnb_usdt.walletAddress,
-  //   FINALISE_WALLETS.bnb_usdt.symbol,
-  //   FINALISE_WALLETS.bnb_usdt.direction,
-  //   'finalise',
-  // );
-  // const usdtBnbTransactionsThatFinalised = await UsdtTransactionsChecker(
-  //   FINALISE_WALLETS.usdt_bnb.walletAddress,
-  //   FINALISE_WALLETS.usdt_bnb.symbol,
-  //   FINALISE_WALLETS.usdt_bnb.direction,
-  //   'finalise',
-  // );
+  const bnbTransactionsThatFinalised = await BnbTransactionsChecker(
+    FINALISE_WALLETS.bnb_usdt.walletAddress,
+    FINALISE_WALLETS.bnb_usdt.symbol,
+    FINALISE_WALLETS.bnb_usdt.direction,
+    'finalise',
+  );
+  const usdtBnbTransactionsThatFinalised = await UsdtTransactionsChecker(
+    FINALISE_WALLETS.usdt_bnb.walletAddress,
+    FINALISE_WALLETS.usdt_bnb.symbol,
+    FINALISE_WALLETS.usdt_bnb.direction,
+    'finalise',
+  );
   // const usdtBtcTransactionsThatFinalised = await UsdtTransactionsChecker(
   //   FINALISE_WALLETS.usdt_bnb.walletAddress,
   //   FINALISE_WALLETS.usdt_bnb.symbol,
