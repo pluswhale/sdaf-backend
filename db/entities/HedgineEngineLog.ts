@@ -1,24 +1,48 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Margin } from './Margin';
+
+export enum Coins {
+  USDT = 'USDT',
+  BTC = 'BTC',
+  BNB = 'BNB'
+}
+
+export enum Direction {
+  BUY = 'BUY',
+  SELL = 'SELL'
+}
 
 @Entity()
 export class HedgineEngineLog {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'text', nullable: true })
+  @UpdateDateColumn()
+  updatedAt: Date;
+  
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Column({ type: 'text' })
   txHash: string | null;
 
-  @Column({ type: 'text', nullable: true })
-  pairSwapDirectionOnSwap: string | null;
+  @Column({type: 'enum', enum: Coins, nullable: true})
+  fromCoin: string | null;
+
+  @Column({type: 'enum', enum: Coins, nullable: true})
+  toCoin: string | null;
 
   @Column({ type: 'text', nullable: true })
   l1SwapAmount: string | null;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', nullable: true})
   l2SwapAmount: string | null;
 
-  @Column({ type: 'text', nullable: true })
-  orderTypeOnBinance: string | null;
+  @Column({ type: 'text' })
+  direction: string | null;
+
+  @Column({type: 'text'})
+  targetWalletAddress: string;
 
   @Column({ type: 'text', nullable: true })
   priceSettledToUser: string | null;
@@ -26,16 +50,19 @@ export class HedgineEngineLog {
   @Column({ type: 'text', nullable: true })
   priceHedgedOnBinance: string | null;
 
-  @Column({ type: 'text', nullable: true })
-  marginValue: string | null;
+  @Column({type: 'text', nullable: true})
+  amountSettledToUser: string | null;
+
+  @Column({type: 'text', nullable: true})
+  amountHedged: string | null;
 
   @Column({ type: 'text', nullable: true })
   profitFromSwap: string | null;
 
   @Column({ type: 'bool', default: false })
-  fullfil: boolean;
+  fulfilled: boolean;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @ManyToOne(type => Margin, margin => margin.hedgingEngineLogs, {nullable: true})
+  margin: Margin | null;
 }
 

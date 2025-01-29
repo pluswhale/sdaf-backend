@@ -24,7 +24,12 @@ export type NeededResolveOrders = {
   transactions: BnbTransactionType[];
 };
 
-export const BnbTransactionsChecker = async (walletAddress: string, symbol: string, direction: string) => {
+export const BnbTransactionsChecker = async (
+  walletAddress: string,
+  symbol: string,
+  direction: string,
+  walletType: 'receiver' | 'finalise',
+) => {
   let neededResolveOrders: NeededResolveOrders = {
     symbol,
     direction,
@@ -50,12 +55,18 @@ export const BnbTransactionsChecker = async (walletAddress: string, symbol: stri
 
     if (transactions) {
       for (let transaction of transactions) {
-        const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.hash);
-        if (!heHistoryLog) {
-          neededResolveOrders = {
-            ...neededResolveOrders,
-            transactions: neededResolveOrders.transactions.concat(transaction),
-          };
+        if (walletType === 'receiver') {
+          const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.hash);
+          if (!heHistoryLog) {
+            neededResolveOrders = {
+              ...neededResolveOrders,
+              transactions: neededResolveOrders.transactions.concat(transaction),
+            };
+          }
+        } else if (walletType === 'finalise') {
+          if (transaction.from === walletAddress) {
+            //TODO: call service that will save finilase fields
+          }
         }
       }
     }
@@ -69,4 +80,3 @@ export const BnbTransactionsChecker = async (walletAddress: string, symbol: stri
     return null;
   }
 };
-
