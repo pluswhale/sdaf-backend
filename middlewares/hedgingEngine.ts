@@ -10,10 +10,17 @@ dotenv.config();
 let isRunning = false;
 
 async function hedgerMonitoringService(): Promise<void> {
-  const usdtOrdersNeedToBeResolved = await UsdtTransactionsChecker(
+  const usdtBnbOrdersNeedToBeResolved = await UsdtTransactionsChecker(
     RECEIVER_WALLETS.usdt_bnb.walletAddress,
     RECEIVER_WALLETS.usdt_bnb.symbol,
     RECEIVER_WALLETS.usdt_bnb.direction,
+    'receiver',
+  );
+
+  const usdtBtcOrdersNeedToBeResolved = await UsdtTransactionsChecker(
+    RECEIVER_WALLETS.usdt_btc.walletAddress,
+    RECEIVER_WALLETS.usdt_btc.symbol,
+    RECEIVER_WALLETS.usdt_btc.direction,
     'receiver',
   );
   const bnbOrdersToBeResolved = await BnbTransactionsChecker(
@@ -55,8 +62,12 @@ async function hedgerMonitoringService(): Promise<void> {
   //   'finalise',
   // );
 
-  if (usdtOrdersNeedToBeResolved) {
-    await placeOrderToBinanceResolver(usdtOrdersNeedToBeResolved);
+  if (usdtBnbOrdersNeedToBeResolved) {
+    await placeOrderToBinanceResolver(usdtBnbOrdersNeedToBeResolved);
+  }
+
+  if (usdtBtcOrdersNeedToBeResolved) {
+    await placeOrderToBinanceResolver(usdtBtcOrdersNeedToBeResolved);
   }
 
   if (bnbOrdersToBeResolved) {
