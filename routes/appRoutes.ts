@@ -36,12 +36,11 @@ import { getDepositDetailCeffu } from '../controllers/getDepositDetailCeffu';
 import makeTransactionCeffu from '../controllers/makeTransactionCeffu';
 import { renameWallet, validateRenamingWallet } from '../controllers/renameWallet';
 import { getAssetPrice } from '../controllers/transactions/getAssetPrice';
-import {} from '../controllers';
+
 import { getTransactionConfirmations } from '../controllers/getTransactionConfirmations';
-import { createHeadgingWallet } from '../controllers/createHeadgingWallet';
+
 import { checkOrderStatus, placeBinanceOrder } from '../services/binanceTrade';
 import { findSuitableOrder } from '../services/findSuitableOrder';
-import { getHedgingLogs } from '../controllers/getHedgingLogs';
 import { getHedgineEngineHistoryLog } from '../controllers/getHedgineEngineHistoryLog';
 import { getUserBinanceBalance } from '../controllers/binanceApi/getUserBinanceBalance';
 
@@ -87,25 +86,6 @@ router.get('/balance-binance', getUserBinanceBalance);
 
 // Headging Engine
 router.get('/get-confirmations', getTransactionConfirmations);
-router.get('/hedging-logs', getHedgingLogs);
-router.post('/create-headging-wallet', createHeadgingWallet);
-router.post('/test-order', async (req, res) => {
-  //@ts-ignore
-  const { direction, symbol, amount, bestOrder } = await findSuitableOrder(
-    //@ts-ignore
-    req.query.c1,
-    req.query.c2,
-    req.query.amount,
-  );
-  const result = await placeBinanceOrder(bestOrder[0], amount, symbol, direction);
-  // console.log('result order: ', [price, amount]);
-  res.status(200).send(result);
-});
-router.post('/check-status', async (req, res) => {
-  //@ts-ignore
-  const result = await checkOrderStatus(req.query.orderId, 'BNBUSDT');
-  res.status(200).send(result);
-});
 
 //Bot Order
 router.get('/bot-order', getBotOrdersController);
@@ -117,4 +97,3 @@ router.delete('/bot-order/delete/:id', deleteBotOrderController);
 router.get('/hedgine-engine/history', getHedgineEngineHistoryLog);
 
 export default router;
-

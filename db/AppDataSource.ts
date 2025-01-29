@@ -8,7 +8,6 @@ import {
   PendingWithdrawal,
   Wallet,
   HedgineEngineLog,
-  HedgingEngine,
 } from './entities';
 import { User } from './entities';
 
@@ -47,17 +46,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || 'test',
   synchronize: true,
   logging: false,
-  entities: [
-    Wallet,
-    User,
-    Margin,
-    PendingWithdrawal,
-    PendingReplenishment,
-    BotOrder,
-    HedgingEngine,
-    HedgineEngineLog,
-    FinaliseLog,
-  ],
+  entities: [Wallet, User, Margin, PendingWithdrawal, PendingReplenishment, BotOrder, HedgineEngineLog, FinaliseLog],
   migrations: [],
   subscribers: [],
 });

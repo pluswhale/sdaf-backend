@@ -6,4 +6,3 @@ export * from './PendingReplenishment';
 export * from './BotOrder';
 export * from './HedgineEngineLog';
 export * from './FinaliseLog';
-export * from './HedgingEngine';
