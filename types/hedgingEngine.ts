@@ -22,7 +22,7 @@ export type UsdtTransaction = {
   gasUsed: string;
   confirmations: string;
   isError: string;
-}
+};
 
 export type BtcTransaction = {
   txid: string;
@@ -71,19 +71,25 @@ export type OrdersWithTxs = {
   transactions: any[];
 };
 
-export type HeObjectForSavingInDb =  {
-  txHash: string,
-  fromCoin?: string | null,
-  toCoin?: string | null,
-  l1SwapAmount?: string | null,
-  l2SwapAmount?: string | null,
-  direction?: string | null,
-  targetWalletAddress?: string | null,
-  priceSettledToUser?: string | null,
-  profitFromSwap?: string | null,
-  priceHedgedOnBinance?: string | null,
-  amountSettledToUser?: string | null,
-  amountHedged?: string | null,
-  fulfilled?: boolean | null,
-  margin: Margin | null
-}
+export type HeObjectForSavingInDb = {
+  txHash: string;
+  fromCoin?: string | null;
+  toCoin?: string | null;
+  l1SwapAmount?: string | null;
+  l2SwapAmount?: string | null;
+  direction?: string | null;
+  targetWalletAddress?: string | null;
+  priceSettledToUser?: string | null;
+  profitFromSwap?: string | null;
+  priceHedgedOnBinance?: string | null;
+  amountSettledToUser?: string | null;
+  amountHedged?: string | null;
+  fulfilled?: boolean | null;
+  margin: Margin | null;
+};
+
+export type FinaliseObjectForSavingInDb = {
+  txHash: string;
+  currency?: string | null;
+  l1SwapAmount?: string | null;
+};

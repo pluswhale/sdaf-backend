@@ -1,11 +1,18 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import { BotOrder, Margin, PendingReplenishment, PendingWithdrawal, Wallet } from './entities';
+import {
+  BotOrder,
+  FinaliseLog,
+  Margin,
+  PendingReplenishment,
+  PendingWithdrawal,
+  Wallet,
+  HedgineEngineLog,
+  HedgingEngine,
+} from './entities';
 import { User } from './entities';
 
 import dotenv from 'dotenv';
-import { HedgingEngine } from './entities/HedgingEngine';
-import { HedgineEngineLog } from './entities/HedgineEngineLog';
 
 dotenv.config();
 
@@ -40,10 +47,19 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || 'test',
   synchronize: true,
   logging: false,
-  entities: [Wallet, User, Margin, PendingWithdrawal, PendingReplenishment, BotOrder, HedgingEngine, HedgineEngineLog],
+  entities: [
+    Wallet,
+    User,
+    Margin,
+    PendingWithdrawal,
+    PendingReplenishment,
+    BotOrder,
+    HedgingEngine,
+    HedgineEngineLog,
+    FinaliseLog,
+  ],
   migrations: [],
   subscribers: [],
 });
 
 export default InitDataSource;
-

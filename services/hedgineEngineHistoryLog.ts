@@ -1,12 +1,17 @@
-import { HedgineEngineLog } from '../db/entities/HedgineEngineLog';
 import { AppDataSource } from '../db/AppDataSource';
 import { getMarginByPrice } from '../db/repos/marginRepo';
-import { HeObjectForSavingInDb } from '../types/hedgingEngine';
+import { FinaliseObjectForSavingInDb, HeObjectForSavingInDb } from '../types/hedgingEngine';
+import { FinaliseLog, HedgineEngineLog } from '../db/entities';
 
 const heLogsRepository = AppDataSource.getRepository(HedgineEngineLog);
+const finaliseLogRepository = AppDataSource.getRepository(FinaliseLog);
 
 export const getHedgineEngineHistoryLogByTxId = async (txHash: string): Promise<HedgineEngineLog | null> => {
   return await heLogsRepository.findOne({ where: { txHash } });
+};
+
+export const getFinaliseLogByTxId = async (txHash: string): Promise<FinaliseLog | null> => {
+  return await finaliseLogRepository.findOne({ where: { txHash } });
 };
 
 export const createHedgineEngineLogWithOrderIdFromBinance = async ({
@@ -21,18 +26,14 @@ export const createHedgineEngineLogWithOrderIdFromBinance = async ({
   profitFromSwap,
   priceHedgedOnBinance,
   amountSettledToUser,
-  amountHedged, 
-  margin }: HeObjectForSavingInDb
-): Promise<HedgineEngineLog | null> => {
-
-
+  amountHedged,
+  margin,
+}: HeObjectForSavingInDb): Promise<HedgineEngineLog | null> => {
   if (!txHash) {
     return null;
   }
 
-
   const heCurrentHistoryLog = new HedgineEngineLog();
-
 
   heCurrentHistoryLog.txHash = txHash;
   heCurrentHistoryLog.fromCoin = fromCoin || null;
@@ -49,7 +50,25 @@ export const createHedgineEngineLogWithOrderIdFromBinance = async ({
   heCurrentHistoryLog.profitFromSwap = profitFromSwap || null;
   heCurrentHistoryLog.fulfilled = true;
 
-  return await heLogsRepository.save(heCurrentHistoryLog);;
+  return await heLogsRepository.save(heCurrentHistoryLog);
+};
+
+export const createFinaliseLog = async ({
+  txHash,
+  currency,
+  l1SwapAmount,
+}: FinaliseObjectForSavingInDb): Promise<FinaliseLog | null> => {
+  if (!txHash) {
+    return null;
+  }
+
+  const finaliseCurrentHistoryLog = new FinaliseLog();
+
+  finaliseCurrentHistoryLog.txHash = txHash;
+  finaliseCurrentHistoryLog.l1SwapAmount = l1SwapAmount || null;
+  finaliseCurrentHistoryLog.currency = currency || null;
+
+  return await finaliseLogRepository.save(finaliseCurrentHistoryLog);
 };
 
 // export const editHedgineEngineHistoryLog = async (
@@ -111,4 +130,3 @@ export const createHedgineEngineLogWithOrderIdFromBinance = async ({
 
 //   return heCurrentHistoryLog;
 // };
-
