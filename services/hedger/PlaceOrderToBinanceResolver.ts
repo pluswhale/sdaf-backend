@@ -37,9 +37,9 @@ export const placeOrderToBinanceResolver = async (orders: OrdersWithTxs) => {
         );
         console.log('result: ', result)
         if (result) {
-          const dbObj = await BinancePlaceOrdersSwitcher(fromCoin , toCoin, transaction,  orders.direction, amount, bestOrder);
-          console.log('dbObj: ', dbObj)
-          await createHedgineEngineLogWithOrderIdFromBinance(dbObj.heObjectForSavingInDb);
+          const heObjectForSavingInDb = await BinancePlaceOrdersSwitcher(fromCoin , toCoin, transaction,  orders.direction, amount, bestOrder, 'targetWalletAddress');
+          console.log('heObjectForSavingInDb: ', heObjectForSavingInDb)
+          await createHedgineEngineLogWithOrderIdFromBinance(heObjectForSavingInDb);
         }
 
       } catch (err) {
