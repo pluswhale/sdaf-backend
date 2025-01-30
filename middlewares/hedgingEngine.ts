@@ -37,12 +37,12 @@ async function hedgerMonitoringService(): Promise<void> {
   );
 
   //TODO: add others finalise
-  // const btcTransactionsThatFinalised = await BtcTransactionsChecker(
-  //   FINALISE_WALLETS.btc_usdt.walletAddress,
-  //   FINALISE_WALLETS.btc_usdt.symbol,
-  //   FINALISE_WALLETS.btc_usdt.direction,
-  //   'finalise',
-  // );
+  const btcTransactionsThatFinalised = await BtcTransactionsChecker(
+    FINALISE_WALLETS.btc_usdt.walletAddress,
+    FINALISE_WALLETS.btc_usdt.symbol,
+    FINALISE_WALLETS.btc_usdt.direction,
+    'finalise',
+  );
   const bnbTransactionsThatFinalised = await BnbTransactionsChecker(
     FINALISE_WALLETS.bnb_usdt.walletAddress,
     FINALISE_WALLETS.bnb_usdt.symbol,
@@ -55,12 +55,12 @@ async function hedgerMonitoringService(): Promise<void> {
     FINALISE_WALLETS.usdt_bnb.direction,
     'finalise',
   );
-  // const usdtBtcTransactionsThatFinalised = await UsdtTransactionsChecker(
-  //   FINALISE_WALLETS.usdt_bnb.walletAddress,
-  //   FINALISE_WALLETS.usdt_bnb.symbol,
-  //   FINALISE_WALLETS.usdt_bnb.direction,
-  //   'finalise',
-  // );
+  const usdtBtcTransactionsThatFinalised = await UsdtTransactionsChecker(
+    FINALISE_WALLETS.usdt_btc.walletAddress,
+    FINALISE_WALLETS.usdt_btc.symbol,
+    FINALISE_WALLETS.usdt_btc.direction,
+    'finalise',
+  );
 
   if (usdtBnbOrdersNeedToBeResolved) {
     await placeOrderToBinanceResolver(usdtBnbOrdersNeedToBeResolved);
