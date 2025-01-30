@@ -61,13 +61,19 @@ export const createFinaliseLog = async ({
     return null;
   }
 
-  const finaliseCurrentHistoryLog = new FinaliseLog();
+  try {
+    const finaliseCurrentHistoryLog = new FinaliseLog();
 
-  finaliseCurrentHistoryLog.txHash = txHash;
-  finaliseCurrentHistoryLog.l1SwapAmount = l1SwapAmount || null;
-  finaliseCurrentHistoryLog.currency = currency || null;
+    finaliseCurrentHistoryLog.txHash = txHash;
+    finaliseCurrentHistoryLog.l1SwapAmount = l1SwapAmount || null;
+    finaliseCurrentHistoryLog.currency = currency || null;
 
-  return await finaliseLogRepository.save(finaliseCurrentHistoryLog);
+    return await finaliseLogRepository.save(finaliseCurrentHistoryLog);
+  } catch (e) {
+    console.log('Error creating final log', e);
+  }
+
+
 };
 
 // export const editHedgineEngineHistoryLog = async (
