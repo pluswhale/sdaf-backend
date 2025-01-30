@@ -71,6 +71,8 @@ export const createFinaliseLog = async ({
     return await finaliseLogRepository.save(finaliseCurrentHistoryLog);
   } catch (e) {
     console.log('Error creating final log', e);
+
+    return  null;
   }
 
 
