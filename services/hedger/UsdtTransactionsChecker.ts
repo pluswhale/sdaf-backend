@@ -51,6 +51,8 @@ export const UsdtTransactionsChecker = async (
             };
           }
         } else if (walletType === 'finalise') {
+          console.log('im here inUSDT');
+          console.log('transactions in usdt FINILESE', transaction);
           if (transaction.from === walletAddress) {
             //TODO: call service that will save finilase fields
             const finaliseRow = await getFinaliseLogByTxId(transaction.hash);

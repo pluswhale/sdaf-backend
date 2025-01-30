@@ -457,9 +457,9 @@ cron.schedule('* * * * *', () => {
     try {
       console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
 
-      await updateWithdrawalStatuses();
-
-      await checkAndInitiateWithdrawals();
+      // await updateWithdrawalStatuses();
+      //
+      // await checkAndInitiateWithdrawals();
 
       console.log('Scheduled tasks completed successfully.');
     } catch (error) {
