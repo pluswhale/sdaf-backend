@@ -41,7 +41,7 @@ export const BnbTransactionsChecker = async (
     const bnbTransfers =  await axios.get(`https://api.bscscan.com/api`, {
       params: {
         module: 'account',
-        action:  'txlistinternal',
+        action:  'txlist',
         address: walletAddress,
         startblock: 0,
         endblock: 999999999,
