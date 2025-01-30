@@ -59,7 +59,9 @@ export const BtcTransactionsChecker = async (
 
           if (amountInBtc > 0 && transaction.status.confirmed) {
             const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
-
+            console.log(
+              'finalise row BTC', finaliseRow
+            );
             if(!finaliseRow) {
               await createFinaliseLog({
                 txHash: transaction.hash,

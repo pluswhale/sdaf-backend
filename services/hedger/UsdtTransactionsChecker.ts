@@ -54,11 +54,13 @@ export const UsdtTransactionsChecker = async (
           if (transaction.from === walletAddress) {
             //TODO: call service that will save finilase fields
             const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
-
+            console.log(
+              'finalise row USDT', finaliseRow
+            );
             if(!finaliseRow) {
               await createFinaliseLog({
                 txHash: transaction.hash,
-                currency: 'USDT',
+                currency: 'USDT' + symbol.split('-')?.[1],
                 l1SwapAmount: String(ethers.formatUnits(transaction.value, 18)),
               });
             }
