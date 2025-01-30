@@ -1,6 +1,4 @@
-
 import {  findSuitableOrder } from '../findSuitableOrder';
-
 import { BinancePlaceOrdersSwitcher } from './BinancePlaceOrdersSwitcher';
 import { OrdersWithTxs } from '../../types/hedgingEngine';
 import { ethers } from 'ethers';

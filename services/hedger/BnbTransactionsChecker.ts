@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { createFinaliseLog, getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
+import { createFinaliseLog, getFinaliseLogByTxId, getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
 import { ethers } from 'ethers';
 
 type BnbTransactionType = {
@@ -38,10 +38,10 @@ export const BnbTransactionsChecker = async (
   };
 
   try {
-    const bnbTransfers = await axios.get(`https://api.bscscan.com/api`, {
+    const bnbTransfers =  await axios.get(`https://api.bscscan.com/api`, {
       params: {
         module: 'account',
-        action: 'txlistinternal',
+        action: walletType === 'receiver' ?  'txlistinternal' : 'txlist',
         address: walletAddress,
         startblock: 0,
         endblock: 999999999,
@@ -50,7 +50,7 @@ export const BnbTransactionsChecker = async (
         sort: 'desc',
         apiKey: process.env.BSC_SCAN_API_KEY,
       },
-    });
+    })
 
     const transactions: BnbTransactionType[] = bnbTransfers.data.result;
 
@@ -67,12 +67,16 @@ export const BnbTransactionsChecker = async (
         } else if (walletType === 'finalise') {
           if (transaction.from === walletAddress) {
             //TODO: call service that will save finilase fields
+            const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
 
-            await createFinaliseLog({
-              txHash: transaction.hash,
-              currency: 'BNB',
-              l1SwapAmount: String(ethers.formatUnits(transaction.value, 18)),
-            });
+            if(!finaliseRow) {
+              await createFinaliseLog({
+                txHash: transaction.hash,
+                currency: 'BNB',
+                l1SwapAmount: String(ethers.formatUnits(transaction.value, 18)),
+              });
+            }
+
           }
         }
       }

@@ -43,6 +43,7 @@ import { checkOrderStatus, placeBinanceOrder } from '../services/binanceTrade';
 import { findSuitableOrder } from '../services/findSuitableOrder';
 import { getHedgineEngineHistoryLog } from '../controllers/getHedgineEngineHistoryLog';
 import { getUserBinanceBalance } from '../controllers/binanceApi/getUserBinanceBalance';
+import { getFinaliseLog } from '../controllers/getFinaliseLog';
 
 const router = express.Router();
 
@@ -95,5 +96,6 @@ router.delete('/bot-order/delete/:id', deleteBotOrderController);
 
 //HE
 router.get('/hedgine-engine/history', getHedgineEngineHistoryLog);
+router.get('/hedgine-engine/finalise-logs', getFinaliseLog);
 
 export default router;

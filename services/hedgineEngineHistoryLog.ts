@@ -1,5 +1,4 @@
 import { AppDataSource } from '../db/AppDataSource';
-import { getMarginByPrice } from '../db/repos/marginRepo';
 import { FinaliseObjectForSavingInDb, HeObjectForSavingInDb } from '../types/hedgingEngine';
 import { FinaliseLog, HedgineEngineLog } from '../db/entities';
 
