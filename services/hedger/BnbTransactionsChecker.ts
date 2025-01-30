@@ -69,6 +69,9 @@ export const BnbTransactionsChecker = async (
             //TODO: call service that will save finilase fields
             const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
 
+            console.log(
+              'finalise row BNB', finaliseRow
+            );
             if(!finaliseRow) {
               await createFinaliseLog({
                 txHash: transaction.hash,
