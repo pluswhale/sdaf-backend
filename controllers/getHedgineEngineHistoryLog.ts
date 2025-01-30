@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
 import { AppDataSource } from '../db/AppDataSource';
-import { BotOrder } from '../db/entities';
-import { findSuitableOrder } from '../services/findSuitableOrder';
-import { HedgineEngineLog } from '../db/entities/HedgineEngineLog';
+import { HedgineEngineLog } from '../db/entities';
 
 const hedgineEngineHistoryLogRepo = AppDataSource.getRepository(HedgineEngineLog);
 

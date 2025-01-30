@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { UsdtTransaction } from '../../types/hedgingEngine';
-import { getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
+import { createFinaliseLog, getFinaliseLogByTxId, getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
+import { ethers } from 'ethers';
 
 export type NeededResolveOrders = {
   symbol: string;
@@ -52,6 +53,15 @@ export const UsdtTransactionsChecker = async (
         } else if (walletType === 'finalise') {
           if (transaction.from === walletAddress) {
             //TODO: call service that will save finilase fields
+            const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
+
+            if(!finaliseRow) {
+              await createFinaliseLog({
+                txHash: transaction.hash,
+                currency: 'USDT',
+                l1SwapAmount: String(ethers.formatUnits(transaction.value, 18)),
+              });
+            }
           }
         }
       }

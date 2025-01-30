@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { BtcTransaction } from '../../types/hedgingEngine';
-import { getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
+import { createFinaliseLog, getFinaliseLogByTxId, getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
 
 export type NeededResolveOrders = {
   symbol: string;
@@ -27,15 +27,12 @@ export const BtcTransactionsChecker = async (
   try {
     const btcTransactionsResponse = await axios.get(`https://mempool.space/api/address/${walletAddress}/txs`);
 
-    // console.log('btcTransactionsResponse', btcTransactionsResponse);
     const btcTransfers = btcTransactionsResponse?.data;
-
-    console.log('btcTransfers', btcTransfers);
 
     if (btcTransfers && btcTransfers.length > 0) {
       for (let transaction of btcTransfers) {
         if (typeWallet === 'receiver') {
-          // Calculate the amount (value) of the transaction outputs relevant to the wallet
+
           const amountInBtc =
             transaction.vout
               .filter((output: any) => output?.scriptpubkey_address === walletAddress)
@@ -43,6 +40,7 @@ export const BtcTransactionsChecker = async (
 
           const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.txid);
 
+          // Only include transactions with confirmed status and valid amounts
           if (!heHistoryLog && amountInBtc > 0 && transaction.status.confirmed) {
             const extendedTransaction = {
               ...transaction,
@@ -53,7 +51,23 @@ export const BtcTransactionsChecker = async (
             neededResolveOrders.transactions.push(extendedTransaction);
           }
         } else if (typeWallet === 'finalise') {
-          //TODO: call service that will save finilase fields
+
+          const amountInBtc =
+            transaction.vin
+              .filter((input: any) => input?.prevout?.scriptpubkey_address === walletAddress)
+              .reduce((sum: number, input: any) => sum + input.prevout.value, 0) / 1e8;
+
+          if (amountInBtc > 0 && transaction.status.confirmed) {
+            const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
+
+            if(!finaliseRow) {
+              await createFinaliseLog({
+                txHash: transaction.hash,
+                currency: 'BTC',
+                l1SwapAmount: amountInBtc.toString(),
+              });
+            }
+          }
         }
       }
     }
