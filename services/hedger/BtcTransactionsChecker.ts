@@ -63,11 +63,13 @@ export const BtcTransactionsChecker = async (
               'finalise row BTC', finaliseRow
             );
             if(!finaliseRow) {
-              await createFinaliseLog({
-                txHash: transaction.hash,
+              const res = await createFinaliseLog({
+                txHash: transaction.txid,
                 currency: 'BTC',
                 l1SwapAmount: amountInBtc.toString(),
               });
+
+              console.log('saving final log: ', res);
             }
           }
         }
