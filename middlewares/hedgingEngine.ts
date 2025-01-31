@@ -8,13 +8,13 @@ import { sleep } from '../utils/sleep';
 import { UsdtTransactionsFinaliseChecker } from '../services/hedger/UsdtTransactionsFinaliseChecker';
 import { BtcTransactionsFinaliseChecker } from '../services/hedger/BtcTransactionsFinaliseChecker';
 import { BnbTransactionsFinaliseChecker } from '../services/hedger/BnbTransactionsFinaliseChecker';
+import { BnbTransactionsInternalChecker } from '../services/hedger/BnbTransactionsInternalChecker';
 
 dotenv.config();
 
 let isRunning = false;
 
 async function hedgerMonitoringService(): Promise<void> {
-
   const usdtBnbOrdersNeedToBeResolved = await UsdtTransactionsChecker(
     RECEIVER_WALLETS.usdt_bnb.walletAddress,
     RECEIVER_WALLETS.usdt_bnb.symbol,
@@ -32,6 +32,12 @@ async function hedgerMonitoringService(): Promise<void> {
   await sleep(1500);
 
   const bnbOrdersToBeResolved = await BnbTransactionsChecker(
+    RECEIVER_WALLETS.bnb_usdt.walletAddress,
+    RECEIVER_WALLETS.bnb_usdt.symbol,
+    RECEIVER_WALLETS.bnb_usdt.direction,
+  );
+
+  const bnbInternalOrdersToBeResolved = await BnbTransactionsInternalChecker(
     RECEIVER_WALLETS.bnb_usdt.walletAddress,
     RECEIVER_WALLETS.bnb_usdt.symbol,
     RECEIVER_WALLETS.bnb_usdt.direction,
@@ -57,6 +63,10 @@ async function hedgerMonitoringService(): Promise<void> {
     await placeOrderToBinanceResolver(bnbOrdersToBeResolved);
   }
 
+  if (bnbInternalOrdersToBeResolved) {
+    await placeOrderToBinanceResolver(bnbInternalOrdersToBeResolved);
+  }
+
   if (btcOrdersNeedToBeResolved) {
     await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved);
   }
@@ -75,7 +85,7 @@ setInterval(async () => {
     //Finalise
     await UsdtTransactionsFinaliseChecker(FINALISE_WALLETS.usdt_bnb.walletAddress, FINALISE_WALLETS.usdt_bnb.symbol);
     await sleep(2000);
-    await UsdtTransactionsFinaliseChecker(FINALISE_WALLETS.usdt_btc.walletAddress, FINALISE_WALLETS.usdt_btc.symbol)
+    await UsdtTransactionsFinaliseChecker(FINALISE_WALLETS.usdt_btc.walletAddress, FINALISE_WALLETS.usdt_btc.symbol);
     await sleep(2000);
     await BtcTransactionsFinaliseChecker(FINALISE_WALLETS.btc_usdt.walletAddress);
     await sleep(2000);
