@@ -11,7 +11,7 @@ export const placeOrderToBinanceResolver = async (orders: OrdersWithTxs) => {
     const fromCoin =
       orders.direction === Direction.SELL ? orders?.symbol?.split('-')?.[0] : orders?.symbol?.split('-')?.[1];
     const toCoin =
-      orders.direction === Direction.BUY ? orders?.symbol?.split('-')?.[1] : orders?.symbol?.split('-')?.[0];
+      orders.direction === Direction.SELL ? orders?.symbol?.split('-')?.[1] : orders?.symbol?.split('-')?.[0];
 
     console.log('fromCoin', fromCoin);
     console.log('toCoin', toCoin);
