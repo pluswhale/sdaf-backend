@@ -28,11 +28,13 @@ export const placeOrderToBinanceResolver = async (orders: OrdersWithTxs) => {
         const amount =
           orders.symbol === 'BTC-USDT'
             ? orders.direction === Direction.BUY
-              ? transaction.value / 1e8
+              ? +ethers.formatUnits(transaction.value, 18) / +bestOrder?.[0]
               : transaction.value
             : orders.direction === Direction.SELL
               ? ethers.formatUnits(transaction.value, 18)
               : +ethers.formatUnits(transaction.value, 18) / +bestOrder?.[0];
+
+        console.log('amoint!!!!!!!!!!!!!!!!!!!!!!!!!!!!', amount);
 
         const result = await placeBinanceOrder(
           bestOrder?.[0],
