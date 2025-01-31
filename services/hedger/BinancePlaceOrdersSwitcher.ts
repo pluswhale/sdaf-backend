@@ -16,7 +16,7 @@ export const BinancePlaceOrdersSwitcher = async (
 
   switch (pair) {
     case 'BTCUSDT': {
-      generatedObjectForSavingInDB.txHash = transaction.txid;
+      generatedObjectForSavingInDB.txHash = transaction.hash;
       generatedObjectForSavingInDB.fromCoin = fromCoin;
       generatedObjectForSavingInDB.toCoin = toCoin;
       generatedObjectForSavingInDB.l1SwapAmount = String(transaction.value);
@@ -97,7 +97,7 @@ export const BinancePlaceOrdersSwitcher = async (
     }
 
     case 'USDTBTC': {
-      generatedObjectForSavingInDB.txHash = transaction.hash;
+      generatedObjectForSavingInDB.txHash = transaction.txid;
       generatedObjectForSavingInDB.fromCoin = fromCoin;
       generatedObjectForSavingInDB.toCoin = toCoin;
       generatedObjectForSavingInDB.l1SwapAmount = String(ethers.formatUnits(transaction.value, 18));
