@@ -6,7 +6,9 @@ const hedgineEngineHistoryLogRepo = AppDataSource.getRepository(HedgineEngineLog
 
 export const getHedgineEngineHistoryLog = async (req: Request, res: Response): Promise<any> => {
   try {
-    const heLogs = await hedgineEngineHistoryLogRepo.find();
+    const heLogs = await hedgineEngineHistoryLogRepo.find({
+      order: { createdAt: 'DESC' },
+    });
 
     if (heLogs.length === 0) {
       return res.status(404).json({ message: 'No he logs found' });
@@ -19,4 +21,3 @@ export const getHedgineEngineHistoryLog = async (req: Request, res: Response): P
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
-
