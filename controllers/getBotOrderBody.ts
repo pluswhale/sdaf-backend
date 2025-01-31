@@ -11,25 +11,33 @@ export const getBotOrdersController = async (req: Request, res: Response): Promi
     if (botOrders.length === 0) {
       return res.status(404).json({ message: 'No bot orders found' });
     }
+
     for (const botOrder of botOrders) {
       const { mmSellsToken, mmBuysToken } = botOrder;
       const suitableAskOrder = await findSuitableOrder(
-        mmSellsToken.includes('USDT') ? 'USDT' : mmSellsToken,
-        mmBuysToken.includes('USDT') ? 'USDT' : mmBuysToken,
+        mmSellsToken === 'USDT' || mmSellsToken.startsWith('USDT_') ? 'USDT' : mmSellsToken,
+        mmBuysToken === 'USDT' || mmBuysToken.startsWith('USDT_') ? 'USDT' : mmBuysToken,
         0,
       );
+
       if (suitableAskOrder) {
         const rate = Number(suitableAskOrder.bestOrder[0]);
-        console.log('RATE:', rate);
-        botOrder.rateBinanceBuy1SellsForBuys = mmSellsToken.includes('USDT') ? 1 / rate : rate;
+        console.log(`RATE for ${mmSellsToken} -> ${mmBuysToken}:`, rate);
+
+        // Ensure correct inversion logic
+        if (mmSellsToken === 'USDT' || mmSellsToken.startsWith('USDT_')) {
+          botOrder.rateBinanceBuy1SellsForBuys = 1 / rate;
+        } else {
+          botOrder.rateBinanceBuy1SellsForBuys = rate;
+        }
+
         await botOrderRepository.save(botOrder);
       }
     }
-    // Return the updated bot orders
+
     return res.json({ botOrders });
   } catch (error) {
     console.error('Error fetching or updating bot orders:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
-
