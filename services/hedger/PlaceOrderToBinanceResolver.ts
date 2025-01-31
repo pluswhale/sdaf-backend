@@ -10,8 +10,8 @@ import { Direction } from '../../types/enum';
 
 export const placeOrderToBinanceResolver = async (orders: OrdersWithTxs) => {
   if (orders) {
-    const fromCoin = orders?.symbol?.split('-')?.[0] || '';
-    const toCoin = orders?.symbol?.split('-')?.[1] || '';
+    const fromCoin = orders.direction === Direction.SELL ? orders?.symbol?.split('-')?.[0] : orders?.symbol?.split('-')?.[1];
+    const toCoin = orders.direction === Direction.BUY ? orders?.symbol?.split('-')?.[1] : orders?.symbol?.split('-')?.[0];
 
     for (let transaction of orders?.transactions) {
       try {
