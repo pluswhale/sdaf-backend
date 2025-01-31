@@ -16,11 +16,11 @@ export const BinancePlaceOrdersSwitcher = async (
 
   switch (pair) {
     case 'BTCUSDT': {
-      generatedObjectForSavingInDB.txHash = transaction.hash;
+      generatedObjectForSavingInDB.txHash = transaction.txid;
       generatedObjectForSavingInDB.fromCoin = fromCoin;
       generatedObjectForSavingInDB.toCoin = toCoin;
-      generatedObjectForSavingInDB.l1SwapAmount = String(ethers.formatUnits(transaction.value, 18));
-      generatedObjectForSavingInDB.l2SwapAmount = String(+ethers.formatUnits(transaction.value, 18) / +bestOrder[0]);
+      generatedObjectForSavingInDB.l1SwapAmount = String(transaction.value);
+      generatedObjectForSavingInDB.l2SwapAmount = String(transaction.value * +bestOrder[0]);
       generatedObjectForSavingInDB.direction = direction as string;
       generatedObjectForSavingInDB.targetWalletAddress = direction as string;
       generatedObjectForSavingInDB.margin = await getMarginByPrice(
@@ -97,11 +97,11 @@ export const BinancePlaceOrdersSwitcher = async (
     }
 
     case 'USDTBTC': {
-      generatedObjectForSavingInDB.txHash = transaction.txid;
+      generatedObjectForSavingInDB.txHash = transaction.hash;
       generatedObjectForSavingInDB.fromCoin = fromCoin;
       generatedObjectForSavingInDB.toCoin = toCoin;
-      generatedObjectForSavingInDB.l1SwapAmount = String(transaction.value);
-      generatedObjectForSavingInDB.l2SwapAmount = String(transaction.value * +bestOrder[0]);
+      generatedObjectForSavingInDB.l1SwapAmount = String(ethers.formatUnits(transaction.value, 18));
+      generatedObjectForSavingInDB.l2SwapAmount = String(+ethers.formatUnits(transaction.value, 18) / +bestOrder[0]);
       generatedObjectForSavingInDB.direction = direction as string;
       generatedObjectForSavingInDB.targetWalletAddress = direction as string;
       generatedObjectForSavingInDB.margin = await getMarginByPrice(
