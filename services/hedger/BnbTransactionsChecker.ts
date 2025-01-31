@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { createFinaliseLog, getFinaliseLogByTxId, getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
-import { ethers } from 'ethers';
+import {  getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
+
 
 type BnbTransactionType = {
   blocknumber: string;
@@ -29,7 +29,7 @@ export const BnbTransactionsChecker = async (
   walletAddress: string,
   symbol: string,
   direction: string,
-  walletType: 'receiver' | 'finalise',
+
 ) => {
   let neededResolveOrders: NeededResolveOrders = {
     symbol,
@@ -41,7 +41,7 @@ export const BnbTransactionsChecker = async (
     const bnbTransfers =  await axios.get(`https://api.bscscan.com/api`, {
       params: {
         module: 'account',
-        action: walletType === 'receiver' ?  'txlistinternal' : 'txlist',
+        action:  'txlist',
         address: walletAddress,
         startblock: 0,
         endblock: 999999999,
@@ -56,7 +56,7 @@ export const BnbTransactionsChecker = async (
 
     if (transactions) {
       for (let transaction of transactions) {
-        if (walletType === 'receiver') {
+
           const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.hash);
           if (!heHistoryLog) {
             neededResolveOrders = {
@@ -64,24 +64,6 @@ export const BnbTransactionsChecker = async (
               transactions: neededResolveOrders.transactions.concat(transaction),
             };
           }
-        } else if (walletType === 'finalise') {
-          if (transaction.from === walletAddress) {
-            //TODO: call service that will save finilase fields
-            const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
-
-            console.log(
-              'finalise row BNB', finaliseRow
-            );
-            if(!finaliseRow) {
-              await createFinaliseLog({
-                txHash: transaction.hash,
-                currency: 'BNB',
-                l1SwapAmount: String(ethers.formatUnits(transaction.value, 18)),
-              });
-            }
-
-          }
-        }
       }
     }
   } catch (error) {

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { UsdtTransaction } from '../../types/hedgingEngine';
-import { createFinaliseLog, getFinaliseLogByTxId, getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
-import { ethers } from 'ethers';
+import { getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
+
 
 export type NeededResolveOrders = {
   symbol: string;
@@ -9,19 +9,21 @@ export type NeededResolveOrders = {
   transactions: UsdtTransaction[];
 };
 
-// const BSC_SCAN_API_KEY = 'WTYZJUZD5RC99WNUAFTIMSII927UYCRG6G';
 
 export const UsdtTransactionsChecker = async (
   walletAddress: string,
   symbol: string,
   direction: string,
-  walletType: 'receiver' | 'finalise',
 ): Promise<NeededResolveOrders | null> => {
   let neededResolveOrders: NeededResolveOrders = {
     symbol,
     direction,
     transactions: [] as any,
   };
+
+  const targetCurrency = symbol?.split('-')?.[0];
+
+  console.log('targetCurrency', targetCurrency);
 
   try {
     const usdtTransfers = await axios.get(`https://api.bscscan.com/api`, {
@@ -42,7 +44,6 @@ export const UsdtTransactionsChecker = async (
 
     if (transactions) {
       for (let transaction of transactions) {
-        if (walletType === 'receiver') {
           const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.hash);
           if (!heHistoryLog) {
             neededResolveOrders = {
@@ -50,24 +51,6 @@ export const UsdtTransactionsChecker = async (
               transactions: neededResolveOrders.transactions.concat(transaction),
             };
           }
-        } else if (walletType === 'finalise') {
-          console.log('im here inUSDT');
-          console.log('transactions in usdt FINILESE', transaction);
-          if (transaction.from === walletAddress) {
-            //TODO: call service that will save finilase fields
-            const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
-            console.log(
-              'finalise row USDT', finaliseRow
-            );
-            if(!finaliseRow) {
-              await createFinaliseLog({
-                txHash: transaction.hash,
-                currency: 'USDT' + symbol.split('-')?.[1],
-                l1SwapAmount: String(ethers.formatUnits(transaction.value, 18)),
-              });
-            }
-          }
-        }
       }
     }
   } catch (error) {

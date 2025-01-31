@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { BtcTransaction } from '../../types/hedgingEngine';
-import { createFinaliseLog, getFinaliseLogByTxId, getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
+import { getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
 
 export type NeededResolveOrders = {
   symbol: string;
@@ -16,7 +16,7 @@ export const BtcTransactionsChecker = async (
   walletAddress: string,
   symbol: string,
   direction: string,
-  typeWallet: 'receiver' | 'finalise',
+
 ): Promise<NeededResolveOrders | null> => {
   let neededResolveOrders: NeededResolveOrders = {
     symbol,
@@ -26,53 +26,25 @@ export const BtcTransactionsChecker = async (
 
   try {
     const btcTransactionsResponse = await axios.get(`https://mempool.space/api/address/${walletAddress}/txs`);
-
     const btcTransfers = btcTransactionsResponse?.data;
 
     if (btcTransfers && btcTransfers.length > 0) {
       for (let transaction of btcTransfers) {
-        if (typeWallet === 'receiver') {
-
           const amountInBtc =
             transaction.vout
               .filter((output: any) => output?.scriptpubkey_address === walletAddress)
               .reduce((sum: number, output: any) => sum + output.value, 0) / 1e8;
 
           const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.txid);
-
           // Only include transactions with confirmed status and valid amounts
           if (!heHistoryLog && amountInBtc > 0 && transaction.status.confirmed) {
             const extendedTransaction = {
               ...transaction,
               value: amountInBtc, // Set the value (amount in BTC)
             };
-
             //@ts-ignore
             neededResolveOrders.transactions.push(extendedTransaction);
           }
-        } else if (typeWallet === 'finalise') {
-
-          const amountInBtc =
-            transaction.vin
-              .filter((input: any) => input?.prevout?.scriptpubkey_address === walletAddress)
-              .reduce((sum: number, input: any) => sum + input.prevout.value, 0) / 1e8;
-
-          if (amountInBtc > 0 && transaction.status.confirmed) {
-            const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
-            console.log(
-              'finalise row BTC', finaliseRow
-            );
-            if(!finaliseRow) {
-              const res = await createFinaliseLog({
-                txHash: transaction.txid,
-                currency: 'BTC',
-                l1SwapAmount: amountInBtc.toString(),
-              });
-
-              console.log('saving final log: ', res);
-            }
-          }
-        }
       }
     }
   } catch (error) {
