@@ -15,8 +15,10 @@ export const getBotOrdersController = async (req: Request, res: Response): Promi
     for (const botOrder of botOrders) {
       const { mmSellsToken, mmBuysToken } = botOrder;
       const suitableAskOrder = await findSuitableOrder(
-        mmSellsToken === 'USDT' || mmSellsToken.startsWith('USDT_') ? 'USDT' : mmSellsToken,
-        mmBuysToken === 'USDT' || mmBuysToken.startsWith('USDT_') ? 'USDT' : mmBuysToken,
+        mmSellsToken === 'USDT' || mmSellsToken.startsWith('USDT_')
+          ? mmBuysToken + mmSellsToken.split('_')?.[0]
+          : mmSellsToken + mmBuysToken.split('_')?.[0],
+        mmSellsToken === 'USDT' || mmSellsToken.startsWith('USDT_') ? 'SELL' : 'BUY',
         0,
       );
 
@@ -27,6 +29,7 @@ export const getBotOrdersController = async (req: Request, res: Response): Promi
         // Ensure correct inversion logic
         if (mmSellsToken === 'USDT' || mmSellsToken.startsWith('USDT_')) {
           botOrder.rateBinanceBuy1SellsForBuys = 1 / rate;
+          console.log('bot orders', botOrder);
         } else {
           botOrder.rateBinanceBuy1SellsForBuys = rate;
         }
