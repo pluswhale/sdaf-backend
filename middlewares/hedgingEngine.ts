@@ -51,21 +51,21 @@ async function hedgerMonitoringService(): Promise<void> {
     RECEIVER_WALLETS.btc_usdt.direction,
   );
 
-  if (usdtBnbOrdersNeedToBeResolved) {
-    await placeOrderToBinanceResolver(usdtBnbOrdersNeedToBeResolved);
-  }
+  // if (usdtBnbOrdersNeedToBeResolved) {
+  //   await placeOrderToBinanceResolver(usdtBnbOrdersNeedToBeResolved);
+  // }
 
   if (usdtBtcOrdersNeedToBeResolved) {
     await placeOrderToBinanceResolver(usdtBtcOrdersNeedToBeResolved);
   }
 
-  if (bnbOrdersToBeResolved) {
-    await placeOrderToBinanceResolver(bnbOrdersToBeResolved);
-  }
+  // if (bnbOrdersToBeResolved) {
+  //   await placeOrderToBinanceResolver(bnbOrdersToBeResolved);
+  // }
 
-  if (bnbInternalOrdersToBeResolved) {
-    await placeOrderToBinanceResolver(bnbInternalOrdersToBeResolved);
-  }
+  // if (bnbInternalOrdersToBeResolved) {
+  //   await placeOrderToBinanceResolver(bnbInternalOrdersToBeResolved);
+  // }
 
   if (btcOrdersNeedToBeResolved) {
     await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved);
@@ -83,13 +83,13 @@ setInterval(async () => {
     await hedgerMonitoringService();
 
     //Finalise
-    await UsdtTransactionsFinaliseChecker(FINALISE_WALLETS.usdt_bnb.walletAddress, FINALISE_WALLETS.usdt_bnb.symbol);
+    // await UsdtTransactionsFinaliseChecker(FINALISE_WALLETS.usdt_bnb.walletAddress, FINALISE_WALLETS.usdt_bnb.symbol);
     await sleep(2000);
     await UsdtTransactionsFinaliseChecker(FINALISE_WALLETS.usdt_btc.walletAddress, FINALISE_WALLETS.usdt_btc.symbol);
     await sleep(2000);
     await BtcTransactionsFinaliseChecker(FINALISE_WALLETS.btc_usdt.walletAddress);
     await sleep(2000);
-    await BnbTransactionsFinaliseChecker(FINALISE_WALLETS.bnb_usdt.walletAddress);
+    // await BnbTransactionsFinaliseChecker(FINALISE_WALLETS.bnb_usdt.walletAddress);
 
     console.log('Scheduled tasks completed successfully.');
   } catch (error) {
