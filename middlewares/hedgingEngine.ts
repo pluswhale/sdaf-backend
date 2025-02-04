@@ -12,6 +12,7 @@ import { BnbTransactionsInternalChecker } from '../services/hedger/BnbTransactio
 
 import axios from 'axios';
 import { createFinaliseLog, getFinaliseLogByTxId } from '../services/hedgineEngineHistoryLog';
+import { ethers } from 'ethers';
 
 dotenv.config();
 
@@ -65,22 +66,22 @@ async function hedgerMonitoringService(): Promise<void> {
     for (let btcOrder of btcOrdersNeedToBeResolved?.transactions) {
       const btcOrderPriceUsdt = +btcOrder.value  * +prices?.data?.BTC;
 
-      for (let btcFinalise of finaliseBtcTxs) {
-        const btcFinalisePriceUsdt = (+btcFinalise.value  * +prices?.data?.BTC) * MARGIN_PERCENT;
+      for (let usdtFinalise of finaliseUsdtTxs) {
+        const usdtFinalisePrice = ethers.formatUnits(usdtFinalise.value, 18) * MARGIN_PERCENT;
 
-        if (btcOrderPriceUsdt - btcFinalisePriceUsdt <= PROFIT_TRASHHOLD) {
+        if (btcOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD) {
           await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved);
 
-          const finaliseRow = getFinaliseLogByTxId(btcFinalise.txid);
+          const finaliseRow = getFinaliseLogByTxId(usdtFinalise.hash);
           if(!finaliseRow) {
             await createFinaliseLog({
-              txHash: btcFinalise.txid,
-              currency: 'BTC',
-              l1SwapAmount: btcFinalise.value.toString(),
+              txHash: usdtFinalise.txid,
+              currency: 'USDT',
+              l1SwapAmount: ethers.formatUnits(usdtFinalise.value, 18).toString(),
             });
           }
         } else {
-          continue;
+
         }
       }
     }
