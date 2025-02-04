@@ -59,7 +59,7 @@ async function hedgerMonitoringService(): Promise<void> {
             const BTC_THRESHOLD = Math.abs(Number(ethers.formatUnits(usdtTx.value, 18)) - (btcFinalizeTx.vin[0].prevout.value / 1e8) * prices.data.BTC)/(Number(ethers.formatUnits(usdtTx.value, 18)))
             console.log(BTC_THRESHOLD)
             if(usdtTx.timeStamp > btcFinalizeTx.status.block_time && BTC_THRESHOLD <= 0.1 ) { // 0.1 - threshold for the amount diff
-              await placeOrderToBinanceResolver({ symbol: 'USDT-BTC', direction: 'BUY', transactions: usdtOrdersNeedToBeResolved.transactions})
+              await placeOrderToBinanceResolver({ symbol: 'BTC-USDT', direction: 'BUY', transactions: usdtOrdersNeedToBeResolved.transactions})
             }
           }
         }
@@ -68,7 +68,7 @@ async function hedgerMonitoringService(): Promise<void> {
           for(let bnbFinalizeTx of bnbFinalizerTxs) {
             const BNB_THRESHOLD = Math.abs(Number(ethers.formatUnits(usdtTx.value, 18)) - Number(ethers.formatUnits(bnbFinalizeTx.value, 18)) * prices.data.BNB)/(Number(ethers.formatUnits(usdtTx.value, 18)))
             if(usdtTx.timeStamp > bnbFinalizeTx.timestamp && BNB_THRESHOLD  <= 0.1 ) { // 0.1 - threshold for the amount diff
-              await placeOrderToBinanceResolver({ symbol: 'USDT-BNB', direction: 'BUY', transactions: usdtOrdersNeedToBeResolved.transactions})
+              await placeOrderToBinanceResolver({ symbol: 'BNB-USDT', direction: 'BUY', transactions: usdtOrdersNeedToBeResolved.transactions})
             }
           } 
         }
