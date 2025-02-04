@@ -30,13 +30,11 @@ export const UsdtTransactionsFinaliseChecker = async (
     });
 
     let res: any = []
-    console.log('res', res);
+
     if (filteredByFromAddress) {
       for (let transaction of filteredByFromAddress) {
             const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
-            // console.log(
-            //   'finalise row USDT', finaliseRow
-            // );
+
 
 
             if(!finaliseRow) {

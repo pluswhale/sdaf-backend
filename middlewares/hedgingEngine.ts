@@ -52,7 +52,7 @@ async function hedgerMonitoringService(): Promise<void> {
   const finaliseUsdtTxs = await UsdtTransactionsFinaliseChecker(FINALISE_WALLETS.usdt_bnb.walletAddress);
   const finaliseBnbTxs = await BnbTransactionsFinaliseChecker(FINALISE_WALLETS.bnb_usdt.walletAddress);
   const finaliseBtcTxs = await BtcTransactionsFinaliseChecker(FINALISE_WALLETS.btc_usdt.walletAddress);
-
+await sleep(1000);
   const prices = await axios.get('https://sdafcwap.com/app/api/get-asset-price');
 
   console.log('btcOrdersNeedToBeResolved?.transactions?.length', btcOrdersNeedToBeResolved?.transactions?.length);
@@ -178,4 +178,4 @@ setInterval(async () => {
   } catch (error) {
     console.error('Error during scheduled tasks:', error);
   }
-}, 5000); // Run every 5 seconds
+}, 30000); // Run every 5 seconds
