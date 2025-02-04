@@ -17,15 +17,19 @@ export const BtcTransactionsFinaliseChecker = async (
               .filter((input: any) => input?.prevout?.scriptpubkey_address === walletAddress)
               .reduce((sum: number, input: any) => sum + input.prevout.value, 0) / 1e8;
 
+
+          const res = [];
+
           if (amountInBtc > 0 && transaction.status.confirmed) {
             const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
 
             if(!finaliseRow) {
-              await createFinaliseLog({
-                txHash: transaction.txid,
-                currency: 'BTC',
-                l1SwapAmount: amountInBtc.toString(),
-              });
+              res.push({...transaction, value: amountInBtc });
+              // await createFinaliseLog({
+              //   txHash: transaction.txid,
+              //   currency: 'BTC',
+              //   l1SwapAmount: amountInBtc.toString(),
+              // });
             }
           }
         }

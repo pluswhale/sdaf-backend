@@ -6,7 +6,7 @@ import { ethers } from 'ethers';
 export const UsdtTransactionsFinaliseChecker = async (
   walletAddress: string,
   symbol: string,
-): Promise<void> => {
+): Promise<any[]> => {
 
   const targetCurrency = symbol?.split('-')?.[0];
 
@@ -34,6 +34,8 @@ export const UsdtTransactionsFinaliseChecker = async (
       return tx.from.toLowerCase() === walletAddress.toLowerCase();
     });
 
+    let res = []
+
     if (filteredByFromAddress) {
       for (let transaction of filteredByFromAddress) {
             const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
@@ -42,17 +44,22 @@ export const UsdtTransactionsFinaliseChecker = async (
             );
 
             if(!finaliseRow) {
-              await createFinaliseLog({
-                txHash: transaction.hash,
-                currency: 'USDT' + targetCurrency,
-                l1SwapAmount: String(ethers.formatUnits(transaction.value, 18)),
-              });
+              res.push(transaction);
+              // await createFinaliseLog({
+              //   txHash: transaction.hash,
+              //   currency: 'USDT' + targetCurrency,
+              //   l1SwapAmount: String(ethers.formatUnits(transaction.value, 18)),
+              // });
             }
           }
         }
 
+    return res;
+
   } catch (error) {
     console.error('Error fetching transactions:', error);
+
+    return [];
   }
 
 };
