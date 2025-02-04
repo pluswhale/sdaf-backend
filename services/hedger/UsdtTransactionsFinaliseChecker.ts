@@ -1,13 +1,12 @@
 import axios from 'axios';
 import { UsdtTransaction } from '../../types/hedgingEngine';
-import {  getFinaliseLogByTxId } from '../hedgineEngineHistoryLog';
-
+import { getFinaliseLogByTxId } from '../hedgineEngineHistoryLog';
 
 export const UsdtTransactionsFinaliseChecker = async (
   walletAddress: string,
 ): Promise<any[]> => {
-
   try {
+    console.time('UsdtTransactionsFinaliseChecker');
     const usdtTransfers = await axios.get(`https://api.bscscan.com/api`, {
       params: {
         module: 'account',
@@ -22,38 +21,33 @@ export const UsdtTransactionsFinaliseChecker = async (
         apiKey: process.env.BSC_SCAN_API_KEY,
       },
     });
+
     const transactions: UsdtTransaction[] = usdtTransfers?.data?.result;
 
+    // Filter transactions by 'from' address
+    const filteredByFromAddress = transactions?.filter((tx) => tx.from.toLowerCase() === walletAddress.toLowerCase());
 
-    const filteredByFromAddress = transactions?.filter((tx) => {
-      return tx.from.toLowerCase() === walletAddress.toLowerCase();
-    });
-
-    let res: any = []
-
+    // Run all getFinaliseLogByTxId requests concurrently using Promise.all
     if (filteredByFromAddress) {
-      for (let transaction of filteredByFromAddress) {
-            const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
+      const finaliseLogsPromises = filteredByFromAddress.map(transaction =>
+        getFinaliseLogByTxId(transaction.hash).then((finaliseRow) => {
+          return finaliseRow ? null : transaction;
+        })
+      );
 
+      const finaliseLogs = await Promise.all(finaliseLogsPromises);
 
+      // Filter out null values and return
+      return finaliseLogs.filter(tx => tx !== null);
+    }
 
-            if(!finaliseRow) {
-              res.push(transaction);
-              // await createFinaliseLog({
-              //   txHash: transaction.hash,
-              //   currency: 'USDT' + targetCurrency,
-              //   l1SwapAmount: String(ethers.formatUnits(transaction.value, 18)),
-              // });
-            }
-          }
-        }
-
-    return res;
+    console.timeEnd('UsdtTransactionsFinaliseChecker');
+    return [];
 
   } catch (error) {
     console.error('Error fetching transactions:', error);
-
     return [];
   }
-
 };
+
+// Same approach for other transaction checkers like BnbTransactionsFinaliseChecker, BtcTransactionsFinaliseChecker, etc.

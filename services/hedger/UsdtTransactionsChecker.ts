@@ -2,13 +2,11 @@ import axios from 'axios';
 import { UsdtTransaction } from '../../types/hedgingEngine';
 import { getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
 
-
 export type NeededResolveOrders = {
   symbol: string;
   direction: string;
   transactions: UsdtTransaction[];
 };
-
 
 export const UsdtTransactionsChecker = async (
   walletAddress: string,
@@ -36,26 +34,34 @@ export const UsdtTransactionsChecker = async (
         apiKey: process.env.BSC_SCAN_API_KEY,
       },
     });
+
     const transactions: UsdtTransaction[] = usdtTransfers?.data?.result;
 
     if (transactions) {
-      for (let transaction of transactions) {
-          const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.hash);
+      // Fetch all history logs concurrently
+      const heHistoryLogPromises = transactions.map((transaction) =>
+        getHedgineEngineHistoryLogByTxId(transaction.hash).then((heHistoryLog) => {
           if (!heHistoryLog) {
-            neededResolveOrders = {
-              ...neededResolveOrders,
-              transactions: neededResolveOrders.transactions.concat(transaction),
-            };
+            return transaction; // Include the transaction if no history log is found
           }
-      }
+          return null; // Exclude the transaction if history log exists
+        })
+      );
+
+      // Wait for all promises to resolve
+      const resolvedHistoryLogs = await Promise.all(heHistoryLogPromises);
+
+      // Filter out null values and update neededResolveOrders
+      const unresolvedTransactions = resolvedHistoryLogs.filter(tx => tx !== null);
+      neededResolveOrders = {
+        ...neededResolveOrders,
+        transactions: unresolvedTransactions as UsdtTransaction[],
+      };
     }
+
   } catch (error) {
     console.error('Error fetching transactions:', error);
   }
 
-  if (neededResolveOrders) {
-    return neededResolveOrders;
-  } else {
-    return null;
-  }
+  return neededResolveOrders.transactions.length > 0 ? neededResolveOrders : null;
 };
