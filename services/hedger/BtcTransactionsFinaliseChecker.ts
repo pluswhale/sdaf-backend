@@ -4,7 +4,8 @@ import { createFinaliseLog, getFinaliseLogByTxId } from '../hedgineEngineHistory
 
 export const BtcTransactionsFinaliseChecker = async (
   walletAddress: string,
-): Promise<void> => {
+): Promise<any[] | undefined> => {
+  const btcTxs = []
   try {
     const btcTransactionsResponse = await axios.get(`https://mempool.space/api/address/${walletAddress}/txs`);
 
@@ -19,8 +20,8 @@ export const BtcTransactionsFinaliseChecker = async (
 
           if (amountInBtc > 0 && transaction.status.confirmed) {
             const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
-
             if(!finaliseRow) {
+              btcTxs.push(transaction)
               await createFinaliseLog({
                 txHash: transaction.txid,
                 currency: 'BTC',
@@ -30,6 +31,7 @@ export const BtcTransactionsFinaliseChecker = async (
           }
         }
       }
+      return btcTxs
   } catch (error) {
     console.error('Error fetching BTC transactions:', error);
   }

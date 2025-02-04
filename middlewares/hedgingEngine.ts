@@ -9,24 +9,17 @@ import { UsdtTransactionsFinaliseChecker } from '../services/hedger/UsdtTransact
 import { BtcTransactionsFinaliseChecker } from '../services/hedger/BtcTransactionsFinaliseChecker';
 import { BnbTransactionsFinaliseChecker } from '../services/hedger/BnbTransactionsFinaliseChecker';
 import { BnbTransactionsInternalChecker } from '../services/hedger/BnbTransactionsInternalChecker';
+import { ethers } from 'ethers';
 
 dotenv.config();
 
 let isRunning = false;
 
 async function hedgerMonitoringService(): Promise<void> {
-  const usdtBnbOrdersNeedToBeResolved = await UsdtTransactionsChecker(
+  const usdtOrdersNeedToBeResolved = await UsdtTransactionsChecker(
     RECEIVER_WALLETS.usdt_bnb.walletAddress,
     RECEIVER_WALLETS.usdt_bnb.symbol,
     RECEIVER_WALLETS.usdt_bnb.direction,
-  );
-
-  await sleep(1500);
-
-  const usdtBtcOrdersNeedToBeResolved = await UsdtTransactionsChecker(
-    RECEIVER_WALLETS.usdt_btc.walletAddress,
-    RECEIVER_WALLETS.usdt_btc.symbol,
-    RECEIVER_WALLETS.usdt_btc.direction,
   );
 
   await sleep(1500);
@@ -51,21 +44,38 @@ async function hedgerMonitoringService(): Promise<void> {
     RECEIVER_WALLETS.btc_usdt.direction,
   );
 
-  // if (usdtBnbOrdersNeedToBeResolved) {
-  //   await placeOrderToBinanceResolver(usdtBnbOrdersNeedToBeResolved);
-  // }
+  if (usdtOrdersNeedToBeResolved) {
+    const btcFinalizerTxs = await BtcTransactionsFinaliseChecker(FINALISE_WALLETS.btc_usdt.walletAddress);
+    const bnbFinalizerTxs = await BnbTransactionsFinaliseChecker(FINALISE_WALLETS.bnb_usdt.walletAddress);
+    if(usdtOrdersNeedToBeResolved.transactions && usdtOrdersNeedToBeResolved.transactions.length > 0) {
+      for(let usdtTx of usdtOrdersNeedToBeResolved.transactions) {
+        if(btcFinalizerTxs && btcFinalizerTxs.length > 0) {
+          for(let btcFinalizeTx of btcFinalizerTxs) {
+            if(usdtTx.timeStamp > btcFinalizeTx.status.block_time && Math.abs(Number(ethers.formatUnits(usdtTx.value, 18)) - btcFinalizeTx.vin[0].prevout.value / 1e8)/(Number(ethers.formatUnits(usdtTx.value, 18)) - btcFinalizeTx.vin[0].prevout.value / 1e8) <= 0.1 ) { // 0.1 - threshold for the amount diff
 
-  if (usdtBtcOrdersNeedToBeResolved) {
-    await placeOrderToBinanceResolver(usdtBtcOrdersNeedToBeResolved);
+            }
+          }
+        }
+
+        if(bnbFinalizerTxs && bnbFinalizerTxs.length > 0) {
+          for(let bnbFinalizeTx of bnbFinalizerTxs) {
+            if(usdtTx.timeStamp > bnbFinalizeTx.timestamp && Math.abs(Number(ethers.formatUnits(usdtTx.value, 18)) - Number(ethers.formatUnits(bnbFinalizeTx.value, 18)))/(Number(ethers.formatUnits(usdtTx.value, 18)) - Number(ethers.formatUnits(bnbFinalizeTx.value, 18))) <= 0.1 ) { // 0.1 - threshold for the amount diff
+
+            }
+          } 
+        }
+      }
+    } 
+    await placeOrderToBinanceResolver(usdtOrdersNeedToBeResolved);
   }
 
-  // if (bnbOrdersToBeResolved) {
-  //   await placeOrderToBinanceResolver(bnbOrdersToBeResolved);
-  // }
+  if (bnbOrdersToBeResolved) {
+    await placeOrderToBinanceResolver(bnbOrdersToBeResolved);
+  }
 
-  // if (bnbInternalOrdersToBeResolved) {
-  //   await placeOrderToBinanceResolver(bnbInternalOrdersToBeResolved);
-  // }
+  if (bnbInternalOrdersToBeResolved) {
+    await placeOrderToBinanceResolver(bnbInternalOrdersToBeResolved);
+  }
 
   if (btcOrdersNeedToBeResolved) {
     await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved);
