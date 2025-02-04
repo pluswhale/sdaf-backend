@@ -1,16 +1,11 @@
 import axios from 'axios';
 import { UsdtTransaction } from '../../types/hedgingEngine';
-import { createFinaliseLog, getFinaliseLogByTxId } from '../hedgineEngineHistoryLog';
-import { ethers } from 'ethers';
+import {  getFinaliseLogByTxId } from '../hedgineEngineHistoryLog';
+
 
 export const UsdtTransactionsFinaliseChecker = async (
   walletAddress: string,
-  symbol: string,
 ): Promise<any[]> => {
-
-  const targetCurrency = symbol?.split('-')?.[0];
-
-  console.log('targetCurrency', targetCurrency);
 
   try {
     const usdtTransfers = await axios.get(`https://api.bscscan.com/api`, {
@@ -34,14 +29,15 @@ export const UsdtTransactionsFinaliseChecker = async (
       return tx.from.toLowerCase() === walletAddress.toLowerCase();
     });
 
-    let res = []
-
+    let res: any = []
+    console.log('res', res);
     if (filteredByFromAddress) {
       for (let transaction of filteredByFromAddress) {
             const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
             // console.log(
             //   'finalise row USDT', finaliseRow
             // );
+
 
             if(!finaliseRow) {
               res.push(transaction);
