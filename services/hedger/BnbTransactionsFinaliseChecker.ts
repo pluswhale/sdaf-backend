@@ -22,7 +22,7 @@ type BnbTransactionType = {
 
 export const BnbTransactionsFinaliseChecker = async (
   walletAddress: string,
-) => {
+): Promise<any[]> => {
 
   try {
     const bnbTransfers =  await axios.get(`https://api.bscscan.com/api`, {
@@ -45,21 +45,26 @@ export const BnbTransactionsFinaliseChecker = async (
       return tx.from.toLowerCase() === walletAddress.toLowerCase();
     });
 
+    let res: any = [];
+
     if (filteredByFromAddress) {
       for (let transaction of filteredByFromAddress) {
         const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
 
         if(!finaliseRow) {
-          await createFinaliseLog({
-            txHash: transaction.hash,
-            currency: 'BNB',
-            l1SwapAmount: String(ethers.formatUnits(transaction.value, 18)),
-          });
+          // await createFinaliseLog({
+          //   txHash: transaction.hash,
+          //   currency: 'BNB',
+          //   l1SwapAmount: String(ethers.formatUnits(transaction.value, 18)),
+          // });
         }
 
       }
     }
+
+    return res;
   } catch (error) {
     console.log(error);
+    return [];
   }
 };
