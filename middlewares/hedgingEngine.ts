@@ -67,7 +67,7 @@ async function hedgerMonitoringService(): Promise<void> {
       const btcOrderPriceUsdt = +btcOrder.value  * +prices?.data?.BTC;
 
       for (let usdtFinalise of finaliseUsdtTxs) {
-        const usdtFinalisePrice = ethers.formatUnits(usdtFinalise.value, 18) * MARGIN_PERCENT;
+        const usdtFinalisePrice = +ethers.formatUnits(usdtFinalise.value, 18) * MARGIN_PERCENT;
 
         if (btcOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD) {
           await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved);
