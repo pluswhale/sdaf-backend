@@ -10,6 +10,9 @@ import { BtcTransactionsFinaliseChecker } from '../services/hedger/BtcTransactio
 import { BnbTransactionsFinaliseChecker } from '../services/hedger/BnbTransactionsFinaliseChecker';
 import { BnbTransactionsInternalChecker } from '../services/hedger/BnbTransactionsInternalChecker';
 
+import axios from 'axios';
+import { createFinaliseLog, getFinaliseLogByTxId } from '../services/hedgineEngineHistoryLog';
+
 dotenv.config();
 
 let isRunning = false;
@@ -38,7 +41,7 @@ async function hedgerMonitoringService(): Promise<void> {
     RECEIVER_WALLETS.bnb_usdt.direction,
   );
 
-  const concatedUsdtBnbAndUsdtBtcOrdersNeedToBeResolved = [...usdtBnbAndBtcOrdersNeedToBeResolved, ...bnbInternalOrdersToBeResolved, ...bnbOrdersToBeResolved];
+  const concatedUsdtBnbAndUsdtBtcOrdersNeedToBeResolved = {...usdtBnbAndBtcOrdersNeedToBeResolved, ...bnbInternalOrdersToBeResolved, ...bnbOrdersToBeResolved}
 
   const btcOrdersNeedToBeResolved = await BtcTransactionsChecker(
     RECEIVER_WALLETS.btc_usdt.walletAddress,
@@ -55,27 +58,34 @@ async function hedgerMonitoringService(): Promise<void> {
 
   await sleep(1000);
 
-  const prices = await (axios.get('https://sdafcwap.com/app/api/get-asset-price'))?.data;
+  const prices = await axios.get('https://sdafcwap.com/app/api/get-asset-price');
 
   // For BTC
-  for (let btcOrder of btcOrdersNeedToBeResolved) {
-    const btcOrderPriceUsdt = +btcOrder.value  * +prices.BTC;
+  if (btcOrdersNeedToBeResolved) {
+    for (let btcOrder of btcOrdersNeedToBeResolved?.transactions) {
+      const btcOrderPriceUsdt = +btcOrder.value  * +prices?.data?.BTC;
 
-    for (let btcFinalise of finaliseBtcTxs) {
-      const btcFinalisePriceUsdt = (+btcFinalise.value  * +prices.BTC) * MARGIN_PERCENT;
+      for (let btcFinalise of finaliseBtcTxs) {
+        const btcFinalisePriceUsdt = (+btcFinalise.value  * +prices?.data?.BTC) * MARGIN_PERCENT;
 
-      if (btcOrderPriceUsdt - btcFinalisePriceUsdt <= PROFIT_TRASHHOLD) {
-        await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved);
-        await createFinaliseLog({
-          txHash: btcFinalise.txid,
-          currency: 'BTC',
-          l1SwapAmount: btcFinalise.value.toString(),
-        });
-      } else {
-        continue;
+        if (btcOrderPriceUsdt - btcFinalisePriceUsdt <= PROFIT_TRASHHOLD) {
+          await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved);
+
+          const finaliseRow = getFinaliseLogByTxId(btcFinalise.txid);
+          if(!finaliseRow) {
+            await createFinaliseLog({
+              txHash: btcFinalise.txid,
+              currency: 'BTC',
+              l1SwapAmount: btcFinalise.value.toString(),
+            });
+          }
+        } else {
+          continue;
+        }
       }
     }
   }
+
 
 
   // for (let usdtBnbAndBtcOrder of concatedUsdtBnbAndUsdtBtcOrdersNeedToBeResolved) {
@@ -102,9 +112,9 @@ async function hedgerMonitoringService(): Promise<void> {
   //   await placeOrderToBinanceResolver(bnbInternalOrdersToBeResolved);
   // }
 
-  if (btcOrdersNeedToBeResolved) {
-    await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved);
-  }
+  // if (btcOrdersNeedToBeResolved) {
+  //   await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved);
+  // }
 }
 
 setInterval(async () => {
