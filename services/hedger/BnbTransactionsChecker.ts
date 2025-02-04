@@ -1,6 +1,5 @@
 import axios from 'axios';
-import {  getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
-
+import { getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
 
 type BnbTransactionType = {
   blocknumber: string;
@@ -29,8 +28,7 @@ export const BnbTransactionsChecker = async (
   walletAddress: string,
   symbol: string,
   direction: string,
-
-) => {
+): Promise<NeededResolveOrders | null> => {
   let neededResolveOrders: NeededResolveOrders = {
     symbol,
     direction,
@@ -38,10 +36,10 @@ export const BnbTransactionsChecker = async (
   };
 
   try {
-    const bnbTransfers =  await axios.get(`https://api.bscscan.com/api`, {
+    const bnbTransfers = await axios.get(`https://api.bscscan.com/api`, {
       params: {
         module: 'account',
-        action:  'txlist',
+        action: 'txlist',
         address: walletAddress,
         startblock: 0,
         endblock: 999999999,
@@ -50,29 +48,35 @@ export const BnbTransactionsChecker = async (
         sort: 'desc',
         apiKey: process.env.BSC_SCAN_API_KEY,
       },
-    })
+    });
 
     const transactions: BnbTransactionType[] = bnbTransfers.data.result;
 
     if (transactions) {
-      for (let transaction of transactions) {
-
-          const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.hash);
+      // Fetch all history logs concurrently
+      const heHistoryLogPromises = transactions.map((transaction) =>
+        getHedgineEngineHistoryLogByTxId(transaction.hash).then((heHistoryLog) => {
           if (!heHistoryLog) {
-            neededResolveOrders = {
-              ...neededResolveOrders,
-              transactions: neededResolveOrders.transactions.concat(transaction),
-            };
+            return transaction; // Include the transaction if no history log is found
           }
-      }
+          return null; // Exclude the transaction if history log exists
+        })
+      );
+
+      // Wait for all promises to resolve
+      const resolvedHistoryLogs = await Promise.all(heHistoryLogPromises);
+
+      // Filter out null values and update neededResolveOrders
+      const unresolvedTransactions = resolvedHistoryLogs.filter(tx => tx !== null);
+      neededResolveOrders = {
+        ...neededResolveOrders,
+        transactions: unresolvedTransactions as BnbTransactionType[],
+      };
     }
+
   } catch (error) {
-    console.log(error);
+    console.error('Error fetching BNB transactions:', error);
   }
 
-  if (neededResolveOrders) {
-    return neededResolveOrders;
-  } else {
-    return null;
-  }
+  return neededResolveOrders.transactions.length > 0 ? neededResolveOrders : null;
 };

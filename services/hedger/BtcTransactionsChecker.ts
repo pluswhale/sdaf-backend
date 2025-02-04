@@ -16,7 +16,6 @@ export const BtcTransactionsChecker = async (
   walletAddress: string,
   symbol: string,
   direction: string,
-
 ): Promise<NeededResolveOrders | null> => {
   let neededResolveOrders: NeededResolveOrders = {
     symbol,
@@ -29,24 +28,36 @@ export const BtcTransactionsChecker = async (
     const btcTransfers = btcTransactionsResponse?.data;
 
     if (btcTransfers && btcTransfers.length > 0) {
-      for (let transaction of btcTransfers) {
-          const amountInBtc =
-            transaction.vout
-              .filter((output: any) => output?.scriptpubkey_address === walletAddress)
-              .reduce((sum: number, output: any) => sum + output.value, 0) / 1e8;
+      // Fetch all history logs concurrently
+      const heHistoryLogPromises = btcTransfers.map((transaction: any) => {
+        const amountInBtc =
+          transaction.vout
+            .filter((output: any) => output?.scriptpubkey_address === walletAddress)
+            .reduce((sum: number, output: any) => sum + output.value, 0) / 1e8;
 
-          const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.txid);
-          // Only include transactions with confirmed status and valid amounts
+        return getHedgineEngineHistoryLogByTxId(transaction.txid).then((heHistoryLog) => {
+          // Only include transactions with no history log, valid amounts, and confirmed status
           if (!heHistoryLog && amountInBtc > 0 && transaction.status.confirmed) {
-            const extendedTransaction = {
+            return {
               ...transaction,
               value: amountInBtc, // Set the value (amount in BTC)
             };
-            //@ts-ignore
-            neededResolveOrders.transactions.push(extendedTransaction);
           }
-      }
+          return null; // Exclude the transaction if history log exists
+        });
+      });
+
+      // Wait for all promises to resolve
+      const resolvedHistoryLogs = await Promise.all(heHistoryLogPromises);
+
+      // Filter out null values and update neededResolveOrders
+      const unresolvedTransactions = resolvedHistoryLogs.filter(tx => tx !== null);
+      neededResolveOrders = {
+        ...neededResolveOrders,
+        transactions: unresolvedTransactions as ExtendedBtcTransaction[],
+      };
     }
+
   } catch (error) {
     console.error('Error fetching BTC transactions:', error);
   }

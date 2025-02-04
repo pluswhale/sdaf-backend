@@ -25,6 +25,7 @@ export const BnbTransactionsFinaliseChecker = async (
 ): Promise<any[]> => {
 
   try {
+    console.time('BNBTransactionsFinaliseChecker');
     const bnbTransfers =  await axios.get(`https://api.bscscan.com/api`, {
       params: {
         module: 'account',
@@ -41,30 +42,27 @@ export const BnbTransactionsFinaliseChecker = async (
 
     const transactions: BnbTransactionType[] = bnbTransfers.data.result;
 
-    const filteredByFromAddress = transactions?.filter((tx) => {
-      return tx.from.toLowerCase() === walletAddress.toLowerCase();
-    });
+    const filteredByFromAddress = transactions?.filter((tx) => tx.from.toLowerCase() === walletAddress.toLowerCase());
 
-    let res: any = [];
-
+    // Run all getFinaliseLogByTxId requests concurrently using Promise.all
     if (filteredByFromAddress) {
-      for (let transaction of filteredByFromAddress) {
-        const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
+      const finaliseLogsPromises = filteredByFromAddress.map(transaction =>
+        getFinaliseLogByTxId(transaction.hash).then((finaliseRow) => {
+          return finaliseRow ? null : transaction;
+        })
+      );
 
-        if(!finaliseRow) {
-          // await createFinaliseLog({
-          //   txHash: transaction.hash,
-          //   currency: 'BNB',
-          //   l1SwapAmount: String(ethers.formatUnits(transaction.value, 18)),
-          // });
-        }
+      const finaliseLogs = await Promise.all(finaliseLogsPromises);
 
-      }
+      // Filter out null values and return
+      return finaliseLogs.filter(tx => tx !== null);
     }
 
-    return res;
+    console.timeEnd('BNBTransactionsFinaliseChecker');
+    return [];
+
   } catch (error) {
-    console.log(error);
+    console.error('Error fetching transactions:', error);
     return [];
   }
 };
