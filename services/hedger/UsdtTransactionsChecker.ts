@@ -21,10 +21,6 @@ export const UsdtTransactionsChecker = async (
     transactions: [] as any,
   };
 
-  const targetCurrency = symbol?.split('-')?.[0];
-
-  console.log('targetCurrency', targetCurrency);
-
   try {
     const usdtTransfers = await axios.get(`https://api.bscscan.com/api`, {
       params: {
