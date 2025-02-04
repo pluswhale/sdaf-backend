@@ -152,4 +152,4 @@ setInterval(async () => {
   } catch (error) {
     console.error('Error during scheduled tasks:', error);
   }
-}, 30000); // Run every 30 seconds
+}, 15000); // Run every 30 seconds
