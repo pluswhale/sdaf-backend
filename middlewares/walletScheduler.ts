@@ -454,18 +454,18 @@ cron.schedule('* * * * *', () => {
 
   isRunning = true;
   (async () => {
-    try {
-      console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
-
-      await updateWithdrawalStatuses();
-
-      await checkAndInitiateWithdrawals();
-
-      console.log('Scheduled tasks completed successfully.');
-    } catch (error) {
-      console.error('Error during scheduled tasks:', error);
-    } finally {
-      isRunning = false;
-    }
+    // try {
+    //   console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
+    //
+    //   await updateWithdrawalStatuses();
+    //
+    //   await checkAndInitiateWithdrawals();
+    //
+    //   console.log('Scheduled tasks completed successfully.');
+    // } catch (error) {
+    //   console.error('Error during scheduled tasks:', error);
+    // } finally {
+    //   isRunning = false;
+    // }
   })();
 });
