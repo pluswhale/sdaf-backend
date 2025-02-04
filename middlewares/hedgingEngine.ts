@@ -10,6 +10,7 @@ import { BtcTransactionsFinaliseChecker } from '../services/hedger/BtcTransactio
 import { BnbTransactionsFinaliseChecker } from '../services/hedger/BnbTransactionsFinaliseChecker';
 import { BnbTransactionsInternalChecker } from '../services/hedger/BnbTransactionsInternalChecker';
 import { ethers } from 'ethers';
+import axios from 'axios';
 
 dotenv.config();
 
@@ -45,22 +46,29 @@ async function hedgerMonitoringService(): Promise<void> {
   );
 
   if (usdtOrdersNeedToBeResolved) {
+    const prices = await axios.get('https://sdafcwap.com/app/api/get-asset-price');
     const btcFinalizerTxs = await BtcTransactionsFinaliseChecker(FINALISE_WALLETS.btc_usdt.walletAddress);
+    console.log('btcFinalizerTxs: ', btcFinalizerTxs);
     const bnbFinalizerTxs = await BnbTransactionsFinaliseChecker(FINALISE_WALLETS.bnb_usdt.walletAddress);
+    console.log('bnbFinalizerTxs: ', bnbFinalizerTxs);
+
     if(usdtOrdersNeedToBeResolved.transactions && usdtOrdersNeedToBeResolved.transactions.length > 0) {
       for(let usdtTx of usdtOrdersNeedToBeResolved.transactions) {
         if(btcFinalizerTxs && btcFinalizerTxs.length > 0) {
           for(let btcFinalizeTx of btcFinalizerTxs) {
-            if(usdtTx.timeStamp > btcFinalizeTx.status.block_time && Math.abs(Number(ethers.formatUnits(usdtTx.value, 18)) - btcFinalizeTx.vin[0].prevout.value / 1e8)/(Number(ethers.formatUnits(usdtTx.value, 18)) - btcFinalizeTx.vin[0].prevout.value / 1e8) <= 0.1 ) { // 0.1 - threshold for the amount diff
-
+            const BTC_THRESHOLD = Math.abs(Number(ethers.formatUnits(usdtTx.value, 18)) - (btcFinalizeTx.vin[0].prevout.value / 1e8) * prices.data.BTC)/(Number(ethers.formatUnits(usdtTx.value, 18)))
+            console.log(BTC_THRESHOLD)
+            if(usdtTx.timeStamp > btcFinalizeTx.status.block_time && BTC_THRESHOLD <= 0.1 ) { // 0.1 - threshold for the amount diff
+              await placeOrderToBinanceResolver({ symbol: 'USDT-BTC', direction: 'BUY', transactions: usdtOrdersNeedToBeResolved.transactions})
             }
           }
         }
 
         if(bnbFinalizerTxs && bnbFinalizerTxs.length > 0) {
           for(let bnbFinalizeTx of bnbFinalizerTxs) {
-            if(usdtTx.timeStamp > bnbFinalizeTx.timestamp && Math.abs(Number(ethers.formatUnits(usdtTx.value, 18)) - Number(ethers.formatUnits(bnbFinalizeTx.value, 18)))/(Number(ethers.formatUnits(usdtTx.value, 18)) - Number(ethers.formatUnits(bnbFinalizeTx.value, 18))) <= 0.1 ) { // 0.1 - threshold for the amount diff
-
+            const BNB_THRESHOLD = Math.abs(Number(ethers.formatUnits(usdtTx.value, 18)) - Number(ethers.formatUnits(bnbFinalizeTx.value, 18)) * prices.data.BNB)/(Number(ethers.formatUnits(usdtTx.value, 18)))
+            if(usdtTx.timeStamp > bnbFinalizeTx.timestamp && BNB_THRESHOLD  <= 0.1 ) { // 0.1 - threshold for the amount diff
+              await placeOrderToBinanceResolver({ symbol: 'USDT-BNB', direction: 'BUY', transactions: usdtOrdersNeedToBeResolved.transactions})
             }
           } 
         }

@@ -37,9 +37,9 @@ export const UsdtTransactionsFinaliseChecker = async (
     if (filteredByFromAddress) {
       for (let transaction of filteredByFromAddress) {
             const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
-            console.log(
-              'finalise row USDT', finaliseRow
-            );
+            // console.log(
+            //   'finalise row USDT', finaliseRow
+            // );
 
             if(!finaliseRow) {
               await createFinaliseLog({
