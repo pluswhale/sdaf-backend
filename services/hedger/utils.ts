@@ -11,3 +11,4 @@ export const FINALISE_WALLETS = {
   bnb_usdt: { walletAddress: '0x168e3f5919fC3858D7911b3e302B826f0dE6B10b', symbol: 'BNB-USDT', direction: 'SELL' },
   btc_usdt: { walletAddress: '3BkiS2yLAJPBeUqoMkfADDyBEVue4QgPiV', symbol: 'BTC-USDT', direction: 'SELL' },
 };
+
