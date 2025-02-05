@@ -41,8 +41,8 @@ export const placeOrderToBinanceResolver = async (orders: OrdersWithTxs, profitF
         const result = await placeBinanceOrder(
           bestOrder?.[0],
           +amount,
-          orders?.symbol?.split('-')?.join('') as string,
-          orders.direction as Direction,
+          pairAndDirectionObj?.symbol?.split('-')?.join('') as string,
+          pairAndDirectionObj.direction as Direction,
         );
         console.log('result: ', result);
         if (result) {
@@ -50,7 +50,7 @@ export const placeOrderToBinanceResolver = async (orders: OrdersWithTxs, profitF
             fromCoin,
             toCoin,
             transaction,
-            orders.direction,
+            pairAndDirectionObj.direction,
             amount,
             bestOrder,
             'targetWalletAddress',

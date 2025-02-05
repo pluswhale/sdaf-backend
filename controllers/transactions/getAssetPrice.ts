@@ -27,7 +27,6 @@ export const getAssetPrice: RequestHandler = async (req: Request, res: Response,
     const cachedPrices = priceCache.get<Record<string, number>>('prices');
 
     if (cachedPrices) {
-      console.log('Returning cached prices');
       res.status(200).json({ prices: cachedPrices, source: 'cache' });
       return;
     }
