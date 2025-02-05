@@ -5,7 +5,6 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const BtcTransactionsFinaliseChecker = async (walletAddress: string): Promise<any[]> => {
   try {
-    console.time('BtcTransactionsFinaliseChecker');
     const btcTransactionsResponse = await axios.get(`https://mempool.space/api/address/${walletAddress}/txs`);
     const btcTransfers = btcTransactionsResponse?.data;
 
@@ -19,7 +18,7 @@ export const BtcTransactionsFinaliseChecker = async (walletAddress: string): Pro
             .reduce((sum: number, input: any) => sum + input.prevout.value, 0) / 1e8;
 
         if (amountInBtc > 0 && transaction.status.confirmed) {
-          const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
+          const finaliseRow = await getFinaliseLogByTxId(transaction.txid);
 
           if (!finaliseRow) {
             finalisedTransactions.push({ ...transaction, value: amountInBtc });
@@ -31,7 +30,6 @@ export const BtcTransactionsFinaliseChecker = async (walletAddress: string): Pro
       }
     }
 
-    console.timeEnd('BtcTransactionsFinaliseChecker');
     return finalisedTransactions;
   } catch (error) {
     console.error('Error fetching BTC transactions:', error);
