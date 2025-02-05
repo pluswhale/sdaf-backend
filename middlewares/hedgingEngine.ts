@@ -189,8 +189,6 @@ async function hedgerMonitoringService(): Promise<boolean> {
   }
 }
 
-let intId: NodeJS.Timeout | null = null;
-
 const runHedgerMonitoring = async () => {
   try {
     console.log('Starting scheduled tasks: get Confirmations and Initiate Binance Buy/Sell');
@@ -201,30 +199,6 @@ const runHedgerMonitoring = async () => {
   }
 };
 
-const startScheduledTasks = async () => {
-  if (isRunning) {
-    return;
-  }
-
-  isRunning = true;
-
+setInterval(async () => {
   await runHedgerMonitoring();
-
-  intId = setInterval(async () => {
-    if (!isRunning) {
-      return;
-    }
-
-    await runHedgerMonitoring();
-  }, 30000); // Run every 30 seconds
-};
-
-const stopScheduledTasks = () => {
-  if (intId) {
-    clearInterval(intId);
-    intId = null;
-  }
-  isRunning = false;
-};
-
-startScheduledTasks();
+}, 30000); // Run every 30 seconds
