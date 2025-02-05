@@ -10,6 +10,7 @@ export const BinancePlaceOrdersSwitcher = async (
   amount: string | number,
   bestOrder: any,
   targetWalletAddress: string,
+  profitFromSwap: number,
 ): Promise<HeObjectForSavingInDb> => {
   let pair = fromCoin + toCoin;
   let generatedObjectForSavingInDB = {} as HeObjectForSavingInDb;
@@ -34,10 +35,6 @@ export const BinancePlaceOrdersSwitcher = async (
       generatedObjectForSavingInDB.amountHedged = 'amount hedged';
 
       // const marginValuePercentage = parseFloat(String(generatedObjectForSavingInDB.margin?.marginValue)) / 100; //will be needed when we get price settled to user properly
-      const profitFromSwap = Math.abs(
-        +amount * +generatedObjectForSavingInDB.priceHedgedOnBinance -
-          +amount * +generatedObjectForSavingInDB.priceSettledToUser,
-      );
       generatedObjectForSavingInDB.profitFromSwap = String(profitFromSwap);
       break;
     }
@@ -61,10 +58,6 @@ export const BinancePlaceOrdersSwitcher = async (
       generatedObjectForSavingInDB.amountHedged = 'amount hedged';
 
       // const marginValuePercentage = parseFloat(String(generatedObjectForSavingInDB.margin?.marginValue)) / 100; //will be needed when we get price settled to user properly
-      const profitFromSwap = Math.abs(
-        +amount * +generatedObjectForSavingInDB.priceHedgedOnBinance -
-          +amount * +generatedObjectForSavingInDB.priceSettledToUser,
-      );
       generatedObjectForSavingInDB.profitFromSwap = String(profitFromSwap);
       break;
     }
@@ -88,10 +81,6 @@ export const BinancePlaceOrdersSwitcher = async (
       generatedObjectForSavingInDB.amountHedged = 'amount hedged';
 
       // const marginValuePercentage = parseFloat(String(generatedObjectForSavingInDB.margin?.marginValue)) / 100; //will be needed when we get price settled to user properly
-      const profitFromSwap = Math.abs(
-        +amount * +generatedObjectForSavingInDB.priceHedgedOnBinance -
-          +amount * +generatedObjectForSavingInDB.priceSettledToUser,
-      );
       generatedObjectForSavingInDB.profitFromSwap = String(profitFromSwap);
       break;
     }
@@ -115,10 +104,7 @@ export const BinancePlaceOrdersSwitcher = async (
       generatedObjectForSavingInDB.amountHedged = 'amount hedged';
 
       // const marginValuePercentage = parseFloat(String(generatedObjectForSavingInDB.margin?.marginValue)) / 100; //will be needed when we get price settled to user properly
-      const profitFromSwap = Math.abs(
-        +amount * +generatedObjectForSavingInDB.priceHedgedOnBinance -
-          +amount * +generatedObjectForSavingInDB.priceSettledToUser,
-      );
+
       generatedObjectForSavingInDB.profitFromSwap = String(profitFromSwap);
       break;
     }

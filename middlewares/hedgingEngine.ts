@@ -66,8 +66,14 @@ async function hedgerMonitoringService(): Promise<void> {
         // Use Promise.all to handle each comparison and order placement concurrently
         const btcOrderPromises = finaliseUsdtTxs.map(async (usdtFinalise) => {
           const usdtFinalisePrice = +ethers.formatUnits(usdtFinalise.value, 18) * MARGIN_PERCENT;
-          if (btcOrderPriceUsdt - usdtFinalisePrice >= 0 && btcOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD) {
-            const res = await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved);
+          const BNB_THRESHOLD = (Math.abs(btcOrderPriceUsdt - usdtFinalisePrice) / btcOrderPriceUsdt) * 100;
+          console.log('BNB_THRESHOLD', BNB_THRESHOLD);
+          console.log('bnbOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD', BNB_THRESHOLD <= PROFIT_TRASHHOLD);
+          if (BNB_THRESHOLD <= PROFIT_TRASHHOLD) {
+            const res = await placeOrderToBinanceResolver(
+              btcOrdersNeedToBeResolved,
+              btcOrderPriceUsdt - usdtFinalisePrice,
+            );
             if (res) {
               await createFinaliseLog({
                 txHash: usdtFinalise.hash,
@@ -99,7 +105,10 @@ async function hedgerMonitoringService(): Promise<void> {
           console.log('BNB_THRESHOLD', BNB_THRESHOLD);
           console.log('bnbOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD', BNB_THRESHOLD <= PROFIT_TRASHHOLD);
           if (BNB_THRESHOLD <= PROFIT_TRASHHOLD) {
-            const res = await placeOrderToBinanceResolver(usdtBnbAndBtcOrdersNeedToBeResolved);
+            const res = await placeOrderToBinanceResolver(
+              usdtBnbAndBtcOrdersNeedToBeResolved,
+              usdrOrderPrice - bnbFinalisePrice,
+            );
             if (res) {
               await createFinaliseLog({
                 txHash: bnbFinalise.hash,
@@ -118,7 +127,10 @@ async function hedgerMonitoringService(): Promise<void> {
           console.log('BTC_THRESHOLD', BTC_THRESHOLD);
           console.log('btcOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD', BTC_THRESHOLD <= PROFIT_TRASHHOLD);
           if (BTC_THRESHOLD <= PROFIT_TRASHHOLD) {
-            const res = await placeOrderToBinanceResolver(usdtBnbAndBtcOrdersNeedToBeResolved);
+            const res = await placeOrderToBinanceResolver(
+              usdtBnbAndBtcOrdersNeedToBeResolved,
+              usdrOrderPrice - btcFinalisePrice,
+            );
             if (res) {
               await createFinaliseLog({
                 txHash: btcFinalise.txid,
@@ -153,7 +165,7 @@ async function hedgerMonitoringService(): Promise<void> {
             BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD,
           );
           if (BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD) {
-            const res = await placeOrderToBinanceResolver(bnbOrdersToBeResolved);
+            const res = await placeOrderToBinanceResolver(bnbOrdersToBeResolved, bnbOrdUsdtPrice - usdtFinalisePrice);
             if (res) {
               await createFinaliseLog({
                 txHash: usdtFinalise.hash,

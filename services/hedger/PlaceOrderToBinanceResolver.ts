@@ -6,7 +6,7 @@ import { placeBinanceOrder } from '../binanceTrade';
 import { createHedgineEngineLogWithOrderIdFromBinance } from '../hedgineEngineHistoryLog';
 import { Direction } from '../../types/enum';
 
-export const placeOrderToBinanceResolver = async (orders: OrdersWithTxs) => {
+export const placeOrderToBinanceResolver = async (orders: OrdersWithTxs, profitFromSwap: number) => {
   if (orders) {
     const fromCoin =
       orders.direction === Direction.SELL ? orders?.symbol?.split('-')?.[0] : orders?.symbol?.split('-')?.[1];
@@ -54,6 +54,7 @@ export const placeOrderToBinanceResolver = async (orders: OrdersWithTxs) => {
             amount,
             bestOrder,
             'targetWalletAddress',
+            profitFromSwap,
           );
           console.log('heObjectForSavingInDb: ', heObjectForSavingInDb);
           await createHedgineEngineLogWithOrderIdFromBinance(heObjectForSavingInDb);
