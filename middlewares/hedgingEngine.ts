@@ -11,8 +11,13 @@ import { BnbTransactionsFinaliseChecker } from '../services/hedger/BnbTransactio
 import { BnbTransactionsInternalChecker } from '../services/hedger/BnbTransactionsInternalChecker';
 import { ethers } from 'ethers';
 import axios from 'axios';
+import { BtcTransactionsFinaliseCheckerNoDbSave } from '../services/hedger/BtcTransactionsFinalizeCheckerNoDbSave';
+import { BnbTransactionsFinaliseCheckerNoDbSave } from '../services/hedger/BnbTransactionsFinalizeCheckerNoDbSave';
+import { createFinaliseLog } from '../services/hedgineEngineHistoryLog';
 
 dotenv.config();
+
+const ALLOWED_THRESHOLD = 0.2;
 
 let isRunning = false;
 
@@ -47,9 +52,9 @@ async function hedgerMonitoringService(): Promise<void> {
 
   if (usdtOrdersNeedToBeResolved) {
     const prices = await axios.get('https://sdafcwap.com/app/api/get-asset-price');
-    const btcFinalizerTxs = await BtcTransactionsFinaliseChecker(FINALISE_WALLETS.btc_usdt.walletAddress);
+    const btcFinalizerTxs = await BtcTransactionsFinaliseCheckerNoDbSave(FINALISE_WALLETS.btc_usdt.walletAddress);
     console.log('btcFinalizerTxs: ', btcFinalizerTxs);
-    const bnbFinalizerTxs = await BnbTransactionsFinaliseChecker(FINALISE_WALLETS.bnb_usdt.walletAddress);
+    const bnbFinalizerTxs = await BnbTransactionsFinaliseCheckerNoDbSave(FINALISE_WALLETS.bnb_usdt.walletAddress);
     console.log('bnbFinalizerTxs: ', bnbFinalizerTxs);
 
     if(usdtOrdersNeedToBeResolved.transactions && usdtOrdersNeedToBeResolved.transactions.length > 0) {
@@ -58,8 +63,17 @@ async function hedgerMonitoringService(): Promise<void> {
           for(let btcFinalizeTx of btcFinalizerTxs) {
             const BTC_THRESHOLD = Math.abs(Number(ethers.formatUnits(usdtTx.value, 18)) - (btcFinalizeTx.vin[0].prevout.value / 1e8) * prices.data.BTC)/(Number(ethers.formatUnits(usdtTx.value, 18)))
             console.log(BTC_THRESHOLD)
-            if(usdtTx.timeStamp > btcFinalizeTx.status.block_time && BTC_THRESHOLD <= 0.1 ) { // 0.1 - threshold for the amount diff
+            if(usdtTx.timeStamp > btcFinalizeTx.status.block_time && BTC_THRESHOLD <= ALLOWED_THRESHOLD ) {
               await placeOrderToBinanceResolver({ symbol: 'BTC-USDT', direction: 'BUY', transactions: usdtOrdersNeedToBeResolved.transactions})
+              const amountInBtc = btcFinalizeTx.vin
+              .filter((input: any) => input?.prevout?.scriptpubkey_address === FINALISE_WALLETS.btc_usdt.walletAddress)
+              .reduce((sum: number, input: any) => sum + input.prevout.value, 0) / 1e8
+
+              await createFinaliseLog({
+                txHash: btcFinalizeTx.txid,
+                currency: 'BTC',
+                l1SwapAmount: amountInBtc.toString(),
+              });
             }
           }
         }
@@ -67,8 +81,13 @@ async function hedgerMonitoringService(): Promise<void> {
         if(bnbFinalizerTxs && bnbFinalizerTxs.length > 0) {
           for(let bnbFinalizeTx of bnbFinalizerTxs) {
             const BNB_THRESHOLD = Math.abs(Number(ethers.formatUnits(usdtTx.value, 18)) - Number(ethers.formatUnits(bnbFinalizeTx.value, 18)) * prices.data.BNB)/(Number(ethers.formatUnits(usdtTx.value, 18)))
-            if(usdtTx.timeStamp > bnbFinalizeTx.timestamp && BNB_THRESHOLD  <= 0.1 ) { // 0.1 - threshold for the amount diff
+            if(usdtTx.timeStamp > bnbFinalizeTx.timestamp && BNB_THRESHOLD  <= ALLOWED_THRESHOLD ) {
               await placeOrderToBinanceResolver({ symbol: 'BNB-USDT', direction: 'BUY', transactions: usdtOrdersNeedToBeResolved.transactions})
+              await createFinaliseLog({
+                txHash: bnbFinalizeTx.hash,
+                currency: 'BNB',
+                l1SwapAmount: String(ethers.formatUnits(bnbFinalizeTx.value, 18)),
+              });
             }
           } 
         }
