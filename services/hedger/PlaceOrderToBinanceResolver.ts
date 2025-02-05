@@ -58,6 +58,8 @@ export const placeOrderToBinanceResolver = async (orders: OrdersWithTxs) => {
           console.log('heObjectForSavingInDb: ', heObjectForSavingInDb);
           await createHedgineEngineLogWithOrderIdFromBinance(heObjectForSavingInDb);
         }
+
+        return result;
       } catch (err) {
         console.log('Something went wrong when placing binance order: ', err);
       }

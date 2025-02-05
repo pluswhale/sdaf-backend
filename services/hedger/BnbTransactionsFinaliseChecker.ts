@@ -40,7 +40,6 @@ export const BnbTransactionsFinaliseChecker = async (walletAddress: string): Pro
     const filteredByFromAddress = transactions?.filter(
       (tx) => tx.from.toLowerCase() === walletAddress.toLowerCase() && tx.value !== '0',
     );
-    console.log('filteredByFromAddress', filteredByFromAddress);
     // Run all getFinaliseLogByTxId requests concurrently using Promise.all
     if (filteredByFromAddress) {
       const finaliseLogsPromises = filteredByFromAddress.map((transaction) =>

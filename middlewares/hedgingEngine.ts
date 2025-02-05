@@ -15,8 +15,6 @@ import { ethers } from 'ethers';
 
 dotenv.config();
 
-
-
 const PROFIT_TRASHHOLD = 20;
 const MARGIN_PERCENT = 1.1;
 
@@ -69,12 +67,14 @@ async function hedgerMonitoringService(): Promise<void> {
         const btcOrderPromises = finaliseUsdtTxs.map(async (usdtFinalise) => {
           const usdtFinalisePrice = +ethers.formatUnits(usdtFinalise.value, 18) * MARGIN_PERCENT;
           if (btcOrderPriceUsdt - usdtFinalisePrice >= 0 && btcOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD) {
-            await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved);
-            await createFinaliseLog({
-              txHash: usdtFinalise.hash,
-              currency: 'USDT',
-              l1SwapAmount: ethers.formatUnits(usdtFinalise.value, 18).toString(),
-            });
+            const res = await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved);
+            if (res) {
+              await createFinaliseLog({
+                txHash: usdtFinalise.hash,
+                currency: 'USDT',
+                l1SwapAmount: ethers.formatUnits(usdtFinalise.value, 18).toString(),
+              });
+            }
           }
         });
 
@@ -95,16 +95,18 @@ async function hedgerMonitoringService(): Promise<void> {
             +ethers.formatUnits(bnbFinalise.value, 18) * prices?.data?.prices?.BNB * MARGIN_PERCENT;
           console.log('bnbFinalisePrice', bnbFinalisePrice);
           console.log('usdrOrderPrice', usdrOrderPrice);
-          const BNB_THRESHOLD = Math.abs(usdrOrderPrice - bnbFinalisePrice)/usdrOrderPrice * 100;
+          const BNB_THRESHOLD = (Math.abs(usdrOrderPrice - bnbFinalisePrice) / usdrOrderPrice) * 100;
           console.log('BNB_THRESHOLD', BNB_THRESHOLD);
           console.log('bnbOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD', BNB_THRESHOLD <= PROFIT_TRASHHOLD);
           if (BNB_THRESHOLD <= PROFIT_TRASHHOLD) {
-            await placeOrderToBinanceResolver(usdtBnbAndBtcOrdersNeedToBeResolved);
-            await createFinaliseLog({
-              txHash: bnbFinalise.hash,
-              currency: 'BNB',
-              l1SwapAmount: ethers.formatUnits(bnbFinalise.value, 18).toString(),
-            });
+            const res = await placeOrderToBinanceResolver(usdtBnbAndBtcOrdersNeedToBeResolved);
+            if (res) {
+              await createFinaliseLog({
+                txHash: bnbFinalise.hash,
+                currency: 'BNB',
+                l1SwapAmount: ethers.formatUnits(bnbFinalise.value, 18).toString(),
+              });
+            }
           }
         });
 
@@ -112,16 +114,18 @@ async function hedgerMonitoringService(): Promise<void> {
           const btcFinalisePrice = +btcFinalise.value * prices?.data?.prices?.BTC * MARGIN_PERCENT;
           console.log('btcFinalisePrice', btcFinalisePrice);
           console.log('usdrOrderPrice', usdrOrderPrice);
-          const BTC_THRESHOLD = Math.abs(usdrOrderPrice - btcFinalisePrice)/usdrOrderPrice * 100;
+          const BTC_THRESHOLD = (Math.abs(usdrOrderPrice - btcFinalisePrice) / usdrOrderPrice) * 100;
           console.log('BTC_THRESHOLD', BTC_THRESHOLD);
           console.log('btcOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD', BTC_THRESHOLD <= PROFIT_TRASHHOLD);
           if (BTC_THRESHOLD <= PROFIT_TRASHHOLD) {
-            await placeOrderToBinanceResolver(usdtBnbAndBtcOrdersNeedToBeResolved);
-            await createFinaliseLog({
-              txHash: btcFinalise.txid,
-              currency: 'BTC',
-              l1SwapAmount: btcFinalise.value.toString(),
-            });
+            const res = await placeOrderToBinanceResolver(usdtBnbAndBtcOrdersNeedToBeResolved);
+            if (res) {
+              await createFinaliseLog({
+                txHash: btcFinalise.txid,
+                currency: 'BTC',
+                l1SwapAmount: btcFinalise.value.toString(),
+              });
+            }
           }
         });
 
@@ -142,16 +146,21 @@ async function hedgerMonitoringService(): Promise<void> {
           const usdtFinalisePrice = +ethers.formatUnits(usdtFinalise.value, 18) * MARGIN_PERCENT;
           console.log('usdtFinalisePrice', usdtFinalisePrice);
           console.log('bnbOrdUsdtPrice', bnbOrdUsdtPrice);
-          const BNB_OR_USDT_THRESHOLD = Math.abs(bnbOrdUsdtPrice - bnbOrdUsdtPrice)/bnbOrdUsdtPrice * 100;
+          const BNB_OR_USDT_THRESHOLD = (Math.abs(bnbOrdUsdtPrice - bnbOrdUsdtPrice) / bnbOrdUsdtPrice) * 100;
           console.log('BNB_OR_USDT_THRESHOLD', BNB_OR_USDT_THRESHOLD);
-          console.log('btcOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD', BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD);
+          console.log(
+            'btcOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD',
+            BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD,
+          );
           if (BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD) {
-            await placeOrderToBinanceResolver(bnbOrdersToBeResolved);
-            await createFinaliseLog({
-              txHash: usdtFinalise.hash,
-              currency: 'USDT',
-              l1SwapAmount: ethers.formatUnits(usdtFinalise.value, 18).toString(),
-            });
+            const res = await placeOrderToBinanceResolver(bnbOrdersToBeResolved);
+            if (res) {
+              await createFinaliseLog({
+                txHash: usdtFinalise.hash,
+                currency: 'USDT',
+                l1SwapAmount: ethers.formatUnits(usdtFinalise.value, 18).toString(),
+              });
+            }
           }
         });
 
