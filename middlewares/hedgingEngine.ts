@@ -31,13 +31,26 @@ async function hedgerMonitoringService(): Promise<void> {
       BtcTransactionsFinaliseChecker(FINALISE_WALLETS.btc_usdt.walletAddress),
     ]);
 
-    console.log('finaliseBnbTxs', finaliseBnbTxs);
+    console.log('BTC Finalisers', finaliseBtcTxs?.length);
+    console.log('BNB Finalisers', finaliseBnbTxs?.length);
 
     // Fetch unresolved transactions concurrently
     const [usdtBnbAndBtcOrdersNeedToBeResolved, bnbOrdersToBeResolved, btcOrdersNeedToBeResolved] = await Promise.all([
-      UsdtTransactionsChecker(RECEIVER_WALLETS.usdt_bnb.walletAddress, RECEIVER_WALLETS.usdt_bnb.symbol, RECEIVER_WALLETS.usdt_bnb.direction),
-      BnbTransactionsChecker(RECEIVER_WALLETS.bnb_usdt.walletAddress, RECEIVER_WALLETS.bnb_usdt.symbol, RECEIVER_WALLETS.bnb_usdt.direction),
-      BtcTransactionsChecker(RECEIVER_WALLETS.btc_usdt.walletAddress, RECEIVER_WALLETS.btc_usdt.symbol, RECEIVER_WALLETS.btc_usdt.direction),
+      UsdtTransactionsChecker(
+        RECEIVER_WALLETS.usdt_bnb.walletAddress,
+        RECEIVER_WALLETS.usdt_bnb.symbol,
+        RECEIVER_WALLETS.usdt_bnb.direction,
+      ),
+      BnbTransactionsChecker(
+        RECEIVER_WALLETS.bnb_usdt.walletAddress,
+        RECEIVER_WALLETS.bnb_usdt.symbol,
+        RECEIVER_WALLETS.bnb_usdt.direction,
+      ),
+      BtcTransactionsChecker(
+        RECEIVER_WALLETS.btc_usdt.walletAddress,
+        RECEIVER_WALLETS.btc_usdt.symbol,
+        RECEIVER_WALLETS.btc_usdt.direction,
+      ),
     ]);
 
     await sleep(1000);
@@ -55,7 +68,7 @@ async function hedgerMonitoringService(): Promise<void> {
         // Use Promise.all to handle each comparison and order placement concurrently
         const btcOrderPromises = finaliseUsdtTxs.map(async (usdtFinalise) => {
           const usdtFinalisePrice = +ethers.formatUnits(usdtFinalise.value, 18) * MARGIN_PERCENT;
-          if (btcOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD) {
+          if (btcOrderPriceUsdt - usdtFinalisePrice >= 0 && btcOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD) {
             await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved);
             await createFinaliseLog({
               txHash: usdtFinalise.hash,
@@ -78,7 +91,8 @@ async function hedgerMonitoringService(): Promise<void> {
         const usdrOrderPrice = +ethers.formatUnits(usdtOrder.value);
 
         const usdtPromises = finaliseBnbTxs.map(async (bnbFinalise) => {
-          const bnbFinalisePrice = (+ethers.formatUnits(bnbFinalise.value, 18) * prices?.data?.prices?.BNB) * MARGIN_PERCENT;
+          const bnbFinalisePrice =
+            +ethers.formatUnits(bnbFinalise.value, 18) * prices?.data?.prices?.BNB * MARGIN_PERCENT;
           console.log('bnbFinalisePrice', bnbFinalisePrice);
           console.log('usdrOrderPrice', usdrOrderPrice);
           const BNB_THRESHOLD = Math.abs(usdrOrderPrice - bnbFinalisePrice)/usdrOrderPrice * 100;
@@ -95,7 +109,7 @@ async function hedgerMonitoringService(): Promise<void> {
         });
 
         const btcPromises = finaliseBtcTxs.map(async (btcFinalise) => {
-          const btcFinalisePrice = (+btcFinalise.value * prices?.data?.prices?.BNB) * MARGIN_PERCENT;
+          const btcFinalisePrice = +btcFinalise.value * prices?.data?.prices?.BTC * MARGIN_PERCENT;
           console.log('btcFinalisePrice', btcFinalisePrice);
           console.log('usdrOrderPrice', usdrOrderPrice);
           const BTC_THRESHOLD = Math.abs(usdrOrderPrice - btcFinalisePrice)/usdrOrderPrice * 100;
@@ -144,7 +158,6 @@ async function hedgerMonitoringService(): Promise<void> {
         await Promise.all(bnbPromises); // Wait for all the order placements
       }
     }
-
   } catch (e) {
     console.log('he log error:', e);
   }
@@ -158,4 +171,4 @@ setInterval(async () => {
   } catch (error) {
     console.error('Error during scheduled tasks:', error);
   }
-}, 15000); // Run every 30 seconds
+}, 30000); // Run every 30 seconds

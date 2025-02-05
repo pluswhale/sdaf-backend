@@ -19,17 +19,12 @@ type BnbTransactionType = {
   errCode: string;
 };
 
-
-export const BnbTransactionsFinaliseChecker = async (
-  walletAddress: string,
-): Promise<any[]> => {
-
+export const BnbTransactionsFinaliseChecker = async (walletAddress: string): Promise<any[]> => {
   try {
-    console.time('BNBTransactionsFinaliseChecker');
-    const bnbTransfers =  await axios.get(`https://api.bscscan.com/api`, {
+    const bnbTransfers = await axios.get(`https://api.bscscan.com/api`, {
       params: {
         module: 'account',
-        action:  'txlist',
+        action: 'txlist',
         address: walletAddress,
         startblock: 0,
         endblock: 999999999,
@@ -38,29 +33,29 @@ export const BnbTransactionsFinaliseChecker = async (
         sort: 'desc',
         apiKey: process.env.BSC_SCAN_API_KEY,
       },
-    })
+    });
 
     const transactions: BnbTransactionType[] = bnbTransfers.data.result;
 
-    const filteredByFromAddress = transactions?.filter((tx) => tx.from.toLowerCase() === walletAddress.toLowerCase());
-
+    const filteredByFromAddress = transactions?.filter(
+      (tx) => tx.from.toLowerCase() === walletAddress.toLowerCase() && tx.value !== '0',
+    );
+    console.log('filteredByFromAddress', filteredByFromAddress);
     // Run all getFinaliseLogByTxId requests concurrently using Promise.all
     if (filteredByFromAddress) {
-      const finaliseLogsPromises = filteredByFromAddress.map(transaction =>
+      const finaliseLogsPromises = filteredByFromAddress.map((transaction) =>
         getFinaliseLogByTxId(transaction.hash).then((finaliseRow) => {
           return finaliseRow ? null : transaction;
-        })
+        }),
       );
 
       const finaliseLogs = await Promise.all(finaliseLogsPromises);
 
       // Filter out null values and return
-      return finaliseLogs.filter(tx => tx !== null);
+      return finaliseLogs.filter((tx) => tx !== null);
     }
 
-    console.timeEnd('BNBTransactionsFinaliseChecker');
     return [];
-
   } catch (error) {
     console.error('Error fetching transactions:', error);
     return [];

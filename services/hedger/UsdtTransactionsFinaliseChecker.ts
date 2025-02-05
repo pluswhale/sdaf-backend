@@ -2,11 +2,8 @@ import axios from 'axios';
 import { UsdtTransaction } from '../../types/hedgingEngine';
 import { getFinaliseLogByTxId } from '../hedgineEngineHistoryLog';
 
-export const UsdtTransactionsFinaliseChecker = async (
-  walletAddress: string,
-): Promise<any[]> => {
+export const UsdtTransactionsFinaliseChecker = async (walletAddress: string): Promise<any[]> => {
   try {
-    console.time('UsdtTransactionsFinaliseChecker');
     const usdtTransfers = await axios.get(`https://api.bscscan.com/api`, {
       params: {
         module: 'account',
@@ -25,25 +22,25 @@ export const UsdtTransactionsFinaliseChecker = async (
     const transactions: UsdtTransaction[] = usdtTransfers?.data?.result;
 
     // Filter transactions by 'from' address
-    const filteredByFromAddress = transactions?.filter((tx) => tx.from.toLowerCase() === walletAddress.toLowerCase());
+    const filteredByFromAddress = transactions?.filter(
+      (tx) => tx.from.toLowerCase() === walletAddress.toLowerCase() && tx.value !== '0',
+    );
 
     // Run all getFinaliseLogByTxId requests concurrently using Promise.all
     if (filteredByFromAddress) {
-      const finaliseLogsPromises = filteredByFromAddress.map(transaction =>
+      const finaliseLogsPromises = filteredByFromAddress.map((transaction) =>
         getFinaliseLogByTxId(transaction.hash).then((finaliseRow) => {
           return finaliseRow ? null : transaction;
-        })
+        }),
       );
 
       const finaliseLogs = await Promise.all(finaliseLogsPromises);
 
       // Filter out null values and return
-      return finaliseLogs.filter(tx => tx !== null);
+      return finaliseLogs.filter((tx) => tx !== null);
     }
 
-    console.timeEnd('UsdtTransactionsFinaliseChecker');
     return [];
-
   } catch (error) {
     console.error('Error fetching transactions:', error);
     return [];
