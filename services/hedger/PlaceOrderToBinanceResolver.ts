@@ -20,7 +20,7 @@ export const placeOrderToBinanceResolver = async (orders: OrdersWithTxs, profitF
       try {
         //@ts-ignore
         const { bestOrder, amount: quantity } = await findSuitableOrder(
-          pairAndDirectionObj?.symbol?.split('-')?.join(''),
+          pairAndDirectionObj.symbol.split('-').join(''),
           pairAndDirectionObj.direction,
           0,
         );

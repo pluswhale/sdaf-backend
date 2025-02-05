@@ -69,14 +69,14 @@ async function hedgerMonitoringService(): Promise<boolean> {
           const usdtFinalisePrice = +ethers.formatUnits(usdtFinalise.value, 18);
           console.log('usdtFinalisePrice', usdtFinalisePrice);
           console.log('bnbOrdUsdtPrice', bnbOrdUsdtPrice);
-          const BNB_OR_USDT_THRESHOLD = (Math.abs(bnbOrdUsdtPrice - bnbOrdUsdtPrice) / bnbOrdUsdtPrice) * 100;
+          const BNB_OR_USDT_THRESHOLD = (Math.abs(bnbOrdUsdtPrice - usdtFinalisePrice) / bnbOrdUsdtPrice) * 100;
           console.log('BNB_OR_USDT_THRESHOLD', BNB_OR_USDT_THRESHOLD);
           console.log(
             'btcOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD',
             BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD,
           );
           if (BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD) {
-            const res = await placeOrderToBinanceResolver(bnbOrdersToBeResolved, bnbOrdUsdtPrice - usdtFinalisePrice, {symbol: 'BNB-USDT', direction: 'BUY'});
+            const res = await placeOrderToBinanceResolver(bnbOrdersToBeResolved, bnbOrdUsdtPrice - usdtFinalisePrice, {symbol: 'BNB-USDT', direction: 'SELL'});
             if (res) {
               await createFinaliseLog({
                 txHash: usdtFinalise.hash,
@@ -109,7 +109,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
             const res = await placeOrderToBinanceResolver(
               btcOrdersNeedToBeResolved,
               btcOrderPriceUsdt - usdtFinalisePrice,
-              {symbol: 'BTC-USDT', direction: 'BUY'}
+              {symbol: 'BTC-USDT', direction: 'SELL'}
             );
             if (res) {
               await createFinaliseLog({
@@ -143,7 +143,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
             const res = await placeOrderToBinanceResolver(
               usdtBnbAndBtcOrdersNeedToBeResolved,
               usdrOrderPrice - bnbFinalisePrice,
-              {symbol: 'BNB-USDT', direction: 'SELL'}
+              {symbol: 'BNB-USDT', direction: 'BUY'}
             );
             if (res) {
               await createFinaliseLog({
@@ -166,7 +166,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
             const res = await placeOrderToBinanceResolver(
               usdtBnbAndBtcOrdersNeedToBeResolved,
               usdrOrderPrice - btcFinalisePrice,
-              {symbol: 'BTC-USDT', direction: 'SELL'}
+              {symbol: 'BTC-USDT', direction: 'BUY'}
             );
             if (res) {
               await createFinaliseLog({
