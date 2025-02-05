@@ -2,6 +2,7 @@ import axios from 'axios';
 
 import dotenv from 'dotenv';
 import { getCache, setCache } from './cacheService';
+import { sleep } from './sleep';
 
 dotenv.config();
 
@@ -18,7 +19,7 @@ export const getBitcoinBalance = async (btcAddress: string, isMainnet: boolean):
 
   try {
     const response = await axios.get(`https://blockstream.info/${network}api/address/${btcAddress}`);
-
+    await sleep(500);
     const funded = response?.data?.chain_stats?.funded_txo_sum;
     const spent = response?.data.chain_stats?.spent_txo_sum;
 
@@ -32,4 +33,3 @@ export const getBitcoinBalance = async (btcAddress: string, isMainnet: boolean):
     throw new Error('Unable to retrieve Bitcoin balance.');
   }
 };
-
