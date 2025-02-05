@@ -65,7 +65,7 @@ async function hedgerMonitoringService(): Promise<void> {
 
         // Use Promise.all to handle each comparison and order placement concurrently
         const btcOrderPromises = finaliseUsdtTxs.map(async (usdtFinalise) => {
-          const usdtFinalisePrice = +ethers.formatUnits(usdtFinalise.value, 18) * MARGIN_PERCENT;
+          const usdtFinalisePrice = +ethers.formatUnits(usdtFinalise.value, 18);
           const BNB_THRESHOLD = (Math.abs(btcOrderPriceUsdt - usdtFinalisePrice) / btcOrderPriceUsdt) * 100;
           console.log('BNB_THRESHOLD', BNB_THRESHOLD);
           console.log('bnbOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD', BNB_THRESHOLD <= PROFIT_TRASHHOLD);
@@ -97,8 +97,7 @@ async function hedgerMonitoringService(): Promise<void> {
         const usdrOrderPrice = +ethers.formatUnits(usdtOrder.value);
 
         const usdtPromises = finaliseBnbTxs.map(async (bnbFinalise) => {
-          const bnbFinalisePrice =
-            +ethers.formatUnits(bnbFinalise.value, 18) * prices?.data?.prices?.BNB * MARGIN_PERCENT;
+          const bnbFinalisePrice = +ethers.formatUnits(bnbFinalise.value, 18) * prices?.data?.prices?.BNB;
           console.log('bnbFinalisePrice', bnbFinalisePrice);
           console.log('usdrOrderPrice', usdrOrderPrice);
           const BNB_THRESHOLD = (Math.abs(usdrOrderPrice - bnbFinalisePrice) / usdrOrderPrice) * 100;
@@ -120,7 +119,7 @@ async function hedgerMonitoringService(): Promise<void> {
         });
 
         const btcPromises = finaliseBtcTxs.map(async (btcFinalise) => {
-          const btcFinalisePrice = +btcFinalise.value * prices?.data?.prices?.BTC * MARGIN_PERCENT;
+          const btcFinalisePrice = +btcFinalise.value * prices?.data?.prices?.BTC;
           console.log('btcFinalisePrice', btcFinalisePrice);
           console.log('usdrOrderPrice', usdrOrderPrice);
           const BTC_THRESHOLD = (Math.abs(usdrOrderPrice - btcFinalisePrice) / usdrOrderPrice) * 100;
@@ -155,7 +154,7 @@ async function hedgerMonitoringService(): Promise<void> {
         console.log('bnbOrdUsdtPrice', bnbOrdUsdtPrice);
 
         const bnbPromises = finaliseUsdtTxs.map(async (usdtFinalise) => {
-          const usdtFinalisePrice = +ethers.formatUnits(usdtFinalise.value, 18) * MARGIN_PERCENT;
+          const usdtFinalisePrice = +ethers.formatUnits(usdtFinalise.value, 18);
           console.log('usdtFinalisePrice', usdtFinalisePrice);
           console.log('bnbOrdUsdtPrice', bnbOrdUsdtPrice);
           const BNB_OR_USDT_THRESHOLD = (Math.abs(bnbOrdUsdtPrice - bnbOrdUsdtPrice) / bnbOrdUsdtPrice) * 100;
