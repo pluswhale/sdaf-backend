@@ -18,7 +18,9 @@ dotenv.config();
 const PROFIT_TRASHHOLD = 20;
 const MARGIN_PERCENT = 1.1;
 
-async function hedgerMonitoringService(): Promise<void> {
+let isRunning = false;
+
+async function hedgerMonitoringService(): Promise<boolean> {
   try {
     console.log('im in main function');
 
@@ -178,12 +180,17 @@ async function hedgerMonitoringService(): Promise<void> {
         await Promise.all(bnbPromises); // Wait for all the order placements
       }
     }
+
+    return true;
   } catch (e) {
     console.log('he log error:', e);
+    return true;
   }
 }
 
-setInterval(async () => {
+let intId: NodeJS.Timeout | null = null; // Declare the interval ID
+
+const runHedgerMonitoring = async () => {
   try {
     console.log('Starting scheduled tasks: get Confirmations and Initiate Binance Buy/Sell');
     await hedgerMonitoringService();
@@ -191,4 +198,32 @@ setInterval(async () => {
   } catch (error) {
     console.error('Error during scheduled tasks:', error);
   }
-}, 30000); // Run every 30 seconds
+};
+
+const startScheduledTasks = async () => {
+  if (isRunning) {
+    return;
+  }
+
+  isRunning = true;
+
+  await runHedgerMonitoring();
+
+  intId = setInterval(async () => {
+    if (!isRunning) {
+      return;
+    }
+
+    await runHedgerMonitoring();
+  }, 30000); // Run every 30 seconds
+};
+
+const stopScheduledTasks = () => {
+  if (intId) {
+    clearInterval(intId);
+    intId = null;
+  }
+  isRunning = false;
+};
+
+startScheduledTasks();

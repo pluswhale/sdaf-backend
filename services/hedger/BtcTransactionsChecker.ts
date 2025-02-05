@@ -49,7 +49,7 @@ export const BtcTransactionsChecker = async (
         }
 
         // Introduce a delay to avoid hitting rate limits (adjust delay as needed)
-        // await delay(1000);
+        await delay(500);
       }
 
       // Filter out null values and update neededResolveOrders
