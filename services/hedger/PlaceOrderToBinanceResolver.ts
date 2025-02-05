@@ -6,36 +6,36 @@ import { placeBinanceOrder } from '../binanceTrade';
 import { createHedgineEngineLogWithOrderIdFromBinance } from '../hedgineEngineHistoryLog';
 import { Direction } from '../../types/enum';
 
-export const placeOrderToBinanceResolver = async (orders: OrdersWithTxs, profitFromSwap: number) => {
-  if (orders) {
-    const fromCoin =
-      orders.direction === Direction.SELL ? orders?.symbol?.split('-')?.[0] : orders?.symbol?.split('-')?.[1];
-    const toCoin =
-      orders.direction === Direction.SELL ? orders?.symbol?.split('-')?.[1] : orders?.symbol?.split('-')?.[0];
+export const placeOrderToBinanceResolver = async (orders: OrdersWithTxs, profitFromSwap: number, pairAndDirectionObj: {symbol: string, direction: string}) => {
 
-    console.log('fromCoin', fromCoin);
-    console.log('toCoin', toCoin);
+
+
+  if (orders && pairAndDirectionObj.direction && pairAndDirectionObj.symbol) {
+    const fromCoin =
+      pairAndDirectionObj.direction === Direction.SELL ? pairAndDirectionObj.symbol.split('-')[0] : pairAndDirectionObj.symbol.split('-')[1];
+    const toCoin =
+      pairAndDirectionObj.direction === Direction.SELL ? pairAndDirectionObj.symbol.split('-')[1] : pairAndDirectionObj.symbol.split('-')[0];
 
     for (let transaction of orders?.transactions) {
       try {
         //@ts-ignore
         const { bestOrder, amount: quantity } = await findSuitableOrder(
-          orders?.symbol?.split('-')?.join(''),
-          orders.direction,
+          pairAndDirectionObj?.symbol?.split('-')?.join(''),
+          pairAndDirectionObj.direction,
           0,
         );
 
         const amount =
-          orders.symbol === 'BTC-USDT'
-            ? orders.direction === Direction.BUY
+          pairAndDirectionObj.symbol === 'BTC-USDT'
+            ? pairAndDirectionObj.direction === Direction.BUY
               ? +ethers.formatUnits(transaction.value, 18) / +bestOrder?.[0]
               : transaction.value
-            : orders.direction === Direction.SELL
+            : pairAndDirectionObj.direction === Direction.SELL
               ? ethers.formatUnits(transaction.value, 18)
               : +ethers.formatUnits(transaction.value, 18) / +bestOrder?.[0];
 
-        console.log('direaction!!!!!!!!!!!!!!!!!', orders.direction);
-        console.log('symbol!!!!!!!!!!!!!!!', orders.symbol);
+        console.log('direaction!!!!!!!!!!!!!!!!!', pairAndDirectionObj.direction);
+        console.log('symbol!!!!!!!!!!!!!!!', pairAndDirectionObj.symbol);
         console.log('amoint!!!!!!!!!!!!!!!!!!!!!!!!!!!!', amount);
 
         const result = await placeBinanceOrder(

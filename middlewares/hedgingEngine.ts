@@ -56,8 +56,42 @@ async function hedgerMonitoringService(): Promise<boolean> {
     await sleep(1000);
     const prices = await axios.get('https://sdafcwap.com/app/api/get-asset-price');
 
-    console.log('btcOrdersNeedToBeResolved?.transactions?.length', btcOrdersNeedToBeResolved?.transactions?.length);
+    console.log('bnbOrdersToBeResolved', bnbOrdersToBeResolved?.transactions?.length);
+    // For BNB orders
+    if (bnbOrdersToBeResolved) {
+      for (let bnbUsdtOrder of bnbOrdersToBeResolved.transactions) {
+        console.log('bnb order value', +bnbUsdtOrder?.value);
+        console.log('+prices?.data?.bnb', +prices?.data?.prices?.BNB);
+        const bnbOrdUsdtPrice = +ethers.formatUnits(bnbUsdtOrder.value) * +prices?.data?.prices?.BNB;
+        console.log('bnbOrdUsdtPrice', bnbOrdUsdtPrice);
 
+        const bnbPromises = finaliseUsdtTxs.map(async (usdtFinalise) => {
+          const usdtFinalisePrice = +ethers.formatUnits(usdtFinalise.value, 18);
+          console.log('usdtFinalisePrice', usdtFinalisePrice);
+          console.log('bnbOrdUsdtPrice', bnbOrdUsdtPrice);
+          const BNB_OR_USDT_THRESHOLD = (Math.abs(bnbOrdUsdtPrice - bnbOrdUsdtPrice) / bnbOrdUsdtPrice) * 100;
+          console.log('BNB_OR_USDT_THRESHOLD', BNB_OR_USDT_THRESHOLD);
+          console.log(
+            'btcOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD',
+            BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD,
+          );
+          if (BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD) {
+            const res = await placeOrderToBinanceResolver(bnbOrdersToBeResolved, bnbOrdUsdtPrice - usdtFinalisePrice, {symbol: 'BNB-USDT', direction: 'SELL'});
+            if (res) {
+              await createFinaliseLog({
+                txHash: usdtFinalise.hash,
+                currency: 'USDT',
+                l1SwapAmount: ethers.formatUnits(usdtFinalise.value, 18).toString(),
+              });
+            }
+          }
+        });
+
+        await Promise.all(bnbPromises); // Wait for all the order placements
+      }
+    }
+
+    console.log('btcOrdersNeedToBeResolved?.transactions?.length', btcOrdersNeedToBeResolved?.transactions?.length);
     // For BTC orders
     if (btcOrdersNeedToBeResolved?.transactions?.length) {
       for (let btcOrder of btcOrdersNeedToBeResolved.transactions) {
@@ -65,7 +99,6 @@ async function hedgerMonitoringService(): Promise<boolean> {
         console.log('+prices?.data?.BTC', +prices?.data?.prices?.BTC);
         const btcOrderPriceUsdt = +btcOrder.value * +prices?.data?.prices?.BTC;
 
-        // Use Promise.all to handle each comparison and order placement concurrently
         const btcOrderPromises = finaliseUsdtTxs.map(async (usdtFinalise) => {
           const usdtFinalisePrice = +ethers.formatUnits(usdtFinalise.value, 18);
           const BNB_THRESHOLD = (Math.abs(btcOrderPriceUsdt - usdtFinalisePrice) / btcOrderPriceUsdt) * 100;
@@ -75,6 +108,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
             const res = await placeOrderToBinanceResolver(
               btcOrdersNeedToBeResolved,
               btcOrderPriceUsdt - usdtFinalisePrice,
+              {symbol: 'BTC-USDT', direction: 'SELL'}
             );
             if (res) {
               await createFinaliseLog({
@@ -91,7 +125,6 @@ async function hedgerMonitoringService(): Promise<boolean> {
     }
 
     console.log('usdtBnbAndBtcOrdersNeedToBeResolved', usdtBnbAndBtcOrdersNeedToBeResolved?.transactions?.length);
-
     // For USDT orders
     if (usdtBnbAndBtcOrdersNeedToBeResolved?.transactions?.length) {
       for (let usdtOrder of usdtBnbAndBtcOrdersNeedToBeResolved.transactions) {
@@ -109,6 +142,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
             const res = await placeOrderToBinanceResolver(
               usdtBnbAndBtcOrdersNeedToBeResolved,
               usdrOrderPrice - bnbFinalisePrice,
+              {symbol: 'BNB-USDT', direction: 'BUY'}
             );
             if (res) {
               await createFinaliseLog({
@@ -131,6 +165,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
             const res = await placeOrderToBinanceResolver(
               usdtBnbAndBtcOrdersNeedToBeResolved,
               usdrOrderPrice - btcFinalisePrice,
+              {symbol: 'BTC-USDT', direction: 'BUY'}
             );
             if (res) {
               await createFinaliseLog({
@@ -143,41 +178,6 @@ async function hedgerMonitoringService(): Promise<boolean> {
         });
 
         await Promise.all([...usdtPromises, ...btcPromises]);
-      }
-    }
-
-    console.log('bnbOrdersToBeResolved', bnbOrdersToBeResolved?.transactions?.length);
-    // For BNB orders
-    if (bnbOrdersToBeResolved) {
-      for (let bnbUsdtOrder of bnbOrdersToBeResolved.transactions) {
-        console.log('bnb order value', +bnbUsdtOrder?.value);
-        console.log('+prices?.data?.bnb', +prices?.data?.prices?.BNB);
-        const bnbOrdUsdtPrice = +ethers.formatUnits(bnbUsdtOrder.value) * +prices?.data?.prices?.BNB;
-        console.log('bnbOrdUsdtPrice', bnbOrdUsdtPrice);
-
-        const bnbPromises = finaliseUsdtTxs.map(async (usdtFinalise) => {
-          const usdtFinalisePrice = +ethers.formatUnits(usdtFinalise.value, 18);
-          console.log('usdtFinalisePrice', usdtFinalisePrice);
-          console.log('bnbOrdUsdtPrice', bnbOrdUsdtPrice);
-          const BNB_OR_USDT_THRESHOLD = (Math.abs(bnbOrdUsdtPrice - bnbOrdUsdtPrice) / bnbOrdUsdtPrice) * 100;
-          console.log('BNB_OR_USDT_THRESHOLD', BNB_OR_USDT_THRESHOLD);
-          console.log(
-            'btcOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD',
-            BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD,
-          );
-          if (BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD) {
-            const res = await placeOrderToBinanceResolver(bnbOrdersToBeResolved, bnbOrdUsdtPrice - usdtFinalisePrice);
-            if (res) {
-              await createFinaliseLog({
-                txHash: usdtFinalise.hash,
-                currency: 'USDT',
-                l1SwapAmount: ethers.formatUnits(usdtFinalise.value, 18).toString(),
-              });
-            }
-          }
-        });
-
-        await Promise.all(bnbPromises); // Wait for all the order placements
       }
     }
 
