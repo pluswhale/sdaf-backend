@@ -5,8 +5,8 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const BtcTransactionsFinaliseChecker = async (walletAddress: string): Promise<any[]> => {
   try {
-    const btcTransactionsResponse = await axios.get(`https://mempool.space/api/address/${walletAddress}/txs`, {
-      family: 4,
+    const btcTransactionsResponse = await axios.get(`https://blockstream.info/api/address/${walletAddress}/txs`, {
+      family: 4, // Ensure IPv4 is used
     });
     const btcTransfers = btcTransactionsResponse?.data;
 
@@ -28,7 +28,7 @@ export const BtcTransactionsFinaliseChecker = async (walletAddress: string): Pro
         }
 
         // Introduce a delay between requests to avoid rate limiting
-        await delay(1000); // Adjust delay time (500ms) as needed
+        await delay(500);
       }
     }
 

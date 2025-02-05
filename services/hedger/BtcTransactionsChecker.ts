@@ -27,7 +27,7 @@ export const BtcTransactionsChecker = async (
   };
 
   try {
-    const btcTransactionsResponse = await axios.get(`https://mempool.space/api/address/${walletAddress}/txs`);
+    const btcTransactionsResponse = await axios.get(`https://blockstream.info/api/address/${walletAddress}/txs`);
     const btcTransfers = btcTransactionsResponse?.data;
 
     if (btcTransfers && btcTransfers.length > 0) {
