@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { BtcTransaction } from '../../types/hedgingEngine';
 import { getHedgineEngineHistoryLogByTxId } from '../hedgineEngineHistoryLog';
+import { sleep } from '../../utils/sleep';
 
 export type NeededResolveOrders = {
   symbol: string;
@@ -11,9 +12,6 @@ export type NeededResolveOrders = {
 export type ExtendedBtcTransaction = BtcTransaction & {
   value: number;
 };
-
-// Helper function to introduce delay
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const BtcTransactionsChecker = async (
   walletAddress: string,
@@ -27,8 +25,9 @@ export const BtcTransactionsChecker = async (
   };
 
   try {
-    const btcTransactionsResponse = await axios.get(`https://blockstream.info/api/address/${walletAddress}/txs`);
+    const btcTransactionsResponse = await axios.get(`https://mempool.space/api/address/${walletAddress}/txs`);
     const btcTransfers = btcTransactionsResponse?.data;
+
 
     if (btcTransfers && btcTransfers.length > 0) {
       const resolvedHistoryLogs: (ExtendedBtcTransaction | null)[] = [];
@@ -48,11 +47,9 @@ export const BtcTransactionsChecker = async (
           });
         }
 
-        // Introduce a delay to avoid hitting rate limits (adjust delay as needed)
-        await delay(500);
+        await sleep(500);
       }
 
-      // Filter out null values and update neededResolveOrders
       neededResolveOrders.transactions = resolvedHistoryLogs.filter((tx) => tx !== null) as ExtendedBtcTransaction[];
     }
   } catch (error) {

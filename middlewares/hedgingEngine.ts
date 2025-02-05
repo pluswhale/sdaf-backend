@@ -188,7 +188,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
   }
 }
 
-let intId: NodeJS.Timeout | null = null; // Declare the interval ID
+let intId: NodeJS.Timeout | null = null;
 
 const runHedgerMonitoring = async () => {
   try {

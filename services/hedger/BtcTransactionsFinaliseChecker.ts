@@ -1,13 +1,16 @@
 import axios from 'axios';
-import { createFinaliseLog, getFinaliseLogByTxId } from '../hedgineEngineHistoryLog';
+import { getFinaliseLogByTxId } from '../hedgineEngineHistoryLog';
+import { sleep } from '../../utils/sleep';
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const BtcTransactionsFinaliseChecker = async (walletAddress: string): Promise<any[]> => {
   try {
-    const btcTransactionsResponse = await axios.get(`https://blockstream.info/api/address/${walletAddress}/txs`, {
-      family: 4, // Ensure IPv4 is used
-    });
+    const btcTransactionsResponse = await axios.get(`https://mempool.space/api/address/${walletAddress}/txs`);
+
+    if (!btcTransactionsResponse.status || btcTransactionsResponse.status.toString() !== '200' || btcTransactionsResponse.status.toString() !== '201') {
+      return [];
+    }
+
     const btcTransfers = btcTransactionsResponse?.data;
 
     const finalisedTransactions: any[] = [];
@@ -19,7 +22,7 @@ export const BtcTransactionsFinaliseChecker = async (walletAddress: string): Pro
             .filter((input: any) => input?.prevout?.scriptpubkey_address === walletAddress)
             .reduce((sum: number, input: any) => sum + input.prevout.value, 0) / 1e8;
 
-        if (amountInBtc > 0 && transaction.status.confirmed) {
+        if (amountInBtc > 0) {
           const finaliseRow = await getFinaliseLogByTxId(transaction.txid);
 
           if (!finaliseRow) {
@@ -28,7 +31,7 @@ export const BtcTransactionsFinaliseChecker = async (walletAddress: string): Pro
         }
 
         // Introduce a delay between requests to avoid rate limiting
-        await delay(500);
+        await sleep(500);
       }
     }
 
