@@ -12,6 +12,7 @@ import { BnbTransactionsFinaliseChecker } from '../services/hedger/BnbTransactio
 import axios from 'axios';
 import { createFinaliseLog } from '../services/hedgineEngineHistoryLog';
 import { ethers } from 'ethers';
+import { BnbTransactionsInternalChecker } from '../services/hedger/BnbTransactionsInternalChecker';
 
 dotenv.config();
 
@@ -22,14 +23,13 @@ let isRunning = false;
 
 async function hedgerMonitoringService(): Promise<boolean> {
   try {
-
     await sleep(1500);
 
     // Fetch finalise transactions concurrently
     const [finaliseUsdtTxs, finaliseBnbTxs, finaliseBtcTxs] = await Promise.all([
       UsdtTransactionsFinaliseChecker(FINALISE_WALLETS.usdt_bnb.walletAddress),
       BnbTransactionsFinaliseChecker(FINALISE_WALLETS.bnb_usdt.walletAddress),
-      BtcTransactionsFinaliseChecker(FINALISE_WALLETS.btc_usdt.walletAddress)
+      BtcTransactionsFinaliseChecker(FINALISE_WALLETS.btc_usdt.walletAddress),
     ]);
 
     console.log('BTC Finalisers', finaliseBtcTxs?.length);
@@ -42,7 +42,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
         RECEIVER_WALLETS.usdt_bnb.symbol,
         RECEIVER_WALLETS.usdt_bnb.direction,
       ),
-      BnbTransactionsChecker(
+      BnbTransactionsInternalChecker(
         RECEIVER_WALLETS.bnb_usdt.walletAddress,
         RECEIVER_WALLETS.bnb_usdt.symbol,
         RECEIVER_WALLETS.bnb_usdt.direction,
@@ -77,7 +77,10 @@ async function hedgerMonitoringService(): Promise<boolean> {
             BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD,
           );
           if (BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD) {
-            const res = await placeOrderToBinanceResolver(bnbOrdersToBeResolved, bnbOrdUsdtPrice - usdtFinalisePrice, {symbol: 'BNB-USDT', direction: 'SELL'});
+            const res = await placeOrderToBinanceResolver(bnbOrdersToBeResolved, bnbOrdUsdtPrice - usdtFinalisePrice, {
+              symbol: 'BNB-USDT',
+              direction: 'SELL',
+            });
 
             if (res) {
               await createFinaliseLog({
@@ -85,10 +88,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
                 currency: 'USDT',
                 l1SwapAmount: ethers.formatUnits(usdtFinalise.value, 18).toString(),
               });
-
             }
-
-
           }
         });
 
@@ -116,7 +116,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
             const res = await placeOrderToBinanceResolver(
               btcOrdersNeedToBeResolved,
               btcOrderPriceUsdt - usdtFinalisePrice,
-              {symbol: 'BTC-USDT', direction: 'SELL'}
+              { symbol: 'BTC-USDT', direction: 'SELL' },
             );
             if (res) {
               await createFinaliseLog({
@@ -151,7 +151,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
             const res = await placeOrderToBinanceResolver(
               usdtBnbAndBtcOrdersNeedToBeResolved,
               usdrOrderPrice - bnbFinalisePrice,
-              {symbol: 'BNB-USDT', direction: 'BUY'}
+              { symbol: 'BNB-USDT', direction: 'BUY' },
             );
             if (res) {
               await createFinaliseLog({
@@ -174,7 +174,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
             const res = await placeOrderToBinanceResolver(
               usdtBnbAndBtcOrdersNeedToBeResolved,
               usdrOrderPrice - btcFinalisePrice,
-              {symbol: 'BTC-USDT', direction: 'BUY'}
+              { symbol: 'BTC-USDT', direction: 'BUY' },
             );
             if (res) {
               await createFinaliseLog({
