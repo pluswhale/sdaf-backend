@@ -34,7 +34,7 @@ export const BtcTransactionsChecker = async (
 
       for (const transaction of btcTransfers) {
         const amountInBtc =
-          transaction.vin
+          transaction.vout
             .filter((output: any) => output?.scriptpubkey_address === walletAddress)
             .reduce((sum: number, output: any) => sum + output?.value, 0) / 1e8;
 
