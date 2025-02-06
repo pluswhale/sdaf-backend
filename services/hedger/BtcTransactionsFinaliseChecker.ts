@@ -3,7 +3,10 @@ import { getFinaliseLogByTxId } from '../hedgineEngineHistoryLog';
 import { sleep } from '../../utils/sleep';
 
 
-export const BtcTransactionsFinaliseChecker = async (walletAddress: string): Promise<any[]> => {
+export const BtcTransactionsFinaliseChecker = async (
+  walletAddress: string,
+): Promise<any[] | undefined> => {
+  const btcTxs = []
   try {
     const btcTransactionsResponse = await axios.get(`https://blockstream.info/api/address/${walletAddress}/txs`);
 
@@ -20,20 +23,23 @@ export const BtcTransactionsFinaliseChecker = async (walletAddress: string): Pro
             .filter((input: any) => input?.prevout?.scriptpubkey_address === walletAddress)
             .reduce((sum: number, input: any) => sum + input.prevout.value, 0) / 1e8;
 
-        if (amountInBtc > 0) {
-          const finaliseRow = await getFinaliseLogByTxId(transaction.txid);
-
-          if (!finaliseRow) {
-            finalisedTransactions.push({ ...transaction, value: amountInBtc });
+          if (amountInBtc > 0 && transaction.status.confirmed) {
+            const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
+            if(!finaliseRow) {
+              btcTxs.push(transaction)
+              await createFinaliseLog({
+                txHash: transaction.txid,
+                currency: 'BTC',
+                l1SwapAmount: amountInBtc.toString(),
+              });
+            }
           }
         }
 
         // Introduce a delay between requests to avoid rate limiting
         await sleep(500);
       }
-    }
-
-    return finalisedTransactions;
+      return btcTxs
   } catch (error) {
     console.error('Error fetching BTC transactions:', error);
     return [];
