@@ -15,7 +15,7 @@ import { ethers } from 'ethers';
 
 dotenv.config();
 
-const PROFIT_TRASHHOLD = 20;
+const PROFIT_TRASHHOLD = 30;
 const MARGIN_PERCENT = 1.1;
 
 let isRunning = false;
@@ -34,7 +34,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
 
     console.log('BTC Finalisers', finaliseBtcTxs?.length);
     console.log('BNB Finalisers', finaliseBnbTxs?.length);
-    console.log('BNB Finalisers', finaliseUsdtTxs?.length);
+    console.log('USDT Finalisers', finaliseUsdtTxs?.length);
     // Fetch unresolved transactions concurrently
     const [usdtBnbAndBtcOrdersNeedToBeResolved, bnbOrdersToBeResolved, btcOrdersNeedToBeResolved] = await Promise.all([
       UsdtTransactionsChecker(
@@ -100,13 +100,14 @@ async function hedgerMonitoringService(): Promise<boolean> {
         console.log('btc order value', +btcOrder?.value);
         console.log('+prices?.data?.BTC', +prices?.data?.prices?.BTC);
         const btcOrderPriceUsdt = +btcOrder.value * +prices?.data?.prices?.BTC;
-
+        console.log('btcOrderPriceUsdt', btcOrderPriceUsdt);
         const btcOrderPromises = finaliseUsdtTxs.map(async (usdtFinalise) => {
           const usdtFinalisePrice = +ethers.formatUnits(usdtFinalise.value, 18);
-          const BNB_THRESHOLD = (Math.abs(btcOrderPriceUsdt - usdtFinalisePrice) / btcOrderPriceUsdt) * 100;
-          console.log('BNB_THRESHOLD', BNB_THRESHOLD);
-          console.log('bnbOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD', BNB_THRESHOLD <= PROFIT_TRASHHOLD);
-          if (BNB_THRESHOLD <= PROFIT_TRASHHOLD) {
+          console.log('usdtFinalisePrice', usdtFinalisePrice);
+          const BTC_THRESHOLD = (Math.abs(btcOrderPriceUsdt - usdtFinalisePrice) / btcOrderPriceUsdt) * 100;
+          console.log('BNB_THRESHOLD', BTC_THRESHOLD);
+          console.log('btcOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD', BTC_THRESHOLD <= PROFIT_TRASHHOLD);
+          if (BTC_THRESHOLD <= PROFIT_TRASHHOLD) {
             const res = await placeOrderToBinanceResolver(
               btcOrdersNeedToBeResolved,
               btcOrderPriceUsdt - usdtFinalisePrice,
