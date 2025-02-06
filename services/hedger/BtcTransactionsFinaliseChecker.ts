@@ -7,9 +7,7 @@ export const BtcTransactionsFinaliseChecker = async (walletAddress: string): Pro
   try {
     const btcTransactionsResponse = await axios.get(`https://blockstream.info/api/address/${walletAddress}/txs`);
 
-    if (!btcTransactionsResponse.status || btcTransactionsResponse.status.toString() !== '200' || btcTransactionsResponse.status.toString() !== '201') {
-      return [];
-    }
+
 
     const btcTransfers = btcTransactionsResponse?.data;
 
