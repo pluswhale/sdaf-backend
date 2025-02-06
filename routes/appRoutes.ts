@@ -44,6 +44,7 @@ import { findSuitableOrder } from '../services/findSuitableOrder';
 import { getHedgineEngineHistoryLog } from '../controllers/getHedgineEngineHistoryLog';
 import { getUserBinanceBalance } from '../controllers/binanceApi/getUserBinanceBalance';
 import { getFinaliseLog } from '../controllers/getFinaliseLog';
+import { rateLimit } from '../controllers/rateLimit';
 
 const router = express.Router();
 
@@ -84,6 +85,9 @@ router.get('/get-asset-price', getAssetPrice);
 
 //Binance
 router.get('/balance-binance', getUserBinanceBalance);
+
+// Test Rate Limit Blockstream
+router.get('/rate-limit', rateLimit);
 
 // Headging Engine
 router.get('/get-confirmations', getTransactionConfirmations);
