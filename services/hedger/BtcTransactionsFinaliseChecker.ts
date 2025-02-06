@@ -5,7 +5,7 @@ import { sleep } from '../../utils/sleep';
 
 export const BtcTransactionsFinaliseChecker = async (walletAddress: string): Promise<any[]> => {
   try {
-    const btcTransactionsResponse = await axios.get(`https://mempool.space/api/address/${walletAddress}/txs`);
+    const btcTransactionsResponse = await axios.get(`https://blockstream.info/api/address/${walletAddress}/txs`);
 
     if (!btcTransactionsResponse.status || btcTransactionsResponse.status.toString() !== '200' || btcTransactionsResponse.status.toString() !== '201') {
       return [];
