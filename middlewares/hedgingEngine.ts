@@ -98,6 +98,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
 
     console.log('btcOrdersNeedToBeResolved?.transactions?.length', btcOrdersNeedToBeResolved?.transactions?.length);
 
+    console.log('btcOrdersNeedToBeResolved', btcOrdersNeedToBeResolved?.transactions);
     // For BTC orders
     if (btcOrdersNeedToBeResolved?.transactions?.length) {
       for (let btcOrder of btcOrdersNeedToBeResolved.transactions) {
