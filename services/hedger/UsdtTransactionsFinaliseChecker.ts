@@ -1,17 +1,8 @@
 import axios from 'axios';
 import { UsdtTransaction } from '../../types/hedgingEngine';
-import { createFinaliseLog, getFinaliseLogByTxId } from '../hedgineEngineHistoryLog';
-import { ethers } from 'ethers';
+import { getFinaliseLogByTxId } from '../hedgineEngineHistoryLog';
 
-export const UsdtTransactionsFinaliseChecker = async (
-  walletAddress: string,
-  symbol: string,
-): Promise<void> => {
-
-  const targetCurrency = symbol?.split('-')?.[0];
-
-  console.log('targetCurrency', targetCurrency);
-
+export const UsdtTransactionsFinaliseChecker = async (walletAddress: string): Promise<any[]> => {
   try {
     const usdtTransfers = await axios.get(`https://api.bscscan.com/api`, {
       params: {
@@ -27,13 +18,15 @@ export const UsdtTransactionsFinaliseChecker = async (
         apiKey: process.env.BSC_SCAN_API_KEY,
       },
     });
+
     const transactions: UsdtTransaction[] = usdtTransfers?.data?.result;
 
+    // Filter transactions by 'from' address
+    const filteredByFromAddress = transactions?.filter(
+      (tx) => tx.from.toLowerCase() === walletAddress.toLowerCase() && tx.value !== '0',
+    );
 
-    const filteredByFromAddress = transactions?.filter((tx) => {
-      return tx.from.toLowerCase() === walletAddress.toLowerCase();
-    });
-
+    // Run all getFinaliseLogByTxId requests concurrently using Promise.all
     if (filteredByFromAddress) {
       for (let transaction of filteredByFromAddress) {
             const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
@@ -41,18 +34,17 @@ export const UsdtTransactionsFinaliseChecker = async (
             //   'finalise row USDT', finaliseRow
             // );
 
-            if(!finaliseRow) {
-              await createFinaliseLog({
-                txHash: transaction.hash,
-                currency: 'USDT' + targetCurrency,
-                l1SwapAmount: String(ethers.formatUnits(transaction.value, 18)),
-              });
-            }
-          }
-        }
+      const finaliseLogs = await Promise.all(finaliseLogsPromises);
 
+      // Filter out null values and return
+      return finaliseLogs.filter((tx) => tx !== null);
+    }
+
+    return [];
   } catch (error) {
     console.error('Error fetching transactions:', error);
+    return [];
   }
-
 };
+
+// Same approach for other transaction checkers like BnbTransactionsFinaliseChecker, BtcTransactionsFinaliseChecker, etc.

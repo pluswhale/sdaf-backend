@@ -25,10 +25,10 @@ export const BnbTransactionsFinaliseChecker = async (
 ) => {
   const bnbTxs = []
   try {
-    const bnbTransfers =  await axios.get(`https://api.bscscan.com/api`, {
+    const bnbTransfers = await axios.get(`https://api.bscscan.com/api`, {
       params: {
         module: 'account',
-        action:  'txlist',
+        action: 'txlist',
         address: walletAddress,
         startblock: 0,
         endblock: 999999999,
@@ -37,17 +37,20 @@ export const BnbTransactionsFinaliseChecker = async (
         sort: 'desc',
         apiKey: process.env.BSC_SCAN_API_KEY,
       },
-    })
+    });
 
     const transactions: BnbTransactionType[] = bnbTransfers.data.result;
 
-    const filteredByFromAddress = transactions?.filter((tx) => {
-      return tx.from.toLowerCase() === walletAddress.toLowerCase();
-    });
-
+    const filteredByFromAddress = transactions?.filter(
+      (tx) => tx.from.toLowerCase() === walletAddress.toLowerCase() && tx.value !== '0',
+    );
+    // Run all getFinaliseLogByTxId requests concurrently using Promise.all
     if (filteredByFromAddress) {
-      for (let transaction of filteredByFromAddress) {
-        const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
+      const finaliseLogsPromises = filteredByFromAddress.map((transaction) =>
+        getFinaliseLogByTxId(transaction.hash).then((finaliseRow) => {
+          return finaliseRow ? null : transaction;
+        }),
+      );
 
         if(!finaliseRow) {
           bnbTxs.push(transaction)
@@ -62,6 +65,7 @@ export const BnbTransactionsFinaliseChecker = async (
     }
     return bnbTxs;
   } catch (error) {
-    console.log(error);
+    console.error('Error fetching transactions:', error);
+    return [];
   }
 };

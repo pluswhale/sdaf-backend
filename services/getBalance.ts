@@ -82,8 +82,6 @@ export const checkBalanceUSDT = async (walletAddress: string, isMainnet: boolean
   const USDT_CONTRACT_ADDRESS: string =
     (isMainnet ? process.env.USDT_CONTRACT_ADDRESS_MAINNET : process.env.USDT_CONTRACT_ADDRESS_TESTNET) || '';
 
-  console.log('usdt contract addres', USDT_CONTRACT_ADDRESS);
-
   const provider = isMainnet ? ethProviders['mainnet'] : ethProviders['testnet'];
   const usdtContract = new Contract(USDT_CONTRACT_ADDRESS, USDT_ABI, provider);
 
