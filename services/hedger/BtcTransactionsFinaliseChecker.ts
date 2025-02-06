@@ -28,7 +28,6 @@ export const BtcTransactionsFinaliseChecker = async (walletAddress: string): Pro
           }
         }
 
-        // Introduce a delay between requests to avoid rate limiting
         await sleep(500);
       }
     }

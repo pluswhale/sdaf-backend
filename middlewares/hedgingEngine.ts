@@ -22,7 +22,8 @@ let isRunning = false;
 
 async function hedgerMonitoringService(): Promise<boolean> {
   try {
-    console.log('im in main function');
+
+    await sleep(1500);
 
     // Fetch finalise transactions concurrently
     const [finaliseUsdtTxs, finaliseBnbTxs, finaliseBtcTxs] = await Promise.all([
@@ -33,8 +34,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
 
     console.log('BTC Finalisers', finaliseBtcTxs?.length);
     console.log('BNB Finalisers', finaliseBnbTxs?.length);
-    console.log('btc finalisers', finaliseBtcTxs);
-
+    console.log('BNB Finalisers', finaliseUsdtTxs?.length);
     // Fetch unresolved transactions concurrently
     const [usdtBnbAndBtcOrdersNeedToBeResolved, bnbOrdersToBeResolved, btcOrdersNeedToBeResolved] = await Promise.all([
       UsdtTransactionsChecker(
