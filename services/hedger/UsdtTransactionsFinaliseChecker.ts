@@ -28,11 +28,11 @@ export const UsdtTransactionsFinaliseChecker = async (walletAddress: string): Pr
 
     // Run all getFinaliseLogByTxId requests concurrently using Promise.all
     if (filteredByFromAddress) {
-      for (let transaction of filteredByFromAddress) {
-            const finaliseRow = await getFinaliseLogByTxId(transaction.hash);
-            // console.log(
-            //   'finalise row USDT', finaliseRow
-            // );
+      const finaliseLogsPromises = filteredByFromAddress.map((transaction) =>
+        getFinaliseLogByTxId(transaction.hash).then((finaliseRow) => {
+          return finaliseRow ? null : transaction;
+        }),
+      );
 
       const finaliseLogs = await Promise.all(finaliseLogsPromises);
 
