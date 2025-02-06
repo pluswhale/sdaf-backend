@@ -34,9 +34,9 @@ export const BtcTransactionsChecker = async (
 
       for (const transaction of btcTransfers) {
         const amountInBtc =
-          transaction.vout
-            .filter((output: any) => output?.scriptpubkey_address === walletAddress)
-            .reduce((sum: number, output: any) => sum + output.value, 0) / 1e8;
+          transaction.vin
+            .filter((output: any) => output?.prevout?.scriptpubkey_address === walletAddress)
+            .reduce((sum: number, output: any) => sum + output?.prevout?.value, 0) / 1e8;
 
         const heHistoryLog = await getHedgineEngineHistoryLogByTxId(transaction.txid);
 

@@ -16,9 +16,9 @@ export const BtcTransactionsFinaliseChecker = async (walletAddress: string): Pro
     if (btcTransfers && btcTransfers.length > 0) {
       for (const transaction of btcTransfers) {
         const amountInBtc =
-          transaction.vin
-            .filter((input: any) => input?.prevout?.scriptpubkey_address === walletAddress)
-            .reduce((sum: number, input: any) => sum + input.prevout.value, 0) / 1e8;
+          transaction.vout
+            .filter((input: any) => input?.scriptpubkey_address != walletAddress)
+            .reduce((sum: number, input: any) => sum + input.value, 0) / 1e8;
 
         if (amountInBtc > 0) {
           const finaliseRow = await getFinaliseLogByTxId(transaction.txid);
