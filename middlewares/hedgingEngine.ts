@@ -15,7 +15,7 @@ import { ethers } from 'ethers';
 
 dotenv.config();
 
-const PROFIT_TRASHHOLD = 30;
+const PROFIT_TRASHHOLD = 20;
 const MARGIN_PERCENT = 1.1;
 
 let isRunning = false;
@@ -78,13 +78,17 @@ async function hedgerMonitoringService(): Promise<boolean> {
           );
           if (BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD) {
             const res = await placeOrderToBinanceResolver(bnbOrdersToBeResolved, bnbOrdUsdtPrice - usdtFinalisePrice, {symbol: 'BNB-USDT', direction: 'SELL'});
+
             if (res) {
               await createFinaliseLog({
                 txHash: usdtFinalise.hash,
                 currency: 'USDT',
                 l1SwapAmount: ethers.formatUnits(usdtFinalise.value, 18).toString(),
               });
+
             }
+
+
           }
         });
 
@@ -128,6 +132,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
     }
 
     console.log('usdtBnbAndBtcOrdersNeedToBeResolved', usdtBnbAndBtcOrdersNeedToBeResolved?.transactions?.length);
+
     // For USDT orders
     if (usdtBnbAndBtcOrdersNeedToBeResolved?.transactions?.length) {
       for (let usdtOrder of usdtBnbAndBtcOrdersNeedToBeResolved.transactions) {
