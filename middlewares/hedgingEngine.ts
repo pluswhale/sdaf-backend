@@ -36,13 +36,23 @@ async function hedgerMonitoringService(): Promise<boolean> {
     console.log('BNB Finalisers', finaliseBnbTxs?.length);
     console.log('USDT Finalisers', finaliseUsdtTxs?.length);
     // Fetch unresolved transactions concurrently
-    const [usdtBnbAndBtcOrdersNeedToBeResolved, bnbOrdersToBeResolved, btcOrdersNeedToBeResolved] = await Promise.all([
+    const [
+      usdtBnbAndBtcOrdersNeedToBeResolved,
+      bnbInternalOrdersToBeResolved,
+      bnbOrdersToBeResolved,
+      btcOrdersNeedToBeResolved,
+    ] = await Promise.all([
       UsdtTransactionsChecker(
         RECEIVER_WALLETS.usdt_bnb.walletAddress,
         RECEIVER_WALLETS.usdt_bnb.symbol,
         RECEIVER_WALLETS.usdt_bnb.direction,
       ),
       BnbTransactionsInternalChecker(
+        RECEIVER_WALLETS.bnb_usdt.walletAddress,
+        RECEIVER_WALLETS.bnb_usdt.symbol,
+        RECEIVER_WALLETS.bnb_usdt.direction,
+      ),
+      BnbTransactionsChecker(
         RECEIVER_WALLETS.bnb_usdt.walletAddress,
         RECEIVER_WALLETS.bnb_usdt.symbol,
         RECEIVER_WALLETS.bnb_usdt.direction,
@@ -58,6 +68,47 @@ async function hedgerMonitoringService(): Promise<boolean> {
     const prices = await axios.get('https://sdafcwap.com/app/api/get-asset-price');
 
     console.log('bnbOrdersToBeResolved', bnbOrdersToBeResolved?.transactions?.length);
+    // For INTERNAL BNB orders
+    if (bnbInternalOrdersToBeResolved) {
+      for (let bnbUsdtOrder of bnbInternalOrdersToBeResolved.transactions) {
+        console.log('bnb order value', +bnbUsdtOrder?.value);
+        console.log('+prices?.data?.bnb', +prices?.data?.prices?.BNB);
+        const bnbOrdUsdtPrice = +ethers.formatUnits(bnbUsdtOrder.value) * +prices?.data?.prices?.BNB;
+        console.log('bnbOrdUsdtPrice', bnbOrdUsdtPrice);
+
+        const bnbPromises = finaliseUsdtTxs.map(async (usdtFinalise) => {
+          const usdtFinalisePrice = +ethers.formatUnits(usdtFinalise.value, 18);
+          console.log('usdtFinalisePrice', usdtFinalisePrice);
+          console.log('bnbOrdUsdtPrice', bnbOrdUsdtPrice);
+          const BNB_OR_USDT_THRESHOLD = (Math.abs(bnbOrdUsdtPrice - usdtFinalisePrice) / bnbOrdUsdtPrice) * 100;
+          console.log('BNB_OR_USDT_THRESHOLD', BNB_OR_USDT_THRESHOLD);
+          console.log(
+            'btcOrderPriceUsdt - usdtFinalisePrice <= PROFIT_TRASHHOLD',
+            BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD,
+          );
+          if (BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD) {
+            const res = await placeOrderToBinanceResolver(
+              bnbInternalOrdersToBeResolved,
+              bnbOrdUsdtPrice - usdtFinalisePrice,
+              {
+                symbol: 'BNB-USDT',
+                direction: 'SELL',
+              },
+            );
+
+            if (res) {
+              await createFinaliseLog({
+                txHash: usdtFinalise.hash,
+                currency: 'USDT',
+                l1SwapAmount: ethers.formatUnits(usdtFinalise.value, 18).toString(),
+              });
+            }
+          }
+        });
+
+        await Promise.all(bnbPromises); // Wait for all the order placements
+      }
+    }
     // For BNB orders
     if (bnbOrdersToBeResolved) {
       for (let bnbUsdtOrder of bnbOrdersToBeResolved.transactions) {
