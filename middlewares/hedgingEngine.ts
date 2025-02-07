@@ -207,6 +207,6 @@ const runHedgerMonitoring = async () => {
   }
 };
 
-// setInterval(async () => {
-//   await runHedgerMonitoring();
-// }, 30000);
+setInterval(async () => {
+  await runHedgerMonitoring();
+}, 30000);
