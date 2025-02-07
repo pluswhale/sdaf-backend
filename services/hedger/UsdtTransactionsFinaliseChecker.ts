@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { UsdtTransaction } from '../../types/hedgingEngine';
 import { getFinaliseLogByTxId } from '../hedgineEngineHistoryLog';
+import { ethers } from 'ethers';
 
 export const UsdtTransactionsFinaliseChecker = async (walletAddress: string): Promise<any[]> => {
   try {
@@ -30,7 +31,7 @@ export const UsdtTransactionsFinaliseChecker = async (walletAddress: string): Pr
     if (filteredByFromAddress) {
       const finaliseLogsPromises = filteredByFromAddress.map((transaction) =>
         getFinaliseLogByTxId(transaction.hash).then((finaliseRow) => {
-          return finaliseRow ? null : transaction;
+          return finaliseRow ? null : +ethers.formatUnits(transaction.value, 18) > 7 ? transaction : null;
         }),
       );
 
