@@ -26,7 +26,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
     await sleep(1500);
 
     // Fetch finalise transactions concurrently
-    const [finaliseUsdtTxs, finaliseBnbTxs, finaliseBtcTxs] = await Promise.all([
+    let [finaliseUsdtTxs, finaliseBnbTxs, finaliseBtcTxs] = await Promise.all([
       UsdtTransactionsFinaliseChecker(FINALISE_WALLETS.usdt_bnb.walletAddress),
       BnbTransactionsFinaliseChecker(FINALISE_WALLETS.bnb_usdt.walletAddress),
       BtcTransactionsFinaliseChecker(FINALISE_WALLETS.btc_usdt.walletAddress),
@@ -102,6 +102,8 @@ async function hedgerMonitoringService(): Promise<boolean> {
                 currency: 'USDT',
                 l1SwapAmount: ethers.formatUnits(usdtFinalise.value, 18).toString(),
               });
+
+              finaliseUsdtTxs = finaliseUsdtTxs.filter((fT) => fT?.hash !== usdtFinalise?.hash);
             }
           }
         });
@@ -133,12 +135,18 @@ async function hedgerMonitoringService(): Promise<boolean> {
               direction: 'SELL',
             });
 
+            bnbOrdersToBeResolved.transactions = bnbOrdersToBeResolved.transactions.filter(
+              (t) => t.hash !== bnbUsdtOrder.hash,
+            );
+
             if (res) {
               await createFinaliseLog({
                 txHash: usdtFinalise.hash,
                 currency: 'USDT',
                 l1SwapAmount: ethers.formatUnits(usdtFinalise.value, 18).toString(),
               });
+
+              finaliseUsdtTxs = finaliseUsdtTxs.filter((fT) => fT?.hash !== usdtFinalise?.hash);
             }
           }
         });
@@ -169,12 +177,18 @@ async function hedgerMonitoringService(): Promise<boolean> {
               btcOrderPriceUsdt - usdtFinalisePrice,
               { symbol: 'BTC-USDT', direction: 'SELL' },
             );
+
+            btcOrdersNeedToBeResolved.transactions = btcOrdersNeedToBeResolved.transactions.filter(
+              (t) => t.txid !== btcOrder.txid,
+            );
             if (res) {
               await createFinaliseLog({
                 txHash: usdtFinalise.hash,
                 currency: 'USDT',
                 l1SwapAmount: ethers.formatUnits(usdtFinalise.value, 18).toString(),
               });
+
+              finaliseUsdtTxs = finaliseUsdtTxs.filter((fT) => fT?.hash !== usdtFinalise?.hash);
             }
           }
         });
@@ -204,12 +218,18 @@ async function hedgerMonitoringService(): Promise<boolean> {
               usdrOrderPrice - bnbFinalisePrice,
               { symbol: 'BNB-USDT', direction: 'BUY' },
             );
+
+            usdtBnbAndBtcOrdersNeedToBeResolved.transactions =
+              usdtBnbAndBtcOrdersNeedToBeResolved?.transactions?.filter((t) => t.hash !== usdtOrder.hash);
+
             if (res) {
               await createFinaliseLog({
                 txHash: bnbFinalise.hash,
                 currency: 'BNB',
                 l1SwapAmount: ethers.formatUnits(bnbFinalise.value, 18).toString(),
               });
+
+              finaliseBnbTxs = finaliseBnbTxs.filter((fT) => fT?.hash !== bnbFinalise?.hash);
             }
           }
         });
@@ -227,12 +247,18 @@ async function hedgerMonitoringService(): Promise<boolean> {
               usdrOrderPrice - btcFinalisePrice,
               { symbol: 'BTC-USDT', direction: 'BUY' },
             );
+
+            usdtBnbAndBtcOrdersNeedToBeResolved.transactions = usdtBnbAndBtcOrdersNeedToBeResolved.transactions.filter(
+              (t) => t.hash !== usdtOrder.hash,
+            );
             if (res) {
               await createFinaliseLog({
                 txHash: btcFinalise.txid,
                 currency: 'BTC',
                 l1SwapAmount: btcFinalise.value.toString(),
               });
+
+              finaliseBtcTxs = finaliseBtcTxs.filter((fT) => fT?.txid !== btcFinalise?.txid);
             }
           }
         });
