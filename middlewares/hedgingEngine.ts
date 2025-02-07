@@ -99,6 +99,10 @@ async function hedgerMonitoringService(): Promise<boolean> {
                 },
               );
 
+              bnbInternalOrdersToBeResolved.transactions = bnbInternalOrdersToBeResolved.transactions.filter(
+                (t) => t.hash !== bnbUsdtOrder.hash,
+              );
+
               if (res) {
                 await createFinaliseLog({
                   txHash: usdtFinalise.hash,
