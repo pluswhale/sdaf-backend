@@ -35,7 +35,7 @@ export const UsdtTransactionsChecker = async (
       },
     });
 
-    const transactions: UsdtTransaction[] = usdtTransfers?.data?.result;
+    const transactions: UsdtTransaction[] = usdtTransfers?.data?.result.filter((tx: UsdtTransaction) => tx.to === walletAddress.toLowerCase());
 
     if (transactions) {
       // Fetch all history logs concurrently

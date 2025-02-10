@@ -46,7 +46,7 @@ export const BnbTransactionsInternalChecker = async (walletAddress: string, symb
       },
     });
 
-    const transactions: BnbTransactionType[] = bnbTransfers.data.result;
+    const transactions: BnbTransactionType[] = bnbTransfers.data.result.filter((tx: BnbTransactionType) => tx.to === walletAddress.toLowerCase());
 
     if (transactions) {
       for (let transaction of transactions) {

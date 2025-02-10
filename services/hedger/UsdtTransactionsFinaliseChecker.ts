@@ -20,7 +20,7 @@ export const UsdtTransactionsFinaliseChecker = async (walletAddress: string): Pr
       },
     });
 
-    const transactions: UsdtTransaction[] = usdtTransfers?.data?.result;
+    const transactions: UsdtTransaction[] = usdtTransfers?.data?.result.filter((tx: UsdtTransaction) => tx.from === walletAddress.toLowerCase());
 
     // Filter transactions by 'from' address
     const filteredByFromAddress = transactions?.filter(

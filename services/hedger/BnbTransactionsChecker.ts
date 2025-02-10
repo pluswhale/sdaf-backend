@@ -50,7 +50,7 @@ export const BnbTransactionsChecker = async (
       },
     });
 
-    const transactions: BnbTransactionType[] = bnbTransfers.data.result;
+    const transactions: BnbTransactionType[] = bnbTransfers.data.result.filter((tx: BnbTransactionType) => tx.to === walletAddress.toLowerCase());
 
     if (transactions) {
       // Fetch all history logs concurrently

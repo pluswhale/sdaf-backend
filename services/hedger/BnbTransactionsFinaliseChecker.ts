@@ -35,7 +35,7 @@ export const BnbTransactionsFinaliseChecker = async (walletAddress: string): Pro
       },
     });
 
-    const transactions: BnbTransactionType[] = bnbTransfers.data.result;
+    const transactions: BnbTransactionType[] = bnbTransfers.data.result.filter((tx: BnbTransactionType) => tx.from === walletAddress.toLowerCase());
 
     const filteredByFromAddress = transactions?.filter(
       (tx) => tx.from.toLowerCase() === walletAddress.toLowerCase() && tx.value !== '0',
