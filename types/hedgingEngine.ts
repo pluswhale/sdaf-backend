@@ -86,6 +86,7 @@ export type HeObjectForSavingInDb = {
   amountHedged?: string | null;
   fulfilled?: boolean | null;
   margin: Margin | null;
+  isBuyBacked: boolean;
 };
 
 export type FinaliseObjectForSavingInDb = {

@@ -27,6 +27,7 @@ export const createHedgineEngineLogWithOrderIdFromBinance = async ({
   amountSettledToUser,
   amountHedged,
   margin,
+  isBuyBacked,
 }: HeObjectForSavingInDb): Promise<HedgineEngineLog | null> => {
   if (!txHash) {
     return null;
@@ -47,7 +48,7 @@ export const createHedgineEngineLogWithOrderIdFromBinance = async ({
   heCurrentHistoryLog.amountHedged = amountHedged || null;
   heCurrentHistoryLog.margin = margin;
   heCurrentHistoryLog.profitFromSwap = profitFromSwap || null;
-  heCurrentHistoryLog.fulfilled = true;
+  heCurrentHistoryLog.isBuyBacked = isBuyBacked;
 
   return await heLogsRepository.save(heCurrentHistoryLog);
 };

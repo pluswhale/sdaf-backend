@@ -60,7 +60,7 @@ export class HedgineEngineLog {
   profitFromSwap: string | null;
 
   @Column({ type: 'bool', default: false })
-  fulfilled: boolean;
+  isBuyBacked: boolean;
 
   @ManyToOne(type => Margin, margin => margin.hedgingEngineLogs, {nullable: true})
   margin: Margin | null;

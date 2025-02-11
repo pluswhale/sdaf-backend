@@ -55,6 +55,7 @@ export const placeOrderToBinanceResolver = async (orders: OrdersWithTxs, profitF
             bestOrder,
             'targetWalletAddress',
             profitFromSwap,
+            true,
           );
           console.log('heObjectForSavingInDb: ', heObjectForSavingInDb);
           await createHedgineEngineLogWithOrderIdFromBinance(heObjectForSavingInDb);
