@@ -19,51 +19,51 @@ test:
     - echo "tests disabled"
   when: manual
 
-deploy to production-green:
-  extends: .auto-deploy
-  stage: deploy
-  variables:
-    # HELM_UPGRADE_EXTRA_ARGS: "--timeout 2h"
-    ENV_SPECIFIC_VALUES: ${ENV_SPECIFIC_VALUES}
-    APP_VALUES_FILES: env-specific-values
-    POSTGRES_ENABLED: 'true'
-  before_script:
-    - printenv ENV_SPECIFIC_VALUES > chart/env-specific-values.yaml || true
-    - cat chart/env-specific-values.yaml
-    - echo APP_VALUES_FILES=${APP_VALUES_FILES}
-    - |
-      for file in $APP_VALUES_FILES; do
-        if [[ -f chart/${file}.yaml ]]; then
-          export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS} --values chart/${file}.yaml"
-        else
-          echo "File chart/${file}.yaml does not exist."
-        fi
-      done
-    - echo Final HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS}
-  script:
-    - auto-deploy check_kube_domain
-    - auto-deploy download_chart
-    - auto-deploy use_kube_context
-    - auto-deploy ensure_namespace
-    - auto-deploy initialize_tiller
-    - auto-deploy create_secret
-    - auto-deploy deploy
-  # variables:
-  #   COLOR: "dev-green"
-  # HELM_UPGRADE_EXTRA_ARGS: >-
-  #    --set ingress.annotations[0].key="kubernetes.io/ingress.class"
-  #    --set ingress.annotations[0].value="public"
-  #    --set ingress.annotations[1].key="cert-manager.io/cluster-issuer"
-  #    --set ingress.annotations[1].value="letsencrypt-prod"
-  # HELM_UPGRADE_EXTRA_ARGS: |
-  #    --set ingress.enabled=false
-  # POSTGRES_HELM_UPGRADE_EXTRA_ARGS: >-
-  # --set persistence.storageClass=hdd-hostpath
-  # --set postgresqlPostgresPassword=$POSTGRES_PASSWORD
-  # --set postgresqlPassword=$POSTGRES_PASSWORD
-  environment:
-    name: production-green
-    url: http://$KUBE_INGRESS_BASE_DOMAIN
+# deploy to production-green:
+#   extends: .auto-deploy
+#   stage: deploy
+#   variables:
+#     # HELM_UPGRADE_EXTRA_ARGS: "--timeout 2h"
+#     ENV_SPECIFIC_VALUES: ${ENV_SPECIFIC_VALUES}
+#     APP_VALUES_FILES: env-specific-values
+#     POSTGRES_ENABLED: 'true'
+#   before_script:
+#     - printenv ENV_SPECIFIC_VALUES > chart/env-specific-values.yaml || true
+#     - cat chart/env-specific-values.yaml
+#     - echo APP_VALUES_FILES=${APP_VALUES_FILES}
+#     - |
+#       for file in $APP_VALUES_FILES; do
+#         if [[ -f chart/${file}.yaml ]]; then
+#           export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS} --values chart/${file}.yaml"
+#         else
+#           echo "File chart/${file}.yaml does not exist."
+#         fi
+#       done
+#     - echo Final HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS}
+#   script:
+#     - auto-deploy check_kube_domain
+#     - auto-deploy download_chart
+#     - auto-deploy use_kube_context
+#     - auto-deploy ensure_namespace
+#     - auto-deploy initialize_tiller
+#     - auto-deploy create_secret
+#     - auto-deploy deploy
+#   # variables:
+#   #   COLOR: "dev-green"
+#   # HELM_UPGRADE_EXTRA_ARGS: >-
+#   #    --set ingress.annotations[0].key="kubernetes.io/ingress.class"
+#   #    --set ingress.annotations[0].value="public"
+#   #    --set ingress.annotations[1].key="cert-manager.io/cluster-issuer"
+#   #    --set ingress.annotations[1].value="letsencrypt-prod"
+#   # HELM_UPGRADE_EXTRA_ARGS: |
+#   #    --set ingress.enabled=false
+#   # POSTGRES_HELM_UPGRADE_EXTRA_ARGS: >-
+#   # --set persistence.storageClass=hdd-hostpath
+#   # --set postgresqlPostgresPassword=$POSTGRES_PASSWORD
+#   # --set postgresqlPassword=$POSTGRES_PASSWORD
+#   environment:
+#     name: production-green
+#     url: http://$KUBE_INGRESS_BASE_DOMAIN
 
 production:
   environment:
