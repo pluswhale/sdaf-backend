@@ -16,6 +16,7 @@ export const seedUsers = async (dataSource: DataSource) => {
     { fullName: 'Igor Mamonenko', username: 'gen_dir_bh', password: 'hwapp_10' },
     { fullName: 'Сергей', username: 'sergio_bh', password: 'hwapp_50' },
     { fullName: 'admin', username: 'admin', password: 'hwapp_admin' },
+    { fullName: 'QA', username: 'qa_evgen_khilkovich', password: 'hwapp_60' },
   ];
 
   for (const user of userData) {
