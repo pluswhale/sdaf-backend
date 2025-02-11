@@ -89,6 +89,7 @@ export type HeObjectForSavingInDb = {
   isBuyBacked: boolean;
 };
 
+//Types
 export type FinaliseObjectForSavingInDb = {
   txHash: string;
   currency?: string | null;
