@@ -9,6 +9,7 @@ import './middlewares/walletScheduler';
 import { seedUsers } from './db/seeders/UserSeeder';
 import { seedBotOrder } from './db/seeders/BotOrderSeeder';
 import './middlewares/hedgingEngine';
+import { testAPis } from './utils/testAPi';
 
 dotenv.config();
 
@@ -28,7 +29,8 @@ app.use(cookieParser());
 
 app.get('/', async (req, res) => {
   try {
-    res.send('Bot started');
+    const test = await testAPis();
+    res.send({ message: test, text: "TEST APIS"});
   } catch (error) {
     res.status(500).send('Failed to start bot');
   }

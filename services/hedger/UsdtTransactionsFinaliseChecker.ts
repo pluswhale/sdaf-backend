@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { UsdtTransaction } from '../../types/hedgingEngine';
 import { getFinaliseLogByTxId } from '../hedgineEngineHistoryLog';
-import { ethers } from 'ethers';
 
 export const UsdtTransactionsFinaliseChecker = async (walletAddress: string): Promise<any[]> => {
   try {
