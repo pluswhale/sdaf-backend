@@ -1,7 +1,7 @@
 include:
   - template: Auto-DevOps.gitlab-ci.yml
 variables:
-  AUTO_DEPLOY_IMAGE_VERSION: 2.118.1
+  AUTO_DEPLOY_IMAGE_VERSION: v2.118.1
   AUTO_DEVOPS_DEPLOY_DEBUG: 'true'
   AUTO_DEVOPS_COMMON_NAME: 'false'
   BROWSER_PERFORMANCE_DISABLED: 'true'
