@@ -5,9 +5,9 @@ export class HedgerConfigOptions {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'number', default: 20 })
+  @Column({ type: 'float', default: 20.0 })
   profitTrashholdFromDb: number;
 
-  @Column({ type: 'number', default: 600 })
+  @Column({ type: 'float', default: 600.0 })
   finaliseCheckerTimeRange: number;
 }
