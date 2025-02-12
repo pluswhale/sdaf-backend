@@ -13,6 +13,6 @@ export const getHedgerConfigurationOptions = async (req: Request, res: Response)
 
     return res.status(200).send({ hedgerConfigOptions });
   } catch (error) {
-    return res.status(400).send('Invalid refresh token.');
+    return res.status(400).send('Error fetching hedger edgin options: ' + error);
   }
 };
