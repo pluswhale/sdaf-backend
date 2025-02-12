@@ -174,10 +174,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
           const profitFromSwap = bnbOrdUsdtPrice - usdtFinalisePrice;
           console.log('PRofit from swap: ', profitFromSwap);
 
-          // condition to check if 10 minutes have passed
-          //@ts-ignore
-          // Convert timestamps to numbers
-          const finaliseTxTimeStamp = Number(usdtFinalise?.timestamp) || 0;
+          const finaliseTxTimeStamp = Number(usdtFinalise?.timeStamp) || 0;
           console.log('finaliseTxTimeStamp', finaliseTxTimeStamp);
           //@ts-ignore
           const receiveTxTimestamp = Number(bnbUsdtOrder?.timeStamp) || 0;
