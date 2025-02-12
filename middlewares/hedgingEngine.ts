@@ -19,15 +19,18 @@ import { ethers } from 'ethers';
 import { BnbTransactionsInternalChecker } from '../services/hedger/BnbTransactionsInternalChecker';
 import { BinancePlaceOrdersSwitcher } from '../services/hedger/BinancePlaceOrdersSwitcher';
 import { findSuitableOrder } from '../services/findSuitableOrder';
+import { getHedgerConfigOptions } from '../services/getHedgerConfigOptions';
+import { AppDataSource } from '../db/AppDataSource';
 
 dotenv.config();
 
-const PROFIT_TRASHHOLD = 20;
-const MARGIN_PERCENT = 1.1;
-
 let isRunning = false;
 
-async function hedgerMonitoringService(): Promise<boolean> {
+type CFGParametersForHedger = { profitTrashholdFromDb: number; finaliseCheckerTimeRange: number };
+
+async function hedgerMonitoringService(cfgParametersForHedger: CFGParametersForHedger): Promise<boolean> {
+  const PROFIT_TRASHHOLD = cfgParametersForHedger.profitTrashholdFromDb || 20;
+  const timeForWaitingFinaliseTx = cfgParametersForHedger.finaliseCheckerTimeRange || 10 * 60;
   try {
     await sleep(1500);
 
@@ -99,8 +102,9 @@ async function hedgerMonitoringService(): Promise<boolean> {
           const finaliseTxTimeStamp = +usdtFinalise?.timeStamp;
           //@ts-ignore
           const receiveTxTimestamp = +bnbUsdtOrder?.timeStamp;
-          const tenMinutesInSeconds = 10 * 60;
-          const isTenMinsPassedAfterReceivingMoney = finaliseTxTimeStamp - receiveTxTimestamp >= tenMinutesInSeconds;
+
+          const isTenMinsPassedAfterReceivingMoney =
+            finaliseTxTimeStamp - receiveTxTimestamp >= timeForWaitingFinaliseTx;
 
           if (BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD && isTenMinsPassedAfterReceivingMoney) {
             console.log('10 minutes have passed since transaction, recording in the database.');
@@ -179,9 +183,9 @@ async function hedgerMonitoringService(): Promise<boolean> {
           //@ts-ignore
           const receiveTxTimestamp = Number(bnbUsdtOrder?.timeStamp) || 0;
           console.log('receiveTxTimestamp', receiveTxTimestamp);
-          const tenMinutesInSeconds = 10 * 60;
 
-          const isTenMinsPassedAfterReceivingMoney = finaliseTxTimeStamp - receiveTxTimestamp >= tenMinutesInSeconds;
+          const isTenMinsPassedAfterReceivingMoney =
+            finaliseTxTimeStamp - receiveTxTimestamp >= timeForWaitingFinaliseTx;
 
           console.log('isTenMinsPassedAfterReceivingMoney', isTenMinsPassedAfterReceivingMoney);
 
@@ -261,8 +265,9 @@ async function hedgerMonitoringService(): Promise<boolean> {
           const finaliseTxTimeStamp = +usdtFinalise?.timeStamp;
           //@ts-ignore
           const receiveTxTimestamp = +btcOrder?.status?.block_time || 0;
-          const tenMinutesInSeconds = 10 * 60;
-          const isTenMinsPassedAfterReceivingMoney = finaliseTxTimeStamp - receiveTxTimestamp >= tenMinutesInSeconds;
+
+          const isTenMinsPassedAfterReceivingMoney =
+            finaliseTxTimeStamp - receiveTxTimestamp >= timeForWaitingFinaliseTx;
 
           if (BTC_THRESHOLD <= PROFIT_TRASHHOLD && isTenMinsPassedAfterReceivingMoney) {
             console.log('10 minutes have passed since transaction, recording in the database.');
@@ -338,8 +343,9 @@ async function hedgerMonitoringService(): Promise<boolean> {
           // condition to check if 10 minutes have passed
           const finaliseTxTimeStamp = +bnbFinalise?.timeStamp;
           const receiveTxTimestamp = +usdtOrder?.timeStamp;
-          const tenMinutesInSeconds = 10 * 60;
-          const isTenMinsPassedAfterReceivingMoney = finaliseTxTimeStamp - receiveTxTimestamp >= tenMinutesInSeconds;
+
+          const isTenMinsPassedAfterReceivingMoney =
+            finaliseTxTimeStamp - receiveTxTimestamp >= timeForWaitingFinaliseTx;
 
           if (BNB_THRESHOLD <= PROFIT_TRASHHOLD && isTenMinsPassedAfterReceivingMoney) {
             console.log('10 minutes have passed since transaction, recording in the database.');
@@ -402,8 +408,9 @@ async function hedgerMonitoringService(): Promise<boolean> {
           // condition to check if 10 minutes have passed
           const finaliseTxTimeStamp = +btcFinalise?.status?.block_time || 0;
           const receiveTxTimestamp = +usdtOrder?.timeStamp;
-          const tenMinutesInSeconds = 10 * 60;
-          const isTenMinsPassedAfterReceivingMoney = finaliseTxTimeStamp - receiveTxTimestamp >= tenMinutesInSeconds;
+
+          const isTenMinsPassedAfterReceivingMoney =
+            finaliseTxTimeStamp - receiveTxTimestamp >= timeForWaitingFinaliseTx;
 
           if (BTC_THRESHOLD <= PROFIT_TRASHHOLD && isTenMinsPassedAfterReceivingMoney) {
             console.log('10 minutes have passed since transaction, recording in the database.');
@@ -466,7 +473,8 @@ async function hedgerMonitoringService(): Promise<boolean> {
 const runHedgerMonitoring = async () => {
   try {
     console.log('Starting scheduled tasks: get Confirmations and Initiate Binance Buy/Sell');
-    await hedgerMonitoringService();
+    const hedgerOptions = await getHedgerConfigOptions(AppDataSource);
+    await hedgerMonitoringService(hedgerOptions?.[0]);
     console.log('Scheduled tasks completed successfully.');
   } catch (error) {
     console.error('Error during scheduled tasks:', error);

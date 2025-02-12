@@ -10,6 +10,7 @@ import { seedUsers } from './db/seeders/UserSeeder';
 import { seedBotOrder } from './db/seeders/BotOrderSeeder';
 import './middlewares/hedgingEngine';
 import { testAPis } from './utils/testAPi';
+import { hedgerOptionsSeeder } from './db/seeders/HedgerOptionsSeeder';
 
 dotenv.config();
 
@@ -30,7 +31,7 @@ app.use(cookieParser());
 app.get('/', async (req, res) => {
   try {
     const test = await testAPis();
-    res.send({ message: test, text: "TEST APIS"});
+    res.send({ message: test, text: 'TEST APIS' });
   } catch (error) {
     res.status(500).send('Failed to start bot');
   }
@@ -43,6 +44,8 @@ async function runSeeders() {
   await seedMargins(AppDataSource);
   console.log('Seeding bot order...');
   await seedBotOrder(AppDataSource);
+  console.log('Seeding hedger options....');
+  await hedgerOptionsSeeder(AppDataSource);
 }
 
 AppDataSource.initialize()
@@ -67,4 +70,3 @@ app.use('/api/', appRoutes);
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
-

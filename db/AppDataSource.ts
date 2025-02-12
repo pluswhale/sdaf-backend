@@ -12,6 +12,7 @@ import {
 import { User } from './entities';
 
 import dotenv from 'dotenv';
+import { HedgerConfigOptions } from './entities/HedgerConfigOptions';
 
 dotenv.config();
 
@@ -46,7 +47,17 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || 'test',
   synchronize: true,
   logging: false,
-  entities: [Wallet, User, Margin, PendingWithdrawal, PendingReplenishment, BotOrder, HedgineEngineLog, FinaliseLog],
+  entities: [
+    HedgerConfigOptions,
+    Wallet,
+    User,
+    Margin,
+    PendingWithdrawal,
+    PendingReplenishment,
+    BotOrder,
+    HedgineEngineLog,
+    FinaliseLog,
+  ],
   migrations: [],
   subscribers: [],
 });

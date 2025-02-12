@@ -45,6 +45,8 @@ import { getHedgineEngineHistoryLog } from '../controllers/getHedgineEngineHisto
 import { getUserBinanceBalance } from '../controllers/binanceApi/getUserBinanceBalance';
 import { getFinaliseLog } from '../controllers/getFinaliseLog';
 import { rateLimit } from '../controllers/rateLimit';
+import { getHedgerConfigurationOptions } from '../controllers/getHedgerConfigurationOptions';
+import { updateHedgerConfigOption } from '../controllers/updateHedgerConfigOption';
 
 const router = express.Router();
 
@@ -101,5 +103,7 @@ router.delete('/bot-order/delete/:id', deleteBotOrderController);
 //HE
 router.get('/hedgine-engine/history', getHedgineEngineHistoryLog);
 router.get('/hedgine-engine/finalise-logs', getFinaliseLog);
+router.get('/hedgine-engine/config-options', getHedgerConfigurationOptions);
+router.put('/hedgine-engine/config-options', updateHedgerConfigOption);
 
 export default router;
