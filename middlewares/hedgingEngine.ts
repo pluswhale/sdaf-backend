@@ -96,7 +96,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
           console.log('PRofit from swap: ', profitFromSwap);
 
           // condition to check if 10 minutes have passed
-          const finaliseTxTimeStamp = +usdtFinalise?.timestamp;
+          const finaliseTxTimeStamp = +usdtFinalise?.timeStamp;
           //@ts-ignore
           const receiveTxTimestamp = +bnbUsdtOrder?.timeStamp;
           const tenMinutesInSeconds = 10 * 60;
@@ -179,7 +179,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
           //@ts-ignore
           const receiveTxTimestamp = Number(bnbUsdtOrder?.timeStamp) || 0;
           console.log('receiveTxTimestamp', receiveTxTimestamp);
-          const tenMinutesInSeconds = 3 * 60;
+          const tenMinutesInSeconds = 10 * 60;
 
           const isTenMinsPassedAfterReceivingMoney = finaliseTxTimeStamp - receiveTxTimestamp >= tenMinutesInSeconds;
 
@@ -258,9 +258,9 @@ async function hedgerMonitoringService(): Promise<boolean> {
           console.log('PRofit from swap: ', profitFromSwap);
 
           // condition to check if 10 minutes have passed
-          const finaliseTxTimeStamp = +usdtFinalise?.timestamp;
+          const finaliseTxTimeStamp = +usdtFinalise?.timeStamp;
           //@ts-ignore
-          const receiveTxTimestamp = +btcOrder?.status?.block_time;
+          const receiveTxTimestamp = +btcOrder?.status?.block_time || 0;
           const tenMinutesInSeconds = 10 * 60;
           const isTenMinsPassedAfterReceivingMoney = finaliseTxTimeStamp - receiveTxTimestamp >= tenMinutesInSeconds;
 
@@ -336,7 +336,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
           console.log('PRofit from swap: ', profitFromSwap);
 
           // condition to check if 10 minutes have passed
-          const finaliseTxTimeStamp = +bnbFinalise?.timestamp;
+          const finaliseTxTimeStamp = +bnbFinalise?.timeStamp;
           const receiveTxTimestamp = +usdtOrder?.timeStamp;
           const tenMinutesInSeconds = 10 * 60;
           const isTenMinsPassedAfterReceivingMoney = finaliseTxTimeStamp - receiveTxTimestamp >= tenMinutesInSeconds;
@@ -400,7 +400,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
           console.log('PRofit from swap: ', profitFromSwap);
 
           // condition to check if 10 minutes have passed
-          const finaliseTxTimeStamp = +btcFinalise?.status?.block_time || Math.floor(Date.now() / 1000);
+          const finaliseTxTimeStamp = +btcFinalise?.status?.block_time || 0;
           const receiveTxTimestamp = +usdtOrder?.timeStamp;
           const tenMinutesInSeconds = 10 * 60;
           const isTenMinsPassedAfterReceivingMoney = finaliseTxTimeStamp - receiveTxTimestamp >= tenMinutesInSeconds;
