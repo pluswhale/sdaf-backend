@@ -105,11 +105,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
           if (isTenMinsPassedAfterReceivingMoney) {
             console.log('10 minutes have passed since transaction, recording in the database.');
             //@ts-ignore
-            const { bestOrder } = await findSuitableOrder(
-              'BNBUSDT',
-              'SELL',
-              0,
-            );
+            const { bestOrder } = await findSuitableOrder('BNBUSDT', 'SELL', 0);
 
             const heObjectForSavingInDb = await BinancePlaceOrdersSwitcher(
               'BNB',
@@ -120,7 +116,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
               bestOrder,
               'targetWalletAddress',
               profitFromSwap,
-              false
+              false,
             );
             console.log('heObjectForSavingInDb if 10 min last: ', heObjectForSavingInDb);
             await createHedgineEngineLogWithOrderIdFromBinance(heObjectForSavingInDb);
@@ -132,15 +128,10 @@ async function hedgerMonitoringService(): Promise<boolean> {
             await sleep(1000);
             const finaliseRow = await getFinaliseLogByTxId(bnbUsdtOrder?.hash);
             if (!finaliseRow) {
-              const res = await placeOrderToBinanceResolver(
-                bnbInternalOrdersToBeResolved,
-                profitFromSwap,
-                {
-                  symbol: 'BNB-USDT',
-                  direction: 'SELL',
-                },
-
-              );
+              const res = await placeOrderToBinanceResolver(bnbInternalOrdersToBeResolved, profitFromSwap, {
+                symbol: 'BNB-USDT',
+                direction: 'SELL',
+              });
 
               bnbInternalOrdersToBeResolved.transactions = bnbInternalOrdersToBeResolved.transactions.filter(
                 (t) => t.hash !== bnbUsdtOrder.hash,
@@ -185,20 +176,22 @@ async function hedgerMonitoringService(): Promise<boolean> {
 
           // condition to check if 10 minutes have passed
           //@ts-ignore
-          const finaliseTxTimeStamp = +usdtFinalise?.timestamp;
+          // Convert timestamps to numbers
+          const finaliseTxTimeStamp = Number(usdtFinalise?.timestamp) || 0;
+          console.log('finaliseTxTimeStamp', finaliseTxTimeStamp);
           //@ts-ignore
-          const receiveTxTimestamp = +bnbUsdtOrder?.timeStamp;
+          const receiveTxTimestamp = Number(bnbUsdtOrder?.timeStamp) || 0;
+          console.log('receiveTxTimestamp', receiveTxTimestamp);
           const tenMinutesInSeconds = 10 * 60;
+
           const isTenMinsPassedAfterReceivingMoney = finaliseTxTimeStamp - receiveTxTimestamp >= tenMinutesInSeconds;
+
+          console.log('isTenMinsPassedAfterReceivingMoney', isTenMinsPassedAfterReceivingMoney);
 
           if (isTenMinsPassedAfterReceivingMoney) {
             console.log('10 minutes have passed since transaction, recording in the database.');
             //@ts-ignore
-            const { bestOrder } = await findSuitableOrder(
-              'BNBUSDT',
-              'SELL',
-              0,
-            );
+            const { bestOrder } = await findSuitableOrder('BNBUSDT', 'SELL', 0);
 
             const heObjectForSavingInDb = await BinancePlaceOrdersSwitcher(
               'BNB',
@@ -209,7 +202,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
               bestOrder,
               'targetWalletAddress',
               profitFromSwap,
-              false
+              false,
             );
             console.log('heObjectForSavingInDb if 10 min last: ', heObjectForSavingInDb);
             await createHedgineEngineLogWithOrderIdFromBinance(heObjectForSavingInDb);
@@ -217,20 +210,15 @@ async function hedgerMonitoringService(): Promise<boolean> {
             return;
           }
 
-
           if (BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD && !isTenMinsPassedAfterReceivingMoney) {
             await sleep(1000);
             const finaliseRow = await getFinaliseLogByTxId(bnbUsdtOrder?.hash);
 
             if (!finaliseRow) {
-              const res = await placeOrderToBinanceResolver(
-                bnbOrdersToBeResolved,
-                profitFromSwap,
-                {
-                  symbol: 'BNB-USDT',
-                  direction: 'SELL',
-                },
-              );
+              const res = await placeOrderToBinanceResolver(bnbOrdersToBeResolved, profitFromSwap, {
+                symbol: 'BNB-USDT',
+                direction: 'SELL',
+              });
 
               bnbOrdersToBeResolved.transactions = bnbOrdersToBeResolved.transactions.filter(
                 (t) => t.hash !== bnbUsdtOrder.hash,
@@ -282,11 +270,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
           if (isTenMinsPassedAfterReceivingMoney) {
             console.log('10 minutes have passed since transaction, recording in the database.');
             //@ts-ignore
-            const { bestOrder } = await findSuitableOrder(
-              'BTCUSDT',
-              'SELL',
-              0,
-            );
+            const { bestOrder } = await findSuitableOrder('BTCUSDT', 'SELL', 0);
 
             const heObjectForSavingInDb = await BinancePlaceOrdersSwitcher(
               'BTC',
@@ -297,7 +281,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
               bestOrder,
               'targetWalletAddress',
               profitFromSwap,
-              false
+              false,
             );
             console.log('heObjectForSavingInDb if 10 min last: ', heObjectForSavingInDb);
             await createHedgineEngineLogWithOrderIdFromBinance(heObjectForSavingInDb);
@@ -310,11 +294,10 @@ async function hedgerMonitoringService(): Promise<boolean> {
             const finaliseRow = await getFinaliseLogByTxId(btcOrder?.txid);
 
             if (!finaliseRow) {
-              const res = await placeOrderToBinanceResolver(
-                btcOrdersNeedToBeResolved,
-                profitFromSwap,
-                { symbol: 'BTC-USDT', direction: 'SELL' },
-              );
+              const res = await placeOrderToBinanceResolver(btcOrdersNeedToBeResolved, profitFromSwap, {
+                symbol: 'BTC-USDT',
+                direction: 'SELL',
+              });
 
               btcOrdersNeedToBeResolved.transactions = btcOrdersNeedToBeResolved.transactions.filter(
                 (t) => t.txid !== btcOrder.txid,
@@ -364,11 +347,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
           if (isTenMinsPassedAfterReceivingMoney) {
             console.log('10 minutes have passed since transaction, recording in the database.');
             //@ts-ignore
-            const { bestOrder } = await findSuitableOrder(
-              'BNBUSDT',
-              'BUY',
-              0,
-            );
+            const { bestOrder } = await findSuitableOrder('BNBUSDT', 'BUY', 0);
 
             const heObjectForSavingInDb = await BinancePlaceOrdersSwitcher(
               'BNB',
@@ -379,7 +358,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
               bestOrder,
               'targetWalletAddress',
               profitFromSwap,
-              false
+              false,
             );
             console.log('heObjectForSavingInDb if 10 min last: ', heObjectForSavingInDb);
             await createHedgineEngineLogWithOrderIdFromBinance(heObjectForSavingInDb);
@@ -392,11 +371,10 @@ async function hedgerMonitoringService(): Promise<boolean> {
             const finaliseRow = await getFinaliseLogByTxId(usdtOrder?.hash);
 
             if (!finaliseRow) {
-              const res = await placeOrderToBinanceResolver(
-                usdtBnbAndBtcOrdersNeedToBeResolved,
-                profitFromSwap,
-                { symbol: 'BNB-USDT', direction: 'BUY' },
-              );
+              const res = await placeOrderToBinanceResolver(usdtBnbAndBtcOrdersNeedToBeResolved, profitFromSwap, {
+                symbol: 'BNB-USDT',
+                direction: 'BUY',
+              });
 
               usdtBnbAndBtcOrdersNeedToBeResolved.transactions =
                 usdtBnbAndBtcOrdersNeedToBeResolved?.transactions?.filter((t) => t.hash !== usdtOrder.hash);
@@ -433,11 +411,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
           if (isTenMinsPassedAfterReceivingMoney) {
             console.log('10 minutes have passed since transaction, recording in the database.');
             //@ts-ignore
-            const { bestOrder } = await findSuitableOrder(
-              'BTCUSDT',
-              'BUY',
-              0,
-            );
+            const { bestOrder } = await findSuitableOrder('BTCUSDT', 'BUY', 0);
 
             const heObjectForSavingInDb = await BinancePlaceOrdersSwitcher(
               'BTC',
@@ -448,7 +422,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
               bestOrder,
               'targetWalletAddress',
               profitFromSwap,
-              false
+              false,
             );
             console.log('heObjectForSavingInDb if 10 min last: ', heObjectForSavingInDb);
             await createHedgineEngineLogWithOrderIdFromBinance(heObjectForSavingInDb);
@@ -461,11 +435,10 @@ async function hedgerMonitoringService(): Promise<boolean> {
             const finaliseRow = await getFinaliseLogByTxId(usdtOrder?.hash);
 
             if (!finaliseRow) {
-              const res = await placeOrderToBinanceResolver(
-                usdtBnbAndBtcOrdersNeedToBeResolved,
-                profitFromSwap,
-                { symbol: 'BTC-USDT', direction: 'BUY' },
-              );
+              const res = await placeOrderToBinanceResolver(usdtBnbAndBtcOrdersNeedToBeResolved, profitFromSwap, {
+                symbol: 'BTC-USDT',
+                direction: 'BUY',
+              });
 
               usdtBnbAndBtcOrdersNeedToBeResolved.transactions =
                 usdtBnbAndBtcOrdersNeedToBeResolved.transactions.filter((t) => t.hash !== usdtOrder.hash);
