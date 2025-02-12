@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-
 export async function testAPis() {
   const usdtTransfers = await axios.get(`https://api.bscscan.com/api`, {
     params: {
@@ -18,8 +17,6 @@ export async function testAPis() {
   });
 
   return {
-    bnbLikeTxsResponse: usdtTransfers?.data
-  }
-
+    bnbLikeTxsResponse: usdtTransfers?.data,
+  };
 }
-

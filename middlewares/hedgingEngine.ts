@@ -179,7 +179,7 @@ async function hedgerMonitoringService(): Promise<boolean> {
           //@ts-ignore
           const receiveTxTimestamp = Number(bnbUsdtOrder?.timeStamp) || 0;
           console.log('receiveTxTimestamp', receiveTxTimestamp);
-          const tenMinutesInSeconds = 10 * 60;
+          const tenMinutesInSeconds = 3 * 60;
 
           const isTenMinsPassedAfterReceivingMoney = finaliseTxTimeStamp - receiveTxTimestamp >= tenMinutesInSeconds;
 
