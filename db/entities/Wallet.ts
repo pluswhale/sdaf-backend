@@ -53,5 +53,8 @@ export class Wallet {
 
   @Column({ type: 'int', default: 0 })
   rebalancingWallet: number;
+
+  @Column({ type: 'boolean', default: false })
+  isArchived: boolean;
 }
 

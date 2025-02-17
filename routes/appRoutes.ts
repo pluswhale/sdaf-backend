@@ -47,6 +47,7 @@ import { getFinaliseLog } from '../controllers/getFinaliseLog';
 import { rateLimit } from '../controllers/rateLimit';
 import { getHedgerConfigurationOptions } from '../controllers/getHedgerConfigurationOptions';
 import { updateHedgerConfigOption } from '../controllers/updateHedgerConfigOption';
+import { archiveWallet, validateArchivedWallet } from '../controllers/archiveWallet';
 
 const router = express.Router();
 
@@ -57,6 +58,7 @@ router.post('/transaction', validateTransaction, authenticate, makeTransaction);
 router.get('/balance', validateGetBalance, getBalanceOfAddress);
 router.put('/wallet/update-minmax/:id', validateSetUpMixMaxInWallet, setUpMinAndMaxWallet);
 router.patch('/wallet/update-name/:id', validateRenamingWallet, renameWallet);
+router.patch('/wallet/update-archive/:id', validateArchivedWallet, archiveWallet);
 
 router.post('/login', loginUser);
 router.post('/refresh', refreshToken);
@@ -107,3 +109,4 @@ router.get('/hedgine-engine/config-options', getHedgerConfigurationOptions);
 router.put('/hedgine-engine/config-options', updateHedgerConfigOption);
 
 export default router;
+
