@@ -2,26 +2,38 @@ import { Request, Response } from 'express';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-// interface AssetBinance {
-//   asset: string;
-//   free: string | null;
-//   locked: string;
-//   freeze: string;
-//   withdrawing: string;
-//   ipoable: string;
-//   btcValuation: string;
-//   usdValue: number;
-// }
-
-export const getUserBinanceBalance = async (req: Request, res: Response): Promise<void> => {
+export const getUserBinanceBalance = async (req: Request, res: Response): Promise<any> => {
   try {
     const { Spot } = require('@binance/connector');
 
-    const apiKey = process.env.BINANCE_API_KEY;
-    const apiSecret = process.env.BINANCE_API_SECRET_KEY;
+    const accountType = req.query.account as string;
+
+    let apiKey: string | undefined;
+    let apiSecret: string | undefined;
+
+    switch (accountType) {
+      case 'hwat':
+        apiKey = process.env.BINANCE_API_KEY_HWAT;
+        apiSecret = process.env.BINANCE_API_SECRET_KEY_HWAT;
+        break;
+      case 'panchoBtc':
+        apiKey = process.env.BINANCE_API_KEY_PANCHO_BTC;
+        apiSecret = process.env.BINANCE_API_SECRET_KEY_PANCHO_BTC;
+        break;
+      case 'panchoBnb':
+        apiKey = process.env.BINANCE_API_KEY_PANCHO_BNB;
+        apiSecret = process.env.BINANCE_API_SECRET_KEY_PANCHO_BNB;
+        break;
+      default:
+        return res.status(400).json({
+          error: 'Invalid account type specified. Please provide a valid account query parameter.',
+        });
+    }
 
     if (!apiKey || !apiSecret) {
-      throw new Error('API key or secret is missing.');
+      return res.status(400).json({
+        error: 'API key or secret is missing for the specified account.',
+      });
     }
 
     const client = new Spot(apiKey, apiSecret);
