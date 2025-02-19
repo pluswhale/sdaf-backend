@@ -24,6 +24,10 @@ export const getUserBinanceBalance = async (req: Request, res: Response): Promis
         apiKey = process.env.BINANCE_API_KEY_PANCHO_BNB;
         apiSecret = process.env.BINANCE_API_SECRET_KEY_PANCHO_BNB;
         break;
+      case 'panchoSpot':
+        apiKey = process.env.BINANCE_API_KEY_PANCHO_SPOT;
+        apiSecret = process.env.BINANCE_API_SECRET_KEY_PANCHO_SPOT;
+        break;
       default:
         return res.status(400).json({
           error: 'Invalid account type specified. Please provide a valid account query parameter.',
@@ -60,4 +64,3 @@ export const getUserBinanceBalance = async (req: Request, res: Response): Promis
     });
   }
 };
-
