@@ -44,28 +44,27 @@ export const initiateWithdrawalBinance = async (req: Request, res: Response): Pr
 
     const client = new Spot(apiKey, apiSecret);
 
-    const response = await client.withdraw(
-      coinSymbol, // coin
-      withdrawalAddress, // withdraw address
-      amount, // amount
-      {
-        // optional parameters
-        network: network, // network (BNB, BEP2, BEP20, ... )
-      },
-    );
-
-    if (response && response.data) {
-      const withdrawData = response.data || [];
-
-      res.status(200).json({
-        withdraw: withdrawData,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Failed to withdrawData user assets',
-        details: response?.data || 'No data',
-      });
-    }
+    client
+      .withdraw(
+        coinSymbol, // coin
+        withdrawalAddress, // withdraw address
+        amount, // amount
+        {
+          // optional parameters
+          network: network, // network (BNB, BEP2, BEP20, ... )
+        },
+      )
+      .then((response: any) =>
+        res.status(200).json({
+          withdraw: response.data,
+        }),
+      )
+      .catch((error: any) =>
+        res.status(500).json({
+          error: 'Failed to withdrawData user assets',
+          details: error?.data || 'No data',
+        }),
+      );
   } catch (error: any) {
     console.error('Unexpected Error:', error.message);
     res.status(500).json({
