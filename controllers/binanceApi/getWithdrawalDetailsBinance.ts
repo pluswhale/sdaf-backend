@@ -8,7 +8,7 @@ export const getWithdrawalDetailsBinance = async (req: Request, res: Response): 
 
     const accountType = req.query.accountType as string;
 
-    const { coinSymbol } = req.body;
+    const { coinSymbol, status } = req.body;
 
     let apiKey: string | undefined;
     let apiSecret: string | undefined;
@@ -47,11 +47,11 @@ export const getWithdrawalDetailsBinance = async (req: Request, res: Response): 
     client
       .withdrawHistory({
         coin: coinSymbol,
-        status: 1,
+        status: status,
       })
       .then((response: any) =>
         res.status(200).json({
-          depositHistory: response.data,
+          withdrawHistory: response.data,
         }),
       )
       .catch((error: any) =>

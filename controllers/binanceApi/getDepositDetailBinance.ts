@@ -8,7 +8,7 @@ export const getDepositDetailBinance = async (req: Request, res: Response): Prom
 
     const accountType = req.query.accountType as string;
 
-    const { coinSymbol } = req.body;
+    const { coinSymbol, status } = req.body;
 
     let apiKey: string | undefined;
     let apiSecret: string | undefined;
@@ -47,7 +47,7 @@ export const getDepositDetailBinance = async (req: Request, res: Response): Prom
     client
       .depositHistory({
         coin: coinSymbol,
-        status: 1,
+        status: status,
       })
       .then((response: any) =>
         res.status(200).json({
