@@ -48,6 +48,7 @@ import { rateLimit } from '../controllers/rateLimit';
 import { getHedgerConfigurationOptions } from '../controllers/getHedgerConfigurationOptions';
 import { updateHedgerConfigOption } from '../controllers/updateHedgerConfigOption';
 import { archiveWallet, validateArchivedWallet } from '../controllers/archiveWallet';
+import { initiateWithdrawalBinance } from '../controllers/binanceApi/initiateWithdrawalBinance';
 
 const router = express.Router();
 
@@ -89,6 +90,7 @@ router.get('/get-asset-price', getAssetPrice);
 
 //Binance
 router.get('/balance-binance', getUserBinanceBalance);
+router.post('/initiate-withdrawal-binance', initiateWithdrawalBinance);
 
 // Test Rate Limit Blockstream
 router.get('/rate-limit', rateLimit);
