@@ -6,7 +6,7 @@ export const initiateWithdrawalBinance = async (req: Request, res: Response): Pr
   try {
     const { Spot } = require('@binance/connector');
 
-    const accountType = req.query.account as string;
+    const accountType = req.query.accountType as string;
 
     const { amount, coinSymbol, network, withdrawalAddress } = req.body;
 
