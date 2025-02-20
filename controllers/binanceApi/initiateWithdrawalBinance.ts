@@ -44,17 +44,20 @@ export const initiateWithdrawalBinance = async (req: Request, res: Response): Pr
 
     const client = new Spot(apiKey, apiSecret);
 
-    const response = await client.withdraw(
-      coinSymbol, // coin
-      withdrawalAddress, // withdraw address
-      amount, // amount
-      {
-        // optional parameters
-        network: network, // network (BNB, BEP2, BEP20, ... )
-      },
-    );
+    const response = await client
+      .withdraw(
+        coinSymbol, // coin
+        withdrawalAddress, // withdraw address
+        amount, // amount
+        {
+          // optional parameters
+          network: network, // network (BNB, BEP2, BEP20, ... )
+        },
+      )
+      .then((response: any) => client.logger.log(response.data))
+      .catch((error: any) => client.logger.error(error));
 
-    if (response && response.data) {
+    if (response) {
       const withdrawData = response.data || [];
 
       res.status(200).json({
