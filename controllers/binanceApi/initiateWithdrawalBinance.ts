@@ -62,7 +62,7 @@ export const initiateWithdrawalBinance = async (req: Request, res: Response): Pr
       .catch((error: any) =>
         res.status(500).json({
           error: 'Failed to withdrawData user assets',
-          details: error?.data || 'No data',
+          details: error || 'No data',
         }),
       );
   } catch (error: any) {
