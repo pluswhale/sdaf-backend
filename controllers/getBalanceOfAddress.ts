@@ -1,12 +1,20 @@
 import { check, matchedData, validationResult } from 'express-validator';
-import { checkBalanceBTCToUSDT, checkBalanceUSDT } from '../services';
+import {
+  checkBalanceBTCToUSDT,
+  checkBalanceInBNB,
+  checkBalanceInETH,
+  checkBalanceUSDTBep20,
+  checkBalanceUSDTErc20,
+} from '../services';
 import { Request, Response } from 'express';
 
 export enum Currency {
   BTC = 'BTC',
   USDT_BEP20 = 'USDT_BEP20',
   USDT_ERC20 = 'USDT_ERC20',
-  BNB = 'BNB'
+  USDT_TRC20 = 'USDT_TRC20',
+  BNB = 'BNB',
+  ETH = 'ETH',
 }
 
 export const validateGetBalance = [
@@ -37,7 +45,25 @@ export const getBalanceOfAddress = async (req: Request, res: Response): Promise<
     }
 
     case Currency.USDT_BEP20: {
-      const balance = await checkBalanceUSDT(address as string, isMainnet as boolean);
+      const balance = await checkBalanceUSDTBep20(address as string, isMainnet as boolean);
+
+      return res.status(200).json({ data: balance });
+    }
+
+    case Currency.USDT_ERC20: {
+      const balance = await checkBalanceUSDTErc20(address as string, isMainnet as boolean);
+
+      return res.status(200).json({ data: balance });
+    }
+
+    case Currency.BNB: {
+      const balance = await checkBalanceInBNB(address as string, isMainnet as boolean);
+
+      return res.status(200).json({ data: balance });
+    }
+
+    case Currency.ETH: {
+      const balance = await checkBalanceInETH(address as string, isMainnet as boolean);
 
       return res.status(200).json({ data: balance });
     }
@@ -48,4 +74,3 @@ export const getBalanceOfAddress = async (req: Request, res: Response): Promise<
     }
   }
 };
-

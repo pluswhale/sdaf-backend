@@ -1,9 +1,11 @@
 import axios from 'axios';
-import { CoinWebProviders, ethProviders } from '../config';
+import { CoinWebProviders, ethProviders, Providers } from '../config';
 import { Contract, formatEther, formatUnits } from 'ethers';
 import { getBitcoinBalance } from '../utils';
 
 import dotenv from 'dotenv';
+import { USDT_ABI } from '../utils/abis';
+import { Currency } from '../controllers';
 
 dotenv.config();
 
@@ -11,16 +13,16 @@ dotenv.config();
 
 export const checkBalanceInBNB = async (address: string, isMainnet: boolean) => {
   const provider = isMainnet ? ethProviders['bscMainnet'] : ethProviders['bscTestnet'];
-  const balanceInWei = await provider.getBalance(address);
+  const balanceInWei = await provider?.getBalance(address);
 
-  return balanceInWei.toString() === '0n' || !balanceInWei ? 0 : parseFloat(formatEther(balanceInWei));
+  return balanceInWei?.toString() === '0n' || !balanceInWei ? 0 : parseFloat(formatEther(balanceInWei));
 };
 
 export const checkBalanceInETH = async (address: string, isMainnet: boolean) => {
   const provider = isMainnet ? ethProviders['ethMainnet'] : ethProviders['ethTestnet'];
-  const balanceInWei = await provider.getBalance(address);
+  const balanceInWei = await provider?.getBalance(address);
 
-  return balanceInWei.toString() === '0n' || !balanceInWei ? 0 : parseFloat(formatEther(balanceInWei));
+  return balanceInWei?.toString() === '0n' || !balanceInWei ? 0 : parseFloat(formatEther(balanceInWei));
 };
 
 export const checkBalanceBNBToUSD = async (bnbAddress: string, isMainnet: boolean) => {
@@ -58,7 +60,6 @@ export const checkBalanceETHToUSD = async (bnbAddress: string, isMainnet: boolea
 };
 
 // Bitcoin block
-
 export const checkBalanceBTCToUSDT = async (btcAddress: string, isMainnet: boolean) => {
   const balanceInBTC = await getBitcoinBalance(btcAddress, isMainnet);
 
@@ -77,9 +78,27 @@ export const checkBalanceBTCToUSDT = async (btcAddress: string, isMainnet: boole
 };
 
 // USDT Block
+export const checkBalanceUSDTToUSD = async (
+  usdtAddress: string,
+  isMainnet: boolean,
+  type: Currency.USDT_BEP20 | Currency.USDT_ERC20 | Currency.USDT_TRC20,
+) => {
+  let balanceInUSDT = 0;
 
-export const checkBalanceUSDTToUSD = async (usdtAddress: string, isMainnet: boolean, contractAddress: string) => {
-  const balanceInUSDT = await checkBalanceUSDT(usdtAddress, isMainnet, contractAddress);
+  switch (type) {
+    case Currency.USDT_BEP20: {
+      balanceInUSDT = await checkBalanceUSDTBep20(usdtAddress, isMainnet);
+      break;
+    }
+
+    case Currency.USDT_ERC20: {
+      balanceInUSDT = await checkBalanceUSDTErc20(usdtAddress, isMainnet);
+      break;
+    }
+
+    default: {
+    }
+  }
 
   const response = await axios.get(`https://sdafcwap.com/app/api/get-asset-price`);
 
@@ -95,22 +114,31 @@ export const checkBalanceUSDTToUSD = async (usdtAddress: string, isMainnet: bool
   return { usd: balanceInUSD.toFixed(2), usdt: balanceInUSDT };
 };
 
-const USDT_ABI = [
-  'function balanceOf(address owner) view returns (uint256)',
-  'function decimals() view returns (uint8)', // Add the decimals method
-];
-
-export const checkBalanceUSDT = async (
-  walletAddress: string,
-  isMainnet: boolean,
-  contractAddress = '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-) => {
+export const checkBalanceUSDTErc20 = async (walletAddress: string, isMainnet: boolean) => {
   try {
-    const provider = isMainnet
-      ? ethProviders[contractAddress === '0xdAC17F958D2ee523a2206206994597C13D831ec7' ? 'ethMainnet' : 'bscMainnet']
-      : ethProviders[contractAddress === '0xdAC17F958D2ee523a2206206994597C13D831ec7' ? 'ethTestnet' : 'bscTestnet'];
+    const provider = ethProviders[isMainnet ? 'ethMainnet' : 'ethTestnet'];
 
-    const usdtContract = new Contract(contractAddress, USDT_ABI, provider);
+    console.log('cur provider', await provider?.getNetwork());
+
+    const usdtContract = new Contract('0xdAC17F958D2ee523a2206206994597C13D831ec7', USDT_ABI, provider);
+
+    const balanceInUSDT = await usdtContract?.balanceOf(walletAddress);
+    const decimals = await usdtContract.decimals();
+    return balanceInUSDT.toString() === '0n' || !balanceInUSDT ? 0 : parseFloat(formatUnits(balanceInUSDT, decimals));
+  } catch (e) {
+    console.log('error get usdt balance: ', e);
+  }
+
+  return 0;
+};
+
+export const checkBalanceUSDTBep20 = async (walletAddress: string, isMainnet: boolean) => {
+  try {
+    const provider = ethProviders[isMainnet ? 'bscMainnet' : 'bscTestnet'];
+
+    console.log('cur provider', await provider?.getNetwork());
+
+    const usdtContract = new Contract('0x55d398326f99059fF775485246999027B3197955', USDT_ABI, provider);
 
     const balanceInUSDT = await usdtContract?.balanceOf(walletAddress);
     const decimals = await usdtContract.decimals();
@@ -123,19 +151,7 @@ export const checkBalanceUSDT = async (
 };
 
 export const checkBalanceUSDT_CT = async (walletAddress: string, isMainnet: boolean) => {
-  // const USDT_CONTRACT_ADDRESS: string = '0x337610d27c682E347C9cD60BD4b3b107C9d34dDd';
-  //
-  // console.log('usdt contract addres', USDT_CONTRACT_ADDRESS);
-  //
-  // const provider = isMainnet ? CoinWebProviders['mainnet'] : CoinWebProviders['testnet'];
-  // const usdtContract = new Contract(USDT_CONTRACT_ADDRESS, USDT_ABI, provider);
-  //
-  // // Get the balance of USDT in the wallet
-  // const balanceInUSDT = await usdtContract.balanceOf(walletAddress);
-  // const decimals = await usdtContract.decimals();
-  // const formattedBalance = balanceInUSDT !== '0x' ? parseFloat(formatUnits(balanceInUSDT, decimals)) : 0;
-  //
-  // return formattedBalance.toFixed(2);
+  //TODO: Implement this
 
   return 0;
 };

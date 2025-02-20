@@ -8,6 +8,7 @@ import {
 import { AppDataSource } from '../db/AppDataSource';
 import { Wallet } from '../db/entities';
 import { Request, Response } from 'express';
+import { Currency } from './getBalanceOfAddress';
 
 const walletRepository = AppDataSource.getRepository(Wallet);
 
@@ -19,12 +20,12 @@ const processBTC: WalletProcessor = async (wallet, isMainnet) => {
 };
 
 const processUSDT_BEP20: WalletProcessor = async (wallet, isMainnet) => {
-  const price = await checkBalanceUSDTToUSD(wallet.address, isMainnet, '0x55d398326f99059fF775485246999027B3197955');
+  const price = await checkBalanceUSDTToUSD(wallet.address, isMainnet, Currency.USDT_BEP20);
   return { ...wallet, price };
 };
 
 const processUSDT_ERC20: WalletProcessor = async (wallet, isMainnet) => {
-  const price = await checkBalanceUSDTToUSD(wallet.address, isMainnet, '0xdAC17F958D2ee523a2206206994597C13D831ec7');
+  const price = await checkBalanceUSDTToUSD(wallet.address, isMainnet, Currency.USDT_ERC20);
   return { ...wallet, price };
 };
 
@@ -43,6 +44,11 @@ const processUSDT_CT: WalletProcessor = async (wallet, isMainnet) => {
   return { ...wallet, price: { usd, usdValue: 0 } };
 };
 
+const processUSDT_T: WalletProcessor = async (wallet, isMainnet) => {
+  const usd = await checkBalanceUSDT_CT(wallet.address, isMainnet);
+  return { ...wallet, price: { usd, usdValue: 0 } };
+};
+
 const processDefault: WalletProcessor = async (wallet) => {
   return wallet;
 };
@@ -52,7 +58,7 @@ export const walletProcessors: { [key: string]: WalletProcessor } = {
   BTC_T: processBTC,
   USDT_BEP20: processUSDT_BEP20,
   USDT_CT: processUSDT_CT,
-  USDT_T: processUSDT_BEP20,
+  USDT_T: processUSDT_T,
   USDT_TRC20: processUSDT_BEP20,
   USDT_ERC20: processUSDT_ERC20,
   BNB: processBNB,
