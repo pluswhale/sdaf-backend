@@ -91,9 +91,9 @@ router.get('/get-asset-price', getAssetPrice);
 //Binance
 router.get('/balance-binance', getUserBinanceBalance);
 router.post('/initiate-withdrawal-binance', initiateWithdrawalBinance);
-router.get('/get-withdrawal-history-binance', getWithdrawalDetailsBinance);
-router.get('/get-deposit-address-binance', getDepositAddressBinance);
-router.get('/get-deposit-history-binance', getDepositDetailBinance);
+router.post('/get-withdrawal-history-binance', getWithdrawalDetailsBinance);
+router.post('/get-deposit-address-binance', getDepositAddressBinance);
+router.post('/get-deposit-history-binance', getDepositDetailBinance);
 router.post('/create-transaction-binance', makeRebalancerTransaction);
 
 // Test Rate Limit Blockstream
