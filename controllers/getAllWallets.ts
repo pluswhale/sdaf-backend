@@ -1,4 +1,10 @@
-import { checkBalanceBNBToUSD, checkBalanceBTCToUSDT, checkBalanceUSDT_CT, checkBalanceUSDTToUSD } from '../services';
+import {
+  checkBalanceBNBToUSD,
+  checkBalanceBTCToUSDT,
+  checkBalanceETHToUSD,
+  checkBalanceUSDT_CT,
+  checkBalanceUSDTToUSD,
+} from '../services';
 import { AppDataSource } from '../db/AppDataSource';
 import { Wallet } from '../db/entities';
 import { Request, Response } from 'express';
@@ -13,12 +19,22 @@ const processBTC: WalletProcessor = async (wallet, isMainnet) => {
 };
 
 const processUSDT_BEP20: WalletProcessor = async (wallet, isMainnet) => {
-  const price = await checkBalanceUSDTToUSD(wallet.address, isMainnet);
+  const price = await checkBalanceUSDTToUSD(wallet.address, isMainnet, '0x55d398326f99059fF775485246999027B3197955');
+  return { ...wallet, price };
+};
+
+const processUSDT_ERC20: WalletProcessor = async (wallet, isMainnet) => {
+  const price = await checkBalanceUSDTToUSD(wallet.address, isMainnet, '0xdAC17F958D2ee523a2206206994597C13D831ec7');
   return { ...wallet, price };
 };
 
 const processBNB: WalletProcessor = async (wallet, isMainnet) => {
   const price = await checkBalanceBNBToUSD(wallet.address, isMainnet);
+  return { ...wallet, price };
+};
+
+const processETH: WalletProcessor = async (wallet, isMainnet) => {
+  const price = await checkBalanceETHToUSD(wallet.address, isMainnet);
   return { ...wallet, price };
 };
 
@@ -38,9 +54,9 @@ export const walletProcessors: { [key: string]: WalletProcessor } = {
   USDT_CT: processUSDT_CT,
   USDT_T: processUSDT_BEP20,
   USDT_TRC20: processUSDT_BEP20,
-  USDT_ERC20: processUSDT_BEP20,
+  USDT_ERC20: processUSDT_ERC20,
   BNB: processBNB,
-  ETH: processUSDT_BEP20,
+  ETH: processETH,
 };
 
 const testWallets: { [key: string]: boolean } = {
@@ -71,4 +87,3 @@ export const getAllWallets = async (req: Request, res: Response): Promise<any> =
     res.status(500).json({ error: 'Failed to fetch wallets' });
   }
 };
-

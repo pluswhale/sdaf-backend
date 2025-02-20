@@ -445,28 +445,27 @@ async function updateWithdrawalStatuses() {
     console.error('Error updating statuses:', error);
   }
 }
-
-cron.schedule('* * * * *', () => {
-  if (isRunning) {
-    console.warn('Previous task is still running. Skipping current run.');
-    return;
-  }
-
-  isRunning = true;
-  (async () => {
-    try {
-      console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
-
-      await updateWithdrawalStatuses();
-
-      await checkAndInitiateWithdrawals();
-
-      console.log('Scheduled tasks completed successfully.');
-    } catch (error) {
-      console.error('Error during scheduled tasks:', error);
-    } finally {
-      isRunning = false;
-    }
-  })();
-});
-
+//
+// cron.schedule('* * * * *', () => {
+//   if (isRunning) {
+//     console.warn('Previous task is still running. Skipping current run.');
+//     return;
+//   }
+//
+//   isRunning = true;
+//   (async () => {
+//     try {
+//       console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
+//
+//       await updateWithdrawalStatuses();
+//
+//       await checkAndInitiateWithdrawals();
+//
+//       console.log('Scheduled tasks completed successfully.');
+//     } catch (error) {
+//       console.error('Error during scheduled tasks:', error);
+//     } finally {
+//       isRunning = false;
+//     }
+//   })();
+// });
