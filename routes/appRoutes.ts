@@ -31,16 +31,13 @@ import { initiateWithdrawalCeffu } from '../controllers/initiateWithdrawalCeffu'
 import { getWithdrawalDetailsCeffu } from '../controllers/getWithdrawalDetailsCeffu';
 import { getAllWalletsWithoutPrice } from '../controllers/getAllWalletsWithoutPrice';
 import { getDepositAddressCeffu } from '../controllers/getDepositAddressCeffu';
-import { createTransaction } from '../controllers/transactions/createTransaction';
 import { getDepositDetailCeffu } from '../controllers/getDepositDetailCeffu';
-import makeTransactionCeffu from '../controllers/makeTransactionCeffu';
+import { makeRebalancerTransaction } from '../controllers/makeRebalancerTransaction';
 import { renameWallet, validateRenamingWallet } from '../controllers/renameWallet';
 import { getAssetPrice } from '../controllers/transactions/getAssetPrice';
 
 import { getTransactionConfirmations } from '../controllers/getTransactionConfirmations';
 
-import { checkOrderStatus, placeBinanceOrder } from '../services/binanceTrade';
-import { findSuitableOrder } from '../services/findSuitableOrder';
 import { getHedgineEngineHistoryLog } from '../controllers/getHedgineEngineHistoryLog';
 import { getUserBinanceBalance } from '../controllers/binanceApi/getUserBinanceBalance';
 import { getFinaliseLog } from '../controllers/getFinaliseLog';
@@ -49,6 +46,9 @@ import { getHedgerConfigurationOptions } from '../controllers/getHedgerConfigura
 import { updateHedgerConfigOption } from '../controllers/updateHedgerConfigOption';
 import { archiveWallet, validateArchivedWallet } from '../controllers/archiveWallet';
 import { initiateWithdrawalBinance } from '../controllers/binanceApi/initiateWithdrawalBinance';
+import { getDepositAddressBinance } from '../controllers/binanceApi/getDepositAddressBinance';
+import { getDepositDetailBinance } from '../controllers/binanceApi/getDepositDetailBinance';
+import { getWithdrawalDetailsBinance } from '../controllers/binanceApi/getWithdrawalDetailsBinance';
 
 const router = express.Router();
 
@@ -82,7 +82,7 @@ router.get('/get-deposit-address', getDepositAddressCeffu);
 router.get('/get-deposit-detail-ceffu', getDepositDetailCeffu);
 router.get('/get-withdrawal-history-ceffu', getWithdrawalHistoryCeffu);
 router.post('/initiate-withdrawal-ceffu', initiateWithdrawalCeffu);
-router.post('/create-transaction-ceffu', makeTransactionCeffu);
+router.post('/create-transaction-ceffu', makeRebalancerTransaction);
 router.get('/get-withdrawal-details-ceffu', getWithdrawalDetailsCeffu);
 
 // CoinGeko prices
@@ -91,6 +91,10 @@ router.get('/get-asset-price', getAssetPrice);
 //Binance
 router.get('/balance-binance', getUserBinanceBalance);
 router.post('/initiate-withdrawal-binance', initiateWithdrawalBinance);
+router.get('/get-withdrawal-history-binance', getWithdrawalDetailsBinance);
+router.get('/get-deposit-address-binance', getDepositAddressBinance);
+router.get('/get-deposit-history-binance', getDepositDetailBinance);
+router.post('/create-transaction-binance', makeRebalancerTransaction);
 
 // Test Rate Limit Blockstream
 router.get('/rate-limit', rateLimit);

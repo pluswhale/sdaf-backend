@@ -2,7 +2,7 @@ import axios from 'axios';
 import { backendUrl } from '../config';
 import { Request, Response } from 'express';
 
-export const makeTransactionCeffu = async (req: Request, res: Response): Promise<any> => {
+export const makeRebalancerTransaction = async (req: Request, res: Response): Promise<any> => {
   try {
     const transactionData = req.body;
 
@@ -32,5 +32,5 @@ export const makeTransactionCeffu = async (req: Request, res: Response): Promise
   }
 };
 
-export default makeTransactionCeffu;
+export default makeRebalancerTransaction;
 

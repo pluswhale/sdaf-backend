@@ -2,11 +2,13 @@ import { Request, Response } from 'express';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-export const getUserBinanceBalance = async (req: Request, res: Response): Promise<any> => {
+export const getDepositDetailBinance = async (req: Request, res: Response): Promise<any> => {
   try {
     const { Spot } = require('@binance/connector');
 
-    const accountType = req.query.account as string;
+    const accountType = req.query.accountType as string;
+
+    const { coinSymbol } = req.body;
 
     let apiKey: string | undefined;
     let apiSecret: string | undefined;
@@ -25,8 +27,8 @@ export const getUserBinanceBalance = async (req: Request, res: Response): Promis
         apiSecret = process.env.BINANCE_API_SECRET_KEY_PANCHO_BNB;
         break;
       case 'panchoSpot':
-        apiKey = process.env.BINANCE_API_KEY_PANCHO_SPOT;
-        apiSecret = process.env.BINANCE_API_SECRET_KEY_PANCHO_SPOT;
+        apiKey = process.env.BINANCE_API_KEY_PANCHO_SPOT_WITHDRAW;
+        apiSecret = process.env.BINANCE_API_SECRET_KEY_PANCHO_SPOT_WITHDRAW;
         break;
       default:
         return res.status(400).json({
@@ -42,20 +44,22 @@ export const getUserBinanceBalance = async (req: Request, res: Response): Promis
 
     const client = new Spot(apiKey, apiSecret);
 
-    const response = await client.userAsset();
-
-    if (response && response.data) {
-      const assetsData = response.data || [];
-
-      res.status(200).json({
-        balances: assetsData,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Failed to fetch user assets',
-        details: response?.data || 'No data',
-      });
-    }
+    client
+      .depositHistory({
+        coin: coinSymbol,
+        status: 1,
+      })
+      .then((response: any) =>
+        res.status(200).json({
+          depositHistory: response.data,
+        }),
+      )
+      .catch((error: any) =>
+        res.status(500).json({
+          error: 'Failed to get deposit history',
+          details: error || 'No data',
+        }),
+      );
   } catch (error: any) {
     console.error('Unexpected Error:', error.message);
     res.status(500).json({
