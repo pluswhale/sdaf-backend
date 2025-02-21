@@ -36,6 +36,9 @@ export const initiateWithdrawalBinance = async (req: Request, res: Response): Pr
         });
     }
 
+    console.log(apiKey, 'API KEY');
+    console.log(apiSecret, 'API Secret');
+
     if (!apiKey || !apiSecret) {
       return res.status(400).json({
         error: 'API key or secret is missing for the specified account.',
