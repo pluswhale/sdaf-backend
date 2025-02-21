@@ -9,6 +9,15 @@ export const validateSetUpMixMaxInWallet = [
   check('rebalancingWallet').isNumeric().withMessage('rebalancingWallet value must be a number'),
 ];
 
+export type PlatformName = 'hwat' | 'panchoSpot' | 'CeffuWallet1' | 'CeffuWallet2';
+
+export const PLATFORM_NAME: Record<PlatformName, string> = {
+  hwat: 'binance',
+  panchoSpot: 'binance',
+  CeffuWallet1: 'ceffu',
+  CeffuWallet2: 'ceffu',
+};
+
 const walletRepository = AppDataSource.getRepository(Wallet);
 
 export const setUpMinAndMaxWallet = async (req: Request, res: Response): Promise<any> => {
@@ -20,6 +29,8 @@ export const setUpMinAndMaxWallet = async (req: Request, res: Response): Promise
   const { id } = req.params;
   const { maxValue, minValue, rebalancingWallet } = req.body;
 
+  const rebalancingPlatform = PLATFORM_NAME[rebalancingWallet as PlatformName]
+
   try {
     const wallet = await walletRepository.findOne({ where: { id } });
 
@@ -30,6 +41,7 @@ export const setUpMinAndMaxWallet = async (req: Request, res: Response): Promise
     wallet.minBalance = minValue;
     wallet.maxBalance = maxValue;
     wallet.rebalancingWallet = rebalancingWallet;
+    wallet.rebalancingPlatform = rebalancingPlatform;
     await walletRepository.save(wallet);
 
     return res.json({ message: 'Wallet updated successfully', wallet });
