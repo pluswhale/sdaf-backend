@@ -6,7 +6,7 @@ import { check, validationResult } from 'express-validator';
 export const validateSetUpMixMaxInWallet = [
   check('minValue').isNumeric().withMessage('Min value must be a number'),
   check('maxValue').isNumeric().withMessage('Max value must be a number'),
-  check('rebalancingWallet').isNumeric().withMessage('rebalancingWallet value must be a number'),
+  check('rebalancingWallet').isString().withMessage('rebalancingWallet value must be a string'),
 ];
 
 export type PlatformName = 'hwat' | 'panchoSpot' | 'CeffuWallet1' | 'CeffuWallet2';
