@@ -62,12 +62,24 @@ export const initiateWithdrawalBinance = async (req: Request, res: Response): Pr
           withdraw: response.data,
         }),
       )
-      .catch((error: any) =>
-        res.status(500).json({
-          error: 'Failed to withdrawData user assets',
-          details: error || 'No data',
-        }),
-      );
+      .catch((error: any) => {
+        if (error.response) {
+          return res.status(error.response.status).json({
+            error: 'Failed to withdraw user assets',
+            details: error.response.data || 'No data available from Binance response',
+          });
+        } else if (error.request) {
+          return res.status(500).json({
+            error: 'Failed to communicate with Binance API',
+            details: 'No response from Binance API',
+          });
+        } else {
+          return res.status(500).json({
+            error: 'Unexpected Error',
+            details: error.message || 'No specific error message available',
+          });
+        }
+      });
   } catch (error: any) {
     console.error('Unexpected Error:', error.message);
     res.status(500).json({
