@@ -397,7 +397,7 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
 
         const status = response.data.withdrawalDetails.status;
 
-        if (status === 40) {
+        if (status === statusCode) {
           await pendingWithdrawalRepository.remove(pw);
           console.log(`Withdrawal ${pw.orderViewId} confirmed and removed from pending.`);
         } else {
@@ -418,7 +418,7 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
         };
 
         const response = await limiter.schedule(() =>
-          axios.get('https://sdafcwap.com/app/api/get-deposit-detail-ceffu', {
+          axios.get(`https://sdafcwap.com/app/api/get-deposit-detail-${platform}`, {
             headers,
             params,
           }),
@@ -428,7 +428,7 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
 
         const status = response.data.depositDetails[0]?.status;
 
-        if (status === 40) {
+        if (status === statusCode) {
           await pendingReplenishmentRepository.remove(pr);
           console.log(`Replishment ${pr.orderViewId} confirmed and removed from pending.`);
         } else {
@@ -445,30 +445,30 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
   }
 }
 
-cron.schedule('* * * * *', () => {
-  if (isRunning) {
-    console.warn('Previous task is still running. Skipping current run.');
-    return;
-  }
+// cron.schedule('* * * * *', () => {
+//   if (isRunning) {
+//     console.warn('Previous task is still running. Skipping current run.');
+//     return;
+//   }
 
-  isRunning = true;
-  (async () => {
-    try {
-      console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
+//   isRunning = true;
+//   (async () => {
+//     try {
+//       console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
 
-      platformConfig.map(async (config) => {
-        const { platform, statusCode } = config;
-        await updateWithdrawalStatuses({ platform, statusCode });
-      });
+//       platformConfig.map(async (config) => {
+//         const { platform, statusCode } = config;
+//         await updateWithdrawalStatuses({ platform, statusCode });
+//       });
 
-      await checkAndInitiateWithdrawals();
+//       await checkAndInitiateWithdrawals();
 
-      console.log('Scheduled tasks completed successfully.');
-    } catch (error) {
-      console.error('Error during scheduled tasks:', error);
-    } finally {
-      isRunning = false;
-    }
-  })();
-});
+//       console.log('Scheduled tasks completed successfully.');
+//     } catch (error) {
+//       console.error('Error during scheduled tasks:', error);
+//     } finally {
+//       isRunning = false;
+//     }
+//   })();
+// });
 
