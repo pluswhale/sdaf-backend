@@ -21,21 +21,35 @@ const apiConfig: Record<string, WalletConfig> = {
   },
 };
 
-export const getDepositAddressCeffu = async (req: Request, res: Response): Promise<void> => {
+export const getDepositAddressCeffu = async (req: Request, res: Response): Promise<any> => {
   try {
     const { coinSymbol, network, walletId } = req.query;
     const timestamp = Date.now().toString();
 
-    const internalWalletCeffuId = req.query.internalWalletCeffuId as string;
+    const accountType = req.query.accountType as string;
 
-    if (!apiConfig[internalWalletCeffuId]) {
-      throw new Error(`API configuration not found for user ID: ${internalWalletCeffuId}`);
+    let apiKey: string | undefined;
+    let apiSecret: string | undefined;
+
+    switch (accountType) {
+      case '276251286620667904':
+        apiKey = process.env.CEFFU_API_KEY_WALLET_WITHDRAWAL;
+        apiSecret = process.env.CEFFU_API_SECRET_WALLET_WITHDRAWAL;
+        break;
+      case '441257846101966848':
+        apiKey = process.env.CEFFU_API_KEY_WALLET_WITHDRAWAL_SECOND_WALLET;
+        apiSecret = process.env.CEFFU_API_SECRET_WALLET_WITHDRAWAL_SECOND_WALLET;
+        break;
+      default:
+        return res.status(400).json({
+          error: 'Invalid account type specified. Please provide a valid account query parameter.',
+        });
     }
 
-    const { apiKey, apiSecret } = apiConfig[internalWalletCeffuId];
-
     if (!apiKey || !apiSecret) {
-      throw new Error('API key, secret, or wallet ID is missing.');
+      return res.status(400).json({
+        error: 'API key or secret is missing for the specified account.',
+      });
     }
 
     const params = {
@@ -59,7 +73,7 @@ export const getDepositAddressCeffu = async (req: Request, res: Response): Promi
     const response = await axios.get(endpoint, { headers, params });
 
     res.status(200).json({
-      DepositAddressCeffu: response.data.data?.walletAddress || [],
+      DepositAddress: response.data.data?.walletAddress || [],
     });
   } catch (error: any) {
     console.error('Error fetching deposit address:', error.response?.data || error.message);

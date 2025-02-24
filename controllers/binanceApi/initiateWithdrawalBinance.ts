@@ -59,7 +59,7 @@ export const initiateWithdrawalBinance = async (req: Request, res: Response): Pr
       )
       .then((response: any) =>
         res.status(200).json({
-          withdraw: response.data,
+          orderViewId: response.data.id,
         }),
       )
       .catch((error: any) => {

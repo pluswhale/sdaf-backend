@@ -48,7 +48,7 @@ export const getDepositAddressBinance = async (req: Request, res: Response): Pro
       .depositAddress(coinSymbol)
       .then((response: any) =>
         res.status(200).json({
-          depositAddress: response.data,
+          DepositAddress: response.data.address,
         }),
       )
       .catch((error: any) =>

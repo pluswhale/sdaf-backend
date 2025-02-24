@@ -5,37 +5,35 @@ import { signRequest } from './getUserBalanceCeffu';
 
 dotenv.config();
 
-interface WalletConfig {
-  apiKey: string | undefined;
-  apiSecret: string | undefined;
-}
-
-const apiConfig: Record<string, WalletConfig> = {
-  CeffuWallet1: {
-    apiKey: process.env.CEFFU_API_KEY_WALLET_WITHDRAWAL,
-    apiSecret: process.env.CEFFU_API_SECRET_WALLET_WITHDRAWAL,
-  },
-  CeffuWallet2: {
-    apiKey: process.env.CEFFU_API_KEY_WALLET_WITHDRAWAL_SECOND_WALLET,
-    apiSecret: process.env.CEFFU_API_SECRET_WALLET_WITHDRAWAL_SECOND_WALLET,
-  },
-};
-
-export const initiateWithdrawalCeffu = async (req: Request, res: Response): Promise<void> => {
+export const initiateWithdrawalCeffu = async (req: Request, res: Response): Promise<any> => {
   try {
     const { amount, coinSymbol, network, withdrawalAddress, walletId, memo } = req.body;
     const timestamp = Date.now().toString();
 
-    const internalWalletCeffuId = req.query.internalWalletCeffuId as string;
+    const accountType = req.query.accountType as string;
 
-    if (!apiConfig[internalWalletCeffuId]) {
-      throw new Error(`API configuration not found for user ID: ${internalWalletCeffuId}`);
+    let apiKey: string | undefined;
+    let apiSecret: string | undefined;
+
+    switch (accountType) {
+      case '276251286620667904':
+        apiKey = process.env.CEFFU_API_KEY_WALLET_WITHDRAWAL;
+        apiSecret = process.env.CEFFU_API_SECRET_WALLET_WITHDRAWAL;
+        break;
+      case '441257846101966848':
+        apiKey = process.env.CEFFU_API_KEY_WALLET_WITHDRAWAL_SECOND_WALLET;
+        apiSecret = process.env.CEFFU_API_SECRET_WALLET_WITHDRAWAL_SECOND_WALLET;
+        break;
+      default:
+        return res.status(400).json({
+          error: 'Invalid account type specified. Please provide a valid account query parameter.',
+        });
     }
 
-    const { apiKey, apiSecret } = apiConfig[internalWalletCeffuId];
-
     if (!apiKey || !apiSecret) {
-      throw new Error('API key, secret, or wallet ID is missing.');
+      return res.status(400).json({
+        error: 'API key or secret is missing for the specified account.',
+      });
     }
 
     const params: Record<string, any> = {
@@ -66,9 +64,14 @@ export const initiateWithdrawalCeffu = async (req: Request, res: Response): Prom
     const response = await axios.post(endpoint, jsonBody, { headers });
 
     if (response.data.code === '000000') {
+      const orderViewId = response.data.data.data.orderViewId;
+      const modifiedResponse = {
+        code: response.data.code,
+        orderViewId: orderViewId,
+      };
       res.status(200).json({
         message: 'Withdrawal Initiated Successfully',
-        data: response.data,
+        data: modifiedResponse,
       });
     } else {
       res.status(500).json({
