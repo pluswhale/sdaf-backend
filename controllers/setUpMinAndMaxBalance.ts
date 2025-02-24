@@ -29,7 +29,7 @@ export const setUpMinAndMaxWallet = async (req: Request, res: Response): Promise
   const { id } = req.params;
   const { maxValue, minValue, rebalancingWallet } = req.body;
 
-  const rebalancingPlatform = PLATFORM_NAME[rebalancingWallet as PlatformName]
+  const rebalancingPlatform = PLATFORM_NAME[rebalancingWallet as PlatformName];
 
   try {
     const wallet = await walletRepository.findOne({ where: { id } });
@@ -41,7 +41,7 @@ export const setUpMinAndMaxWallet = async (req: Request, res: Response): Promise
     wallet.minBalance = minValue;
     wallet.maxBalance = maxValue;
     wallet.rebalancingWallet = rebalancingWallet;
-    wallet.rebalancingPlatform = rebalancingPlatform;
+    wallet.rebalancingPlatform = rebalancingPlatform ? rebalancingPlatform : '';
     await walletRepository.save(wallet);
 
     return res.json({ message: 'Wallet updated successfully', wallet });
