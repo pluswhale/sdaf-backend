@@ -93,7 +93,7 @@ router.get('/balance-binance', getUserBinanceBalance);
 router.post('/initiate-withdrawal-binance', initiateWithdrawalBinance);
 router.post('/get-withdrawal-history-binance', getWithdrawalDetailsBinance);
 router.post('/get-deposit-address-binance', getDepositAddressBinance);
-router.post('/get-deposit-history-binance', getDepositDetailBinance);
+router.post('/get-deposit-detail-binance', getDepositDetailBinance);
 router.post('/create-transaction-binance', makeRebalancerTransaction);
 
 // Test Rate Limit Blockstream
