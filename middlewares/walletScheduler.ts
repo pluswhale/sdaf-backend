@@ -168,6 +168,8 @@ async function handleReceivingWallet(wallet: Wallet) {
       network: mapping.network,
     };
 
+    console.log(params, 'PARAMS');
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
