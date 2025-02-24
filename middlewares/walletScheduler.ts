@@ -7,7 +7,7 @@ import { CurrencyType, PendingReplenishment } from '../db/entities';
 import { AppDataSource } from '../db/AppDataSource';
 import { PendingWithdrawal } from '../db/entities/PendingWithdrawal';
 import { Not } from 'typeorm';
-import { platformConfig } from './Rebalancer/config';
+import { getPlatformParams, platformConfig, StatusCodeType } from './Rebalancer/config';
 
 dotenv.config();
 
@@ -15,13 +15,6 @@ let isRunning = false;
 
 const pendingWithdrawalRepository = AppDataSource.getRepository(PendingWithdrawal);
 const pendingReplenishmentRepository = AppDataSource.getRepository(PendingReplenishment);
-
-const limiter = new Bottleneck({
-  reservoir: 3,
-  reservoirRefreshAmount: 3,
-  reservoirRefreshInterval: 60 * 1000,
-  maxConcurrent: 1,
-});
 
 interface Wallet {
   id: string;
@@ -32,7 +25,8 @@ interface Wallet {
   address: string;
   minBalance: string;
   maxBalance: string;
-  rebalancingWallet: number;
+  rebalancingWallet: string;
+  rebalancingPlatform: string;
   price: {
     usd: string | number;
     bnb?: number;
@@ -125,7 +119,7 @@ async function handleSendingWallet(wallet: Wallet) {
     amount: parseFloat(amountToWithdrawCrypto.toFixed(precision)),
     coinSymbol: mapping.coinSymbol,
     network: mapping.network,
-    walletId: wallet.rebalancingWallet === 1 ? '276251286620667904' : '441257846101966848',
+    walletId: wallet.rebalancingWallet,
     withdrawalAddress: wallet.address,
   };
 
@@ -136,23 +130,22 @@ async function handleSendingWallet(wallet: Wallet) {
   console.log(payload);
 
   try {
-    const response = await limiter.schedule(() =>
-      axios.post(
-        `https://sdafcwap.com/app/api/initiate-withdrawal-ceffu?internalWalletCeffuId=CeffuWallet${wallet.rebalancingWallet}`,
-        payload,
-        {
-          headers,
-          timeout: 10000,
-        },
-      ),
+    const response = await axios.post(
+      `https://sdafcwap.com/app/api/initiate-withdrawal-${wallet.rebalancingPlatform}?accountType=${wallet.rebalancingWallet}`,
+      payload,
+      { headers },
     );
+
     console.log(`Top up your wallet ${wallet.id} initiated:`, response.data);
 
-    const orderViewId = response.data.data.data.orderViewId;
+    const orderViewId = response.data.orderViewId;
     console.log(`Extracted orderViewId: ${orderViewId}`);
     const pendingWithdrawal = pendingWithdrawalRepository.create({
       walletId: wallet.id,
       orderViewId: orderViewId,
+      coinSymbol: mapping.coinSymbol,
+      accountType: wallet.rebalancingWallet,
+      platform: wallet.rebalancingPlatform,
       status: 10,
     });
     await pendingWithdrawalRepository.save(pendingWithdrawal);
@@ -170,7 +163,7 @@ async function handleReceivingWallet(wallet: Wallet) {
     }
 
     const params = {
-      walletId: wallet.rebalancingWallet === 1 ? '276251286620667904' : '441257846101966848',
+      walletId: wallet.rebalancingWallet,
       coinSymbol: mapping.coinSymbol,
       network: mapping.network,
     };
@@ -179,19 +172,16 @@ async function handleReceivingWallet(wallet: Wallet) {
       'Content-Type': 'application/json',
     };
 
-    const response = await limiter.schedule(() =>
-      axios.get(
-        `https://sdafcwap.com/app/api/get-deposit-address?internalWalletCeffuId=CeffuWallet${wallet.rebalancingWallet}`,
-        {
-          headers,
-          params,
-          timeout: 10000,
-        },
-      ),
+    const response = await axios.post(
+      `https://sdafcwap.com/app/api/get-deposit-address-${wallet.rebalancingPlatform}?accountType=${wallet.rebalancingWallet}`,
+      {
+        headers,
+        params,
+      },
     );
 
-    const ceffuAddress = response.data?.DepositAddressCeffu;
-    console.log(`Ceffu prime wallet address: ${ceffuAddress}`);
+    const depositAddress = response.data?.DepositAddress;
+    console.log(`Ceffu prime wallet address: ${depositAddress}`);
 
     try {
       const minBalance = parseFloat(wallet.minBalance);
@@ -263,14 +253,13 @@ async function handleReceivingWallet(wallet: Wallet) {
       const payload = {
         pub_key: wallet.pub_key,
         from: wallet.address,
-        to: ceffuAddress,
+        to: depositAddress,
         amount: parseFloat(amountToWithdrawCrypto.toFixed(precision)),
         currencyType: mapping.coinSymbol,
       };
 
-      const response = await axios.post(`https://sdafcwap.com/app/api/create-transaction-ceffu`, payload, {
+      const response = await axios.post(`https://sdafcwap.com/app/api/create-transaction`, payload, {
         headers,
-        timeout: 10000,
       });
 
       const txHash = response.data.transactionHash;
@@ -279,6 +268,9 @@ async function handleReceivingWallet(wallet: Wallet) {
       const pendingReplenishment = pendingReplenishmentRepository.create({
         walletId: wallet.id,
         orderViewId: txHash,
+        coinSymbol: mapping.coinSymbol,
+        platform: wallet.rebalancingPlatform,
+        accountType: wallet.rebalancingWallet,
         status: 10,
       });
       await pendingReplenishmentRepository.save(pendingReplenishment);
@@ -300,14 +292,10 @@ async function checkAndInitiateWithdrawals() {
     }
 
     const pendingWithdrawals = await pendingWithdrawalRepository.find();
-    const walletIdsWithPending = pendingWithdrawals
-      .filter((pw) => pw.status !== 40 && pw.status !== 0)
-      .map((pw) => pw.walletId);
+    const walletIdsWithPending = pendingWithdrawals.map((pw) => pw.walletId);
 
     const pendingReplenishments = await pendingReplenishmentRepository.find();
-    const walletIdsWithPendingReplenishments = pendingReplenishments
-      .filter((pr) => pr.status !== 40 && pr.status !== 0)
-      .map((pr) => pr.walletId);
+    const walletIdsWithPendingReplenishments = pendingReplenishments.map((pr) => pr.walletId);
 
     const filteredWallets = wallets.filter((w: Wallet) => {
       if (walletIdsWithPending.includes(w.id) || walletIdsWithPendingReplenishments.includes(w.id)) return false;
@@ -364,14 +352,14 @@ async function checkAndInitiateWithdrawals() {
   }
 }
 
-async function updateWithdrawalStatuses({ platform, statusCode }: { platform: string; statusCode: number }) {
+async function updateWithdrawalStatuses({ platform, statusCode }: { platform: string; statusCode: StatusCodeType }) {
   console.log('Updating pending withdrawal statuses...');
   try {
     const pendingWithdrawals = await pendingWithdrawalRepository.find({
-      where: { status: Not(statusCode) },
+      where: { status: Not(statusCode.statusCodeWithdraw) },
     });
     const pendingReplishments = await pendingReplenishmentRepository.find({
-      where: { status: Not(statusCode) },
+      where: { status: Not(statusCode.statusCodeWithdraw) },
     });
 
     if (pendingWithdrawals.length === 0 && pendingReplishments.length === 0) {
@@ -381,23 +369,24 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
 
     for (const pw of pendingWithdrawals) {
       try {
-        const params = { orderViewId: pw.orderViewId };
+        const params = getPlatformParams(platform, pw);
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
         };
 
-        const response = await limiter.schedule(() =>
-          axios.get(`https://sdafcwap.com/app/api/get-withdrawal-details-${platform}`, {
+        const response = await axios.post(
+          `https://sdafcwap.com/app/api/get-withdrawal-details-${platform}?accountType=${params.accountType}`,
+          params,
+          {
             headers,
-            params,
-          }),
+          },
         );
 
         console.log('API Response:', JSON.stringify(response.data, null, 2));
 
         const status = response.data.withdrawalDetails.status;
 
-        if (status === statusCode) {
+        if (status === statusCode.statusCodeWithdraw) {
           await pendingWithdrawalRepository.remove(pw);
           console.log(`Withdrawal ${pw.orderViewId} confirmed and removed from pending.`);
         } else {
@@ -412,23 +401,24 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
 
     for (const pr of pendingReplishments) {
       try {
-        const params = { txId: pr.orderViewId };
+        const params = getPlatformParams(platform, pr);
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
         };
 
-        const response = await limiter.schedule(() =>
-          axios.get(`https://sdafcwap.com/app/api/get-deposit-detail-${platform}`, {
+        const response = await axios.get(
+          `https://sdafcwap.com/app/api/get-deposit-detail-${platform}?accountType=${params.accountType}`,
+          {
             headers,
-            params,
-          }),
+            params: { ...params },
+          },
         );
 
         console.log('API Response (Replishment):', JSON.stringify(response.data, null, 2));
 
         const status = response.data.depositDetails[0]?.status;
 
-        if (status === statusCode) {
+        if (status === statusCode.statusCodeDeposit) {
           await pendingReplenishmentRepository.remove(pr);
           console.log(`Replishment ${pr.orderViewId} confirmed and removed from pending.`);
         } else {
@@ -445,30 +435,30 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
   }
 }
 
-// cron.schedule('* * * * *', () => {
-//   if (isRunning) {
-//     console.warn('Previous task is still running. Skipping current run.');
-//     return;
-//   }
+setInterval(() => {
+  if (isRunning) {
+    console.warn('Previous task is still running. Skipping current run.');
+    return;
+  }
 
-//   isRunning = true;
-//   (async () => {
-//     try {
-//       console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
+  isRunning = true;
+  (async () => {
+    try {
+      console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
 
-//       platformConfig.map(async (config) => {
-//         const { platform, statusCode } = config;
-//         await updateWithdrawalStatuses({ platform, statusCode });
-//       });
+      for (const config of platformConfig) {
+        const { platform, statusCode } = config;
+        await updateWithdrawalStatuses({ platform, statusCode });
+      }
 
-//       await checkAndInitiateWithdrawals();
+      await checkAndInitiateWithdrawals();
 
-//       console.log('Scheduled tasks completed successfully.');
-//     } catch (error) {
-//       console.error('Error during scheduled tasks:', error);
-//     } finally {
-//       isRunning = false;
-//     }
-//   })();
-// });
+      console.log('Scheduled tasks completed successfully.');
+    } catch (error) {
+      console.error('Error during scheduled tasks:', error);
+    } finally {
+      isRunning = false;
+    }
+  })();
+}, 3000);
 

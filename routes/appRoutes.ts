@@ -75,15 +75,17 @@ router.get('/quoting-engine/margins', getAllMarginsController);
 router.put('/quoting-engine/margins/:id', validateEditMargin, editMarginController);
 router.get('/quoting-engine/orders', getOrders);
 
+// Make Rebalancer Transaction
+router.post('/create-transaction', makeRebalancerTransaction);
+
 // CEFFU Prime Wallets Balances
 router.get('/balance-ceffu', getUserBalance);
 router.get('/wallet-ceffu', getWalletList);
-router.get('/get-deposit-address', getDepositAddressCeffu);
-router.get('/get-deposit-detail-ceffu', getDepositDetailCeffu);
+router.post('/get-deposit-address-ceffu', getDepositAddressCeffu);
+router.post('/get-deposit-detail-ceffu', getDepositDetailCeffu);
 router.get('/get-withdrawal-history-ceffu', getWithdrawalHistoryCeffu);
 router.post('/initiate-withdrawal-ceffu', initiateWithdrawalCeffu);
-router.post('/create-transaction-ceffu', makeRebalancerTransaction);
-router.get('/get-withdrawal-details-ceffu', getWithdrawalDetailsCeffu);
+router.post('/get-withdrawal-details-ceffu', getWithdrawalDetailsCeffu);
 
 // CoinGeko prices
 router.get('/get-asset-price', getAssetPrice);
@@ -91,10 +93,9 @@ router.get('/get-asset-price', getAssetPrice);
 //Binance
 router.get('/balance-binance', getUserBinanceBalance);
 router.post('/initiate-withdrawal-binance', initiateWithdrawalBinance);
-router.post('/get-withdrawal-history-binance', getWithdrawalDetailsBinance);
+router.post('/get-withdrawal-details-binance', getWithdrawalDetailsBinance);
 router.post('/get-deposit-address-binance', getDepositAddressBinance);
 router.post('/get-deposit-detail-binance', getDepositDetailBinance);
-router.post('/create-transaction-binance', makeRebalancerTransaction);
 
 // Test Rate Limit Blockstream
 router.get('/rate-limit', rateLimit);
