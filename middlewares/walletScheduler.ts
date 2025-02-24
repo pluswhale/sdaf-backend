@@ -176,10 +176,8 @@ async function handleReceivingWallet(wallet: Wallet) {
 
     const response = await axios.post(
       `https://sdafcwap.com/app/api/get-deposit-address-${wallet.rebalancingPlatform}?accountType=${wallet.rebalancingWallet}`,
-      {
-        headers,
-        params,
-      },
+      params,
+      { headers },
     );
 
     const depositAddress = response.data?.DepositAddress;
