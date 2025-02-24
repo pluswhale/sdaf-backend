@@ -7,6 +7,7 @@ import { CurrencyType, PendingReplenishment } from '../db/entities';
 import { AppDataSource } from '../db/AppDataSource';
 import { PendingWithdrawal } from '../db/entities/PendingWithdrawal';
 import { Not } from 'typeorm';
+import { platformConfig } from './Rebalancer/config';
 
 dotenv.config();
 
@@ -363,14 +364,14 @@ async function checkAndInitiateWithdrawals() {
   }
 }
 
-async function updateWithdrawalStatuses() {
+async function updateWithdrawalStatuses({ platform, statusCode }: { platform: string; statusCode: number }) {
   console.log('Updating pending withdrawal statuses...');
   try {
     const pendingWithdrawals = await pendingWithdrawalRepository.find({
-      where: { status: Not(40) },
+      where: { status: Not(statusCode) },
     });
     const pendingReplishments = await pendingReplenishmentRepository.find({
-      where: { status: Not(40) },
+      where: { status: Not(statusCode) },
     });
 
     if (pendingWithdrawals.length === 0 && pendingReplishments.length === 0) {
@@ -386,7 +387,7 @@ async function updateWithdrawalStatuses() {
         };
 
         const response = await limiter.schedule(() =>
-          axios.get(`https://sdafcwap.com/app/api/get-withdrawal-details-ceffu`, {
+          axios.get(`https://sdafcwap.com/app/api/get-withdrawal-details-${platform}`, {
             headers,
             params,
           }),
@@ -455,7 +456,10 @@ cron.schedule('* * * * *', () => {
     try {
       console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
 
-      await updateWithdrawalStatuses();
+      platformConfig.map(async (config) => {
+        const { platform, statusCode } = config;
+        await updateWithdrawalStatuses({ platform, statusCode });
+      });
 
       await checkAndInitiateWithdrawals();
 
