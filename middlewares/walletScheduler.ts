@@ -406,7 +406,7 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
           'Content-Type': 'application/json',
         };
 
-        const response = await axios.get(
+        const response = await axios.post(
           `https://sdafcwap.com/app/api/get-deposit-detail-${platform}?accountType=${params.accountType}`,
           {
             headers,
