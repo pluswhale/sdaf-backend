@@ -262,7 +262,7 @@ async function handleReceivingWallet(wallet: Wallet) {
         headers,
       });
 
-      const txHash = response.data.transactionHash;
+      const txHash = response.data.transactionHash.hash;
       console.log(`Top up your wallet ${wallet.id} initiated:`, txHash);
 
       const pendingReplenishment = pendingReplenishmentRepository.create({

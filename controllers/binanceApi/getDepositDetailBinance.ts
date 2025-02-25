@@ -51,7 +51,7 @@ export const getDepositDetailBinance = async (req: Request, res: Response): Prom
       })
       .then((response: any) =>
         res.status(200).json({
-          depositHistory: response.data,
+          depositDetails: response.data,
         }),
       )
       .catch((error: any) =>
