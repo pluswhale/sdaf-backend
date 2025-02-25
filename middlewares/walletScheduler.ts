@@ -460,5 +460,5 @@ setInterval(() => {
       isRunning = false;
     }
   })();
-}, 3000);
+}, 6000);
 
