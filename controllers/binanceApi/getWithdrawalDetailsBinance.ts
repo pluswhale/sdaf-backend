@@ -47,11 +47,11 @@ export const getWithdrawalDetailsBinance = async (req: Request, res: Response): 
     client
       .withdrawHistory({
         coin: coinSymbol,
-        withdrawOrderId: txId,
+        idList: txId,
       })
       .then((response: any) =>
         res.status(200).json({
-          withdrawHistory: response.data,
+          withdrawalDetails: response.data,
         }),
       )
       .catch((error: any) =>
