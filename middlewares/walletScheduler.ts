@@ -376,15 +376,15 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
 
         const response = await axios.post(
           `https://sdafcwap.com/app/api/get-withdrawal-details-${platform}?accountType=${params.accountType}`,
-          params,
           {
             headers,
+            params: { ...params },
           },
         );
 
         console.log('API Response:', JSON.stringify(response.data, null, 2));
 
-        const status = response.data.withdrawalDetails.status;
+        const status = response.data.withdrawalDetails[0]?.status;
 
         if (status === statusCode.statusCodeWithdraw) {
           await pendingWithdrawalRepository.remove(pw);
