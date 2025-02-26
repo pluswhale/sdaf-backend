@@ -459,8 +459,13 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
           const walletRow = await walletRepository.findOne({
             where: { id: pw.walletId },
           });
+
+          console.log(walletRow, 'THIS IS WALLET ROWWWWWW!!!!!!! BEFORE');
+
           if (walletRow) {
             walletRow.isRebalancingActive = true;
+            console.log(walletRow, 'THIS IS WALLET ROWWWWWW!!!!!!! AFTER !!!!');
+
             await walletRepository.save(walletRow);
           } else {
             console.error(`Wallet with ID ${pw.walletId} not found`);
