@@ -135,11 +135,7 @@ async function handleSendingWallet(wallet: WalletType) {
       { headers },
     );
 
-    console.log('STATUS IS: ', response.status);
-    console.log('typeof IS: ', typeof response.status);
-
     if (response.status !== 200) {
-      console.log('AAaaaaaaaaaaaaaaaaaa SOSOSOOSOSOSOSOOS');
       throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
     } else {
       const walletRow = await walletRepository.findOne({
@@ -168,9 +164,6 @@ async function handleSendingWallet(wallet: WalletType) {
     await pendingWithdrawalRepository.save(pendingWithdrawal);
   } catch (error: any) {
     console.error(`Error when replenishing wallet ${wallet.id}:`, error.response?.data || error.message);
-
-    console.error('STATUS IS: ', error);
-    console.error('typeof IS: ', typeof response.status);
 
     const walletRow = await walletRepository.findOne({
       where: { id: wallet.id },
@@ -211,8 +204,6 @@ async function handleReceivingWallet(wallet: WalletType) {
     );
 
     if (response.status !== 200) {
-      console.log('AAaaaaaaaaaaaaaaaaaa SOSOSOOSOSOSOSOOS');
-
       throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
     } else {
       const walletRow = await walletRepository.findOne({
@@ -309,8 +300,6 @@ async function handleReceivingWallet(wallet: WalletType) {
       });
 
       if (response.status !== 200) {
-        console.log('AAaaaaaaaaaaaaaaaaaa SOSOSOOSOSOSOSOOS');
-
         throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
       } else {
         const walletRow = await walletRepository.findOne({
