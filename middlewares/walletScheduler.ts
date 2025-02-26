@@ -169,6 +169,9 @@ async function handleSendingWallet(wallet: WalletType) {
   } catch (error: any) {
     console.error(`Error when replenishing wallet ${wallet.id}:`, error.response?.data || error.message);
 
+    console.error('STATUS IS: ', error);
+    console.error('typeof IS: ', typeof response.status);
+
     const walletRow = await walletRepository.findOne({
       where: { id: wallet.id },
     });
