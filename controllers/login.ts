@@ -18,7 +18,7 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
       const secretKey = process.env.SECRET_JWT_KEY;
 
       const accessToken = jwt.sign({ user }, secretKey as string, { expiresIn: '1m' });
-      const refreshToken = jwt.sign({ user }, secretKey as string, { expiresIn: '20m' });
+      const refreshToken = jwt.sign({ user }, secretKey as string, { expiresIn: '30m' });
 
       res
         .setHeader('Access-Control-Allow-Credentials', 'true')
@@ -34,4 +34,3 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
     res.status(500).send('Error during login: ' + error);
   }
 };
-
