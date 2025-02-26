@@ -169,7 +169,7 @@ async function handleSendingWallet(wallet: WalletType) {
       where: { id: wallet.id },
     });
     if (walletRow) {
-      console.log('БЛЯТЬ ПЕРЕЗАПИСАЛ ОТПРАВКУ SENDING');
+      console.log('ПЕРЕЗАПИСАЛ ОТПРАВКУ WITHDRAWWQQQQ');
 
       walletRow.isRebalancingActive = false;
       await walletRepository.save(walletRow);
@@ -462,18 +462,9 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
             where: { id: pw.walletId },
           });
 
-          console.log(walletRow, 'THIS IS WALLET ROWWWWWW!!!!!!! BEFORE');
-
           if (walletRow) {
             walletRow.isRebalancingActive = true;
-            console.log(walletRow, 'THIS IS WALLET ROWWWWWW!!!!!!! AFTER !!!!');
-
-            const savedWalletRow = await walletRepository.save(walletRow);
-            console.log(savedWalletRow, 'THIS IS THE SAVED WALLET CROCODILEEEE');
-            const updatedWalletRow = await walletRepository.findOne({
-              where: { id: pw.walletId },
-            });
-            console.log(updatedWalletRow, 'THIS IS UPDATED WALLET ROW AFTER SAVE SPIDER MAN');
+            await walletRepository.save(walletRow);
           } else {
             console.error(`Wallet with ID ${pw.walletId} not found`);
           }
@@ -498,7 +489,7 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
           where: { id: pw.walletId },
         });
         if (walletRow) {
-          console.log('БЛЯТЬ ПЕРЕЗАПИСАЛ UPDATE STATUS WITHDRAWWWALLLL');
+          console.log('ПЕРЕЗАПИСАЛ СТАТУС WITHDRAWWDDD');
 
           walletRow.isRebalancingActive = false;
           await walletRepository.save(walletRow);
@@ -556,6 +547,7 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
           where: { id: pr.walletId },
         });
         if (walletRow) {
+          console.log('ПЕРЕЗАПИСАЛ СТАТУС WITHDRAWWDDD');
           walletRow.isRebalancingActive = false;
           await walletRepository.save(walletRow);
         } else {
