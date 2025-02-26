@@ -169,6 +169,8 @@ async function handleSendingWallet(wallet: WalletType) {
       where: { id: wallet.id },
     });
     if (walletRow) {
+      console.log('БЛЯТЬ ПЕРЕЗАПИСАЛ ОТПРАВКУ SENDING');
+
       walletRow.isRebalancingActive = false;
       await walletRepository.save(walletRow);
     } else {
@@ -491,6 +493,8 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
           where: { id: pw.walletId },
         });
         if (walletRow) {
+          console.log('БЛЯТЬ ПЕРЕЗАПИСАЛ UPDATE STATUS WITHDRAWWWALLLL');
+
           walletRow.isRebalancingActive = false;
           await walletRepository.save(walletRow);
         } else {
