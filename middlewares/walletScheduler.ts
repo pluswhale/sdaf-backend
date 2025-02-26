@@ -468,7 +468,12 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
             walletRow.isRebalancingActive = true;
             console.log(walletRow, 'THIS IS WALLET ROWWWWWW!!!!!!! AFTER !!!!');
 
-            await walletRepository.save(walletRow);
+            const savedWalletRow = await walletRepository.save(walletRow);
+            console.log(savedWalletRow, 'THIS IS THE SAVED WALLET CROCODILEEEE');
+            const updatedWalletRow = await walletRepository.findOne({
+              where: { id: pw.walletId },
+            });
+            console.log(updatedWalletRow, 'THIS IS UPDATED WALLET ROW AFTER SAVE SPIDER MAN');
           } else {
             console.error(`Wallet with ID ${pw.walletId} not found`);
           }
