@@ -1,9 +1,7 @@
-import * as cron from 'node-cron';
 import axios from 'axios';
-import Bottleneck from 'bottleneck';
 import dotenv from 'dotenv';
 import { getWalletMapping } from '../utils';
-import { CurrencyType, PendingReplenishment } from '../db/entities';
+import { CurrencyType, PendingReplenishment, Wallet } from '../db/entities';
 import { AppDataSource } from '../db/AppDataSource';
 import { PendingWithdrawal } from '../db/entities/PendingWithdrawal';
 import { Not } from 'typeorm';
@@ -15,8 +13,9 @@ let isRunning = false;
 
 const pendingWithdrawalRepository = AppDataSource.getRepository(PendingWithdrawal);
 const pendingReplenishmentRepository = AppDataSource.getRepository(PendingReplenishment);
+const walletRepository = AppDataSource.getRepository(Wallet);
 
-interface Wallet {
+interface WalletType {
   id: string;
   wallet_type: string;
   currency_type: CurrencyType;
@@ -33,7 +32,7 @@ interface Wallet {
   };
 }
 
-async function fetchAllWallets(): Promise<Wallet[]> {
+async function fetchAllWallets(): Promise<WalletType[]> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
@@ -42,7 +41,7 @@ async function fetchAllWallets(): Promise<Wallet[]> {
   return response.data;
 }
 
-async function handleSendingWallet(wallet: Wallet) {
+async function handleSendingWallet(wallet: WalletType) {
   const minBalance = parseFloat(wallet.minBalance);
   const maxBalance = parseFloat(wallet.maxBalance);
 
@@ -136,6 +135,20 @@ async function handleSendingWallet(wallet: Wallet) {
       { headers },
     );
 
+    if (response.status !== 200) {
+      throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
+    } else {
+      const walletRow = await walletRepository.findOne({
+        where: { id: wallet.id },
+      });
+      if (walletRow) {
+        walletRow.isRebalancingActive = true;
+        await walletRepository.save(walletRow);
+      } else {
+        console.error(`Wallet with ID ${wallet.id} not found`);
+      }
+    }
+
     console.log(`Top up your wallet ${wallet.id} initiated:`, response.data);
 
     const orderViewId = response.data.orderViewId;
@@ -151,10 +164,20 @@ async function handleSendingWallet(wallet: Wallet) {
     await pendingWithdrawalRepository.save(pendingWithdrawal);
   } catch (error: any) {
     console.error(`Error when replenishing wallet ${wallet.id}:`, error.response?.data || error.message);
+
+    const walletRow = await walletRepository.findOne({
+      where: { id: wallet.id },
+    });
+    if (walletRow) {
+      walletRow.isRebalancingActive = false;
+      await walletRepository.save(walletRow);
+    } else {
+      console.error(`Wallet with ID ${wallet.id} not found`);
+    }
   }
 }
 
-async function handleReceivingWallet(wallet: Wallet) {
+async function handleReceivingWallet(wallet: WalletType) {
   try {
     const mapping = getWalletMapping(wallet.currency_type);
     if (!mapping) {
@@ -179,6 +202,20 @@ async function handleReceivingWallet(wallet: Wallet) {
       params,
       { headers },
     );
+
+    if (response.status !== 200) {
+      throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
+    } else {
+      const walletRow = await walletRepository.findOne({
+        where: { id: wallet.id },
+      });
+      if (walletRow) {
+        walletRow.isRebalancingActive = true;
+        await walletRepository.save(walletRow);
+      } else {
+        console.error(`Wallet with ID ${wallet.id} not found`);
+      }
+    }
 
     const depositAddress = response.data?.DepositAddress;
     console.log(`Ceffu prime wallet address: ${depositAddress}`);
@@ -262,6 +299,20 @@ async function handleReceivingWallet(wallet: Wallet) {
         headers,
       });
 
+      if (response.status !== 200) {
+        throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
+      } else {
+        const walletRow = await walletRepository.findOne({
+          where: { id: wallet.id },
+        });
+        if (walletRow) {
+          walletRow.isRebalancingActive = true;
+          await walletRepository.save(walletRow);
+        } else {
+          console.error(`Wallet with ID ${wallet.id} not found`);
+        }
+      }
+
       const txHash = response.data.transactionHash.hash;
       console.log(`Top up your wallet ${wallet.id} initiated:`, txHash);
 
@@ -276,9 +327,29 @@ async function handleReceivingWallet(wallet: Wallet) {
       await pendingReplenishmentRepository.save(pendingReplenishment);
     } catch (error: any) {
       console.error(`Error when withdrawal wallet assets:`, error.response?.data || error.message);
+
+      const walletRow = await walletRepository.findOne({
+        where: { id: wallet.id },
+      });
+      if (walletRow) {
+        walletRow.isRebalancingActive = false;
+        await walletRepository.save(walletRow);
+      } else {
+        console.error(`Wallet with ID ${wallet.id} not found`);
+      }
     }
   } catch (error: any) {
     console.error(`Error when inquering Ceffu prime wallet address:`, error.response?.data || error.message);
+
+    const walletRow = await walletRepository.findOne({
+      where: { id: wallet.id },
+    });
+    if (walletRow) {
+      walletRow.isRebalancingActive = false;
+      await walletRepository.save(walletRow);
+    } else {
+      console.error(`Wallet with ID ${wallet.id} not found`);
+    }
   }
 }
 
@@ -297,7 +368,7 @@ async function checkAndInitiateWithdrawals() {
     const pendingReplenishments = await pendingReplenishmentRepository.find();
     const walletIdsWithPendingReplenishments = pendingReplenishments.map((pr) => pr.walletId);
 
-    const filteredWallets = wallets.filter((w: Wallet) => {
+    const filteredWallets = wallets.filter((w: WalletType) => {
       if (walletIdsWithPending.includes(w.id) || walletIdsWithPendingReplenishments.includes(w.id)) return false;
 
       return w.minBalance !== '0' && w.maxBalance !== '0' && w.price && w.price.usd;
@@ -308,13 +379,13 @@ async function checkAndInitiateWithdrawals() {
       return;
     }
 
-    const walletsToUpdate = filteredWallets.filter((w: Wallet) => {
+    const walletsToUpdate = filteredWallets.filter((w: WalletType) => {
       const minBalance = parseFloat(w.minBalance);
       const priceUsd = typeof w.price.usd === 'string' ? parseFloat(w.price.usd) : w.price.usd;
       return priceUsd < minBalance;
     });
 
-    const walletsToWithdraw = filteredWallets.filter((w: Wallet) => {
+    const walletsToWithdraw = filteredWallets.filter((w: WalletType) => {
       const maxBalance = parseFloat(w.maxBalance);
       const priceUsd = typeof w.price.usd === 'string' ? parseFloat(w.price.usd) : w.price.usd;
       return priceUsd > maxBalance;
@@ -353,7 +424,7 @@ async function checkAndInitiateWithdrawals() {
 }
 
 async function updateWithdrawalStatuses({ platform, statusCode }: { platform: string; statusCode: StatusCodeType }) {
-  console.log('Updating pending withdrawal statuses...');
+  console.log('Updating pending withdrawal and replenishment statuses...');
   try {
     const pendingWithdrawals = await pendingWithdrawalRepository.find({
       where: { status: Not(statusCode.statusCodeWithdraw) },
@@ -382,6 +453,20 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
           },
         );
 
+        if (response.status !== 200) {
+          throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
+        } else {
+          const walletRow = await walletRepository.findOne({
+            where: { id: pw.walletId },
+          });
+          if (walletRow) {
+            walletRow.isRebalancingActive = true;
+            await walletRepository.save(walletRow);
+          } else {
+            console.error(`Wallet with ID ${pw.walletId} not found`);
+          }
+        }
+
         console.log('API Response:', JSON.stringify(response.data, null, 2));
 
         const status = response.data.withdrawalDetails[0]?.status;
@@ -396,6 +481,16 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
         }
       } catch (error) {
         console.error(`Failed to get details for withdrawal ${pw.orderViewId}:`, error);
+
+        const walletRow = await walletRepository.findOne({
+          where: { id: pw.walletId },
+        });
+        if (walletRow) {
+          walletRow.isRebalancingActive = false;
+          await walletRepository.save(walletRow);
+        } else {
+          console.error(`Wallet with ID ${pw.walletId} not found`);
+        }
       }
     }
 
@@ -414,6 +509,20 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
           },
         );
 
+        if (response.status !== 200) {
+          throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
+        } else {
+          const walletRow = await walletRepository.findOne({
+            where: { id: pr.walletId },
+          });
+          if (walletRow) {
+            walletRow.isRebalancingActive = true;
+            await walletRepository.save(walletRow);
+          } else {
+            console.error(`Wallet with ID ${pr.walletId} not found`);
+          }
+        }
+
         console.log('API Response (Replishment):', JSON.stringify(response.data, null, 2));
 
         const status = response.data.depositDetails[0]?.status;
@@ -428,6 +537,16 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
         }
       } catch (error) {
         console.error(`Failed to get details for replenishment ${pr.orderViewId}:`, error);
+
+        const walletRow = await walletRepository.findOne({
+          where: { id: pr.walletId },
+        });
+        if (walletRow) {
+          walletRow.isRebalancingActive = false;
+          await walletRepository.save(walletRow);
+        } else {
+          console.error(`Wallet with ID ${pr.walletId} not found`);
+        }
       }
     }
   } catch (error) {
