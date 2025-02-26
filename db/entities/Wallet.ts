@@ -62,4 +62,8 @@ export class Wallet {
 
   @Column({ type: 'boolean', default: false })
   isArchived: boolean;
+
+  @Column({ type: 'bool', default: false })
+  isRebalancingActive: boolean;
 }
+
