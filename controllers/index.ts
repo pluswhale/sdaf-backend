@@ -9,7 +9,8 @@ export * from './editMargin';
 export * from './getOrders';
 export * from './setUpMinAndMaxBalance';
 export * from './getBotOrderBody';
-export * from './updateBotOrder'
-export * from './deleteBotOrder'
+export * from './updateBotOrder';
+export * from './deleteBotOrder';
 export * from './createBotOrder';
-
+export * from './getRebalancersWallets';
+export * from './editRebalancerWalletsStatus';

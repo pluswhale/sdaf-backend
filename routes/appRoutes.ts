@@ -12,6 +12,8 @@ import {
   getBotOrdersController,
   deleteBotOrderController,
   createBotOrderController,
+  getRebalancersWallets,
+  editRebalancerWalletsStatus,
 } from '../controllers';
 import { saveWallet } from '../controllers';
 import express from 'express';
@@ -54,6 +56,8 @@ const router = express.Router();
 
 router.post('/save/wallet', authenticate, saveWallet);
 router.get('/wallets', getAllWallets);
+router.get('/wallets/rebalancers', getRebalancersWallets);
+router.put('/wallets/rebalancers/set-up/:id', editRebalancerWalletsStatus);
 router.get('/wallets-without-price', authenticate, getAllWalletsWithoutPrice);
 router.post('/transaction', validateTransaction, authenticate, makeTransaction);
 router.get('/balance', validateGetBalance, getBalanceOfAddress);
@@ -116,4 +120,3 @@ router.get('/hedgine-engine/config-options', getHedgerConfigurationOptions);
 router.put('/hedgine-engine/config-options', updateHedgerConfigOption);
 
 export default router;
-

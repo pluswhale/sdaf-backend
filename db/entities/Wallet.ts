@@ -51,6 +51,9 @@ export class Wallet {
   @Column({ type: 'varchar', default: 0 })
   maxBalance: string;
 
+  @Column({ type: 'bool', default: false })
+  isRebalancer: boolean;
+
   @Column({ type: 'varchar', default: '' })
   rebalancingWallet: string;
 
@@ -60,4 +63,3 @@ export class Wallet {
   @Column({ type: 'boolean', default: false })
   isArchived: boolean;
 }
-
