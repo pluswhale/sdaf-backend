@@ -375,15 +375,11 @@ async function checkAndInitiateWithdrawals() {
   }
 }
 
-async function updateWithdrawalStatuses({ platform, statusCode }: { platform: string; statusCode: StatusCodeType }) {
+async function updateWithdrawalStatuses() {
   console.log('Updating pending withdrawal and replenishment statuses...');
   try {
-    const pendingWithdrawals = await pendingWithdrawalRepository.find({
-      where: { status: Not(statusCode.statusCodeWithdraw) },
-    });
-    const pendingReplishments = await pendingReplenishmentRepository.find({
-      where: { status: Not(statusCode.statusCodeWithdraw) },
-    });
+    const pendingWithdrawals = await pendingWithdrawalRepository.find();
+    const pendingReplishments = await pendingReplenishmentRepository.find();
 
     if (pendingWithdrawals.length === 0 && pendingReplishments.length === 0) {
       console.log('No pending withdrawals or replenishments found.');
@@ -392,13 +388,13 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
 
     for (const pw of pendingWithdrawals) {
       try {
-        const params = getPlatformParams(platform, pw);
+        const params = getPlatformParams(pw.platform, pw);
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
         };
 
         const response = await axios.post(
-          `https://sdafcwap.com/app/api/get-withdrawal-details-${platform}?accountType=${params.accountType}`,
+          `https://sdafcwap.com/app/api/get-withdrawal-details-${pw.platform}?accountType=${pw.accountType}`,
           {
             headers,
             params: { ...params },
@@ -415,7 +411,7 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
 
         const status = response.data.withdrawalDetails[0]?.status;
 
-        if (status === statusCode.statusCodeWithdraw) {
+        if (status === platformConfig[pw.platform].statusCode.statusCodeWithdraw) {
           await pendingWithdrawalRepository.remove(pw);
           console.log(`Withdrawal ${pw.orderViewId} confirmed and removed from pending.`);
         } else {
@@ -432,13 +428,13 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
 
     for (const pr of pendingReplishments) {
       try {
-        const params = getPlatformParams(platform, pr);
+        const params = getPlatformParams(pr.platform, pr);
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
         };
 
         const response = await axios.post(
-          `https://sdafcwap.com/app/api/get-deposit-detail-${platform}?accountType=${params.accountType}`,
+          `https://sdafcwap.com/app/api/get-deposit-detail-${pr.platform}?accountType=${pr.accountType}`,
           {
             headers,
             params: { ...params },
@@ -455,7 +451,7 @@ async function updateWithdrawalStatuses({ platform, statusCode }: { platform: st
 
         const status = response.data.depositDetails[0]?.status;
 
-        if (status === statusCode.statusCodeDeposit) {
+        if (status === platformConfig[pr.platform].statusCode.statusCodeDeposit) {
           await pendingReplenishmentRepository.remove(pr);
           console.log(`Replishment ${pr.orderViewId} confirmed and removed from pending.`);
         } else {
@@ -485,10 +481,7 @@ setInterval(() => {
     try {
       console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
 
-      for (const config of platformConfig) {
-        const { platform, statusCode } = config;
-        await updateWithdrawalStatuses({ platform, statusCode });
-      }
+      await updateWithdrawalStatuses();
 
       await checkAndInitiateWithdrawals();
 
