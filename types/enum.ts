@@ -1,6 +1,8 @@
 export enum Network {
   USDT = 'ETH',
   USDT_BEP20 = 'BSC',
+  USDT_ERC20 = 'ETH',
+  USDT_TRC20 = 'TRN',
   BTC = 'BTC',
   BNB = 'BSC',
   LTC = 'LTC',
@@ -14,7 +16,6 @@ export enum CoinSymbol {
   BTC = 'BTC',
   BNB = 'BNB',
 }
-
 
 export enum CurrencyForBotOrder {
   BTC = 'BTC',
@@ -31,3 +32,4 @@ export enum Direction {
   BUY = 'BUY',
   SELL = 'SELL',
 }
+
