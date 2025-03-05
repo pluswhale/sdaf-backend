@@ -20,6 +20,8 @@ export function getWalletMapping(currencyType: CurrencyType): WalletMapping | nu
       return { network: Network.BTC, coinSymbol: CoinSymbol.BTC };
     case CurrencyType.BNB:
       return { network: Network.BNB, coinSymbol: CoinSymbol.BNB };
+    case CurrencyType.ETH:
+      return { network: Network.ETH, coinSymbol: CoinSymbol.ETH };
     default:
       console.error(`Unknown type wallet: ${currencyType}`);
       return null;
