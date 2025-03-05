@@ -5,6 +5,7 @@ export enum Network {
   USDT_TRC20 = 'TRN',
   BTC = 'BTC',
   BNB = 'BSC',
+  ETH = 'ETH',
   LTC = 'LTC',
 }
 
@@ -15,6 +16,7 @@ export enum CoinSymbol {
   USDT_TRC20 = 'USDT',
   BTC = 'BTC',
   BNB = 'BNB',
+  ETH = 'ETH',
 }
 
 export enum CurrencyForBotOrder {

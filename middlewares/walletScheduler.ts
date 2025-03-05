@@ -110,6 +110,7 @@ async function handleSendingWallet(wallet: WalletType) {
     USDT_TRC20: 2,
     BTC: 8,
     BNB: 8,
+    ETH: 8,
   };
 
   const precision = precisionMap[wallet.currency_type] || 2;
@@ -259,6 +260,7 @@ async function handleReceivingWallet(wallet: WalletType) {
         USDT_TRC20: 2,
         BTC: 8,
         BNB: 8,
+        ETH: 8,
       };
 
       const precision = precisionMap[wallet.currency_type] || 2;
