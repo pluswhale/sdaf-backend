@@ -19,7 +19,13 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'https://sdafcwap.com', 'http://localhost:5000', 'https://cwap3.coinhq.store'],
+    origin: [
+      'http://localhost:3000',
+      'https://sdafcwap.com',
+      'http://localhost:5000',
+      'https://cwap3.coinhq.store',
+      'https://app.cwap.io/botHedging',
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie'],
@@ -70,3 +76,4 @@ app.use('/api/', appRoutes);
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
+
