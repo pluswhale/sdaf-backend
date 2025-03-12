@@ -92,3 +92,4 @@ export const fetchUsdPrices = async (assets: string[]): Promise<Record<string, n
     throw new Error('Unable to retrieve asset prices.');
   }
 };
+
