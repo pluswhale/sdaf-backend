@@ -128,6 +128,7 @@ async function hedgerMonitoringService(cfgParametersForHedger: CFGParametersForH
             return;
           }
 
+
           if (BNB_OR_USDT_THRESHOLD <= PROFIT_TRASHHOLD && !isTenMinsPassedAfterReceivingMoney) {
             await sleep(1000);
             const finaliseRow = await getFinaliseLogByTxId(bnbUsdtOrder?.hash);
