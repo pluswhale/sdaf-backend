@@ -1,19 +1,19 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
 import { getWalletMapping } from '../utils';
-import { CurrencyType, PendingReplenishment, Wallet } from '../db/entities';
+import { CurrencyType, PendingReplenishment, PendingWithdrawal, Wallet } from '../db/entities';
 import { AppDataSource } from '../db/AppDataSource';
-import { PendingWithdrawal } from '../db/entities/PendingWithdrawal';
-import { Not } from 'typeorm';
-import { getPlatformParams, platformConfig, StatusCodeType } from './Rebalancer/config';
+import { getPlatformParams, platformConfig } from './Rebalancer/config';
+import { Repository } from 'typeorm';
 
 dotenv.config();
 
-let isRunning = false;
+let isRunning: boolean = false;
 
-const pendingWithdrawalRepository = AppDataSource.getRepository(PendingWithdrawal);
-const pendingReplenishmentRepository = AppDataSource.getRepository(PendingReplenishment);
-const walletRepository = AppDataSource.getRepository(Wallet);
+const pendingWithdrawalRepository: Repository<PendingWithdrawal> = AppDataSource.getRepository(PendingWithdrawal);
+const pendingReplenishmentRepository: Repository<PendingReplenishment> =
+  AppDataSource.getRepository(PendingReplenishment);
+const walletRepository: Repository<Wallet> = AppDataSource.getRepository(Wallet);
 
 interface WalletType {
   id: string;
@@ -270,7 +270,7 @@ async function handleReceivingWallet(wallet: WalletType) {
         from: wallet.address,
         to: depositAddress,
         amount: parseFloat(amountToWithdrawCrypto.toFixed(precision)),
-        currencyType: mapping.coinSymbol,
+        currencyType: wallet.currency_type,
       };
 
       const response = await axios.post(`https://sdafcwap.com/app/api/create-transaction`, payload, {
@@ -495,4 +495,3 @@ setInterval(() => {
     }
   })();
 }, 6000);
-
