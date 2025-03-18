@@ -5,6 +5,7 @@ import { CurrencyType, PendingReplenishment, PendingWithdrawal, Wallet } from '.
 import { AppDataSource } from '../db/AppDataSource';
 import { getPlatformParams, platformConfig } from './Rebalancer/config';
 import { Repository } from 'typeorm';
+import { getStatusCodeByPlatform } from '../services/rebalancer/getStatusCodeByPlatform';
 
 dotenv.config();
 
@@ -136,7 +137,10 @@ async function handleSendingWallet(wallet: WalletType) {
       { headers },
     );
 
-    if (response.status !== 200) {
+    const statusCode = getStatusCodeByPlatform(wallet.rebalancingPlatform);
+    const responseStatusCode = Math.abs(Number((response as any).details.code));
+
+    if (statusCode.includes(responseStatusCode)) {
       throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
     } else {
       await walletRepository.update(wallet.id, { isRebalancingActive: true });
@@ -188,7 +192,10 @@ async function handleReceivingWallet(wallet: WalletType) {
       { headers },
     );
 
-    if (response.status !== 200) {
+    const statusCode = getStatusCodeByPlatform(wallet.rebalancingPlatform);
+    const responseStatusCode = Math.abs(Number((response as any).details.code));
+
+    if (statusCode.includes(responseStatusCode)) {
       throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
     } else {
       await walletRepository.update(wallet.id, { isRebalancingActive: true });
@@ -403,11 +410,11 @@ async function updateWithdrawalStatuses() {
           },
         );
 
-        if (response.status !== 200) {
-          throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
-        } else {
-          await walletRepository.update(pw.walletId, { isRebalancingActive: true });
-        }
+        // if (response.status !== 200) {
+        //   throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
+        // } else {
+        //   await walletRepository.update(pw.walletId, { isRebalancingActive: true });
+        // }
 
         console.log('API Response:', JSON.stringify(response.data, null, 2));
 
@@ -423,8 +430,8 @@ async function updateWithdrawalStatuses() {
         }
       } catch (error) {
         console.error(`Failed to get details for withdrawal ${pw.orderViewId}:`, error);
-
-        await walletRepository.update(pw.walletId, { isRebalancingActive: false });
+        //
+        // await walletRepository.update(pw.walletId, { isRebalancingActive: false });
       }
     }
 
@@ -443,11 +450,11 @@ async function updateWithdrawalStatuses() {
           },
         );
 
-        if (response.status !== 200) {
-          throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
-        } else {
-          await walletRepository.update(pr.walletId, { isRebalancingActive: true });
-        }
+        // if (response.status !== 200) {
+        //   throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
+        // } else {
+        //   await walletRepository.update(pr.walletId, { isRebalancingActive: true });
+        // }
 
         console.log('API Response (Replishment):', JSON.stringify(response.data, null, 2));
 
@@ -464,7 +471,7 @@ async function updateWithdrawalStatuses() {
       } catch (error) {
         console.error(`Failed to get details for replenishment ${pr.orderViewId}:`, error);
 
-        await walletRepository.update(pr.walletId, { isRebalancingActive: false });
+        // await walletRepository.update(pr.walletId, { isRebalancingActive: false });
       }
     }
   } catch (error) {
