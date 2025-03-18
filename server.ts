@@ -5,7 +5,7 @@ import { AppDataSource } from './db/AppDataSource';
 import appRoutes from './routes/appRoutes';
 import cookieParser from 'cookie-parser';
 import { seedMargins } from './db/seeders/MarginSeeder';
-import './middlewares/walletScheduler';
+// import './middlewares/walletScheduler';
 import { seedUsers } from './db/seeders/UserSeeder';
 import { seedBotOrder } from './db/seeders/BotOrderSeeder';
 import './middlewares/hedgingEngine';
@@ -76,4 +76,3 @@ app.use('/api/', appRoutes);
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
-
