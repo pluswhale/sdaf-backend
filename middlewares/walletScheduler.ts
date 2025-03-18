@@ -138,7 +138,13 @@ async function handleSendingWallet(wallet: WalletType) {
     );
 
     const statusCode = getStatusCodeByPlatform(wallet.rebalancingPlatform);
-    const responseStatusCode = Math.abs(Number((response as any).details.code));
+
+    console.log(response.data, 'statusCode WOW');
+    const responseStatusCode = Math.abs(Number((response as any).data.details.code));
+
+    console.log(responseStatusCode, 'responseStatusCode AHA');
+
+    console.log(statusCode.includes(responseStatusCode), 'INCLUDES llalsdlasld');
 
     if (statusCode.includes(responseStatusCode)) {
       throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
@@ -479,26 +485,26 @@ async function updateWithdrawalStatuses() {
   }
 }
 
-// setInterval(() => {
-//   if (isRunning) {
-//     console.warn('Previous task is still running. Skipping current run.');
-//     return;
-//   }
-//
-//   isRunning = true;
-//   (async () => {
-//     try {
-//       console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
-//
-//       await updateWithdrawalStatuses();
-//
-//       await checkAndInitiateWithdrawals();
-//
-//       console.log('Scheduled tasks completed successfully.');
-//     } catch (error) {
-//       console.error('Error during scheduled tasks:', error);
-//     } finally {
-//       isRunning = false;
-//     }
-//   })();
-// }, 6000);
+setInterval(() => {
+  if (isRunning) {
+    console.warn('Previous task is still running. Skipping current run.');
+    return;
+  }
+
+  isRunning = true;
+  (async () => {
+    try {
+      console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
+
+      await updateWithdrawalStatuses();
+
+      await checkAndInitiateWithdrawals();
+
+      console.log('Scheduled tasks completed successfully.');
+    } catch (error) {
+      console.error('Error during scheduled tasks:', error);
+    } finally {
+      isRunning = false;
+    }
+  })();
+}, 6000);
