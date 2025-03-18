@@ -137,21 +137,6 @@ async function handleSendingWallet(wallet: WalletType) {
       { headers },
     );
 
-    const statusCode = getStatusCodeByPlatform(wallet.rebalancingPlatform);
-
-    console.log(response.data, 'statusCode WOW');
-    const responseStatusCode = Math.abs(Number((response as any).data.details.code));
-
-    console.log(responseStatusCode, 'responseStatusCode AHA');
-
-    console.log(statusCode.includes(responseStatusCode), 'INCLUDES llalsdlasld');
-
-    if (statusCode.includes(responseStatusCode)) {
-      throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
-    } else {
-      await walletRepository.update(wallet.id, { isRebalancingActive: true });
-    }
-
     console.log(`Top up your wallet ${wallet.id} initiated:`, response.data);
 
     const orderViewId = response.data.orderViewId;
@@ -168,7 +153,17 @@ async function handleSendingWallet(wallet: WalletType) {
   } catch (error: any) {
     console.error(`Error when replenishing wallet ${wallet.id}:`, error.response?.data || error.message);
 
-    await walletRepository.update(wallet.id, { isRebalancingActive: false });
+    const statusCode = getStatusCodeByPlatform(wallet.rebalancingPlatform);
+
+    console.log(statusCode, 'statusCode WOW');
+    const responseStatusCode = Math.abs(Number(error.response?.data.details.code));
+
+    console.log(responseStatusCode, 'responseStatusCode AHA');
+
+    console.log(statusCode.includes(responseStatusCode), 'INCLUDES llalsdlasld');
+
+    if (statusCode.includes(responseStatusCode))
+      await walletRepository.update(wallet.id, { isRebalancingActive: false });
   }
 }
 
@@ -197,15 +192,6 @@ async function handleReceivingWallet(wallet: WalletType) {
       params,
       { headers },
     );
-
-    const statusCode = getStatusCodeByPlatform(wallet.rebalancingPlatform);
-    const responseStatusCode = Math.abs(Number((response as any).details.code));
-
-    if (statusCode.includes(responseStatusCode)) {
-      throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
-    } else {
-      await walletRepository.update(wallet.id, { isRebalancingActive: true });
-    }
 
     const depositAddress = response.data?.DepositAddress;
     console.log(`Ceffu prime wallet address: ${depositAddress}`);
@@ -290,11 +276,11 @@ async function handleReceivingWallet(wallet: WalletType) {
         headers,
       });
 
-      if (response.status !== 200) {
-        throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
-      } else {
-        await walletRepository.update(wallet.id, { isRebalancingActive: true });
-      }
+      // if (response.status !== 200) {
+      //   throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
+      // } else {
+      //   await walletRepository.update(wallet.id, { isRebalancingActive: true });
+      // }
 
       const txHash = response.data.transactionHash.hash;
       console.log(`Top up your wallet ${wallet.id} initiated:`, txHash);
@@ -311,12 +297,22 @@ async function handleReceivingWallet(wallet: WalletType) {
     } catch (error: any) {
       console.error(`Error when withdrawal wallet assets:`, error.response?.data || error.message);
 
-      await walletRepository.update(wallet.id, { isRebalancingActive: false });
+      // await walletRepository.update(wallet.id, { isRebalancingActive: false });
     }
   } catch (error: any) {
     console.error(`Error when inquering Ceffu prime wallet address:`, error.response?.data || error.message);
 
-    await walletRepository.update(wallet.id, { isRebalancingActive: false });
+    const statusCode = getStatusCodeByPlatform(wallet.rebalancingPlatform);
+
+    console.log(statusCode, 'statusCode WOW');
+    const responseStatusCode = Math.abs(Number(error.response?.data.details.code));
+
+    console.log(responseStatusCode, 'responseStatusCode AHA');
+
+    console.log(statusCode.includes(responseStatusCode), 'INCLUDES llalsdlasld');
+
+    if (statusCode.includes(responseStatusCode))
+      await walletRepository.update(wallet.id, { isRebalancingActive: false });
   }
 }
 
