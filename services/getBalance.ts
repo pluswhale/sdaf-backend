@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { CoinWebProviders, ethProviders, Providers } from '../config';
+import { ethProviders } from '../config';
 import { Contract, formatEther, formatUnits } from 'ethers';
 import { getBitcoinBalance } from '../utils';
 
@@ -104,11 +104,7 @@ export const checkBalanceUSDTToUSD = async (
 
   const { prices } = response.data;
 
-  const usdtToUsdRate = prices.USDT;
-
-  if (usdtToUsdRate === 0) {
-    return { usd: '0.00', usdt: balanceInUSDT };
-  }
+  const usdtToUsdRate = prices.USDT || 1;
 
   const balanceInUSD = balanceInUSDT * usdtToUsdRate;
   return { usd: balanceInUSD.toFixed(2), usdt: balanceInUSDT };
