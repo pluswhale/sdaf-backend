@@ -345,8 +345,10 @@ async function checkAndInitiateWithdrawals() {
     const walletsToUpdate = filteredWallets.filter((w: WalletType) => {
       const minBalance = parseFloat(w.minBalance);
       const priceUsd = typeof w.price.usd === 'string' ? parseFloat(w.price.usd) : w.price.usd;
-      console.log(minBalance, 'minBalance');
-      console.log(priceUsd, 'priceUsd');
+      // console.log(w.address, 'address');
+      // console.log(w.currency_type, 'currency_type');
+      // console.log(minBalance, 'minBalance');
+      // console.log(priceUsd, 'priceUsd');
       return priceUsd < minBalance;
     });
 
@@ -420,8 +422,6 @@ async function updateWithdrawalStatuses() {
         //   await walletRepository.update(pw.walletId, { isRebalancingActive: true });
         // }
 
-        console.log('API Response:', JSON.stringify(response.data, null, 2));
-
         const status = response.data.withdrawalDetails[0]?.status;
 
         if (status === platformConfig[pw.platform].statusCode.statusCodeWithdraw) {
@@ -459,8 +459,6 @@ async function updateWithdrawalStatuses() {
         // } else {
         //   await walletRepository.update(pr.walletId, { isRebalancingActive: true });
         // }
-
-        console.log('API Response (Replishment):', JSON.stringify(response.data, null, 2));
 
         const status = response.data.depositDetails[0]?.status;
 

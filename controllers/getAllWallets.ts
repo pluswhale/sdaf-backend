@@ -79,13 +79,14 @@ export const getAllWallets = async (req: Request, res: Response): Promise<any> =
       return res.status(400).json({ message: 'Wallets not found' });
     }
 
-    const walletsWithPrice = await Promise.all(
-      wallets.map(async (wallet) => {
-        const isMainnet = wallet.currency_type in testWallets ? testWallets[wallet.currency_type] : true;
-        const processor = walletProcessors[wallet.currency_type] || processDefault;
-        return await processor(wallet, isMainnet);
-      }),
-    );
+    const walletsWithPrice = [];
+
+    for (const wallet of wallets) {
+      const isMainnet = wallet.currency_type in testWallets ? testWallets[wallet.currency_type] : true;
+      const processor = walletProcessors[wallet.currency_type] || processDefault;
+
+      walletsWithPrice.push(await processor(wallet, isMainnet));
+    }
 
     res.status(200).json(walletsWithPrice);
   } catch (error) {
