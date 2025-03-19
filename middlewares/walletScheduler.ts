@@ -345,6 +345,8 @@ async function checkAndInitiateWithdrawals() {
     const walletsToUpdate = filteredWallets.filter((w: WalletType) => {
       const minBalance = parseFloat(w.minBalance);
       const priceUsd = typeof w.price.usd === 'string' ? parseFloat(w.price.usd) : w.price.usd;
+      console.log(minBalance, 'minBalance');
+      console.log(priceUsd, 'priceUsd');
       return priceUsd < minBalance;
     });
 
