@@ -73,7 +73,12 @@ const testWallets: { [key: string]: boolean } = {
 
 export const getAllWallets = async (req: Request, res: Response): Promise<any> => {
   try {
-    const wallets = await walletRepository.find();
+    const { type } = req.query;
+
+    const wallets =
+      type && type === 'test'
+        ? await walletRepository.find({ where: { isTest: true } })
+        : await walletRepository.find();
 
     if (!wallets) {
       return res.status(400).json({ message: 'Wallets not found' });

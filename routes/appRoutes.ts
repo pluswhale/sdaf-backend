@@ -51,6 +51,7 @@ import { initiateWithdrawalBinance } from '../controllers/binanceApi/initiateWit
 import { getDepositAddressBinance } from '../controllers/binanceApi/getDepositAddressBinance';
 import { getDepositDetailBinance } from '../controllers/binanceApi/getDepositDetailBinance';
 import { getWithdrawalDetailsBinance } from '../controllers/binanceApi/getWithdrawalDetailsBinance';
+import { getWalletBalanceHistory } from '../controllers/getWalletHistory';
 
 const router = express.Router();
 
@@ -58,6 +59,7 @@ router.post('/save/wallet', authenticate, saveWallet);
 router.get('/wallets', getAllWallets);
 router.get('/wallets/rebalancers', getRebalancersWallets);
 router.put('/wallets/rebalancers/set-up/:id', editRebalancerWalletsStatus);
+router.get('/wallets/balance/history/:address', getWalletBalanceHistory);
 router.get('/wallets-without-price', authenticate, getAllWalletsWithoutPrice);
 router.post('/transaction', validateTransaction, authenticate, makeTransaction);
 router.get('/balance', validateGetBalance, getBalanceOfAddress);

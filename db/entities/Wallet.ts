@@ -65,5 +65,7 @@ export class Wallet {
 
   @Column({ type: 'bool', default: false })
   isRebalancingActive: boolean;
-}
 
+  @Column({ type: 'bool', default: false })
+  isTest: boolean;
+}
