@@ -17,8 +17,9 @@ export const getBitcoinBalance = async (btcAddress: string, isMainnet: boolean):
 
   console.log('Fetching balance for address:', btcAddress, 'on network:', network);
 
+  //https://blockstream.info
   try {
-    const response = await axios.get(`https://blockstream.info/${network}api/address/${btcAddress}`);
+    const response = await axios.get(`https://mempool.coinhq.store/${network}api/address/${btcAddress}`);
     await sleep(500);
     const funded = response?.data?.chain_stats?.funded_txo_sum;
     const spent = response?.data.chain_stats?.spent_txo_sum;
