@@ -17,6 +17,7 @@ export const seedUsers = async (dataSource: DataSource) => {
     { fullName: 'Сергей', username: 'sergio_bh', password: 'hwapp_50' },
     { fullName: 'admin', username: 'admin', password: 'hwapp_admin' },
     { fullName: 'QA', username: 'qa_evgen_khilkovich', password: 'hwapp_60' },
+    { fullName: 'Johan Ditz Lemche', username: 'jd_lemche', password: 'hwapp_90' },
   ];
 
   for (const user of userData) {
@@ -35,4 +36,3 @@ export const seedUsers = async (dataSource: DataSource) => {
 
   console.log('User seeding completed.');
 };
-
