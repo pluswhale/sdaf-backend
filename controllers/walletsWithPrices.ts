@@ -48,15 +48,13 @@ export const walletProcessors: { [key: string]: WalletProcessor } = {
 
 export const walletsWithPrices = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { wallets } = req.body;
-
-    if (!wallets || wallets.length === 0) {
+    if (!req.body || req.body.length === 0) {
       return res.status(400).json({ message: 'No wallets provided' });
     }
 
     const walletsWithPrices = [];
 
-    for (const wallet of wallets) {
+    for (const wallet of req.body) {
       const processor = walletProcessors[wallet.currency_type] || processDefault;
 
       walletsWithPrices.push(await processor(wallet, true));
