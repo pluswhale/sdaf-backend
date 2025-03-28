@@ -334,7 +334,7 @@ async function checkAndInitiateWithdrawals() {
     const filteredWallets = wallets.filter((w: WalletType) => {
       if (walletIdsWithPending.includes(w.id) || walletIdsWithPendingReplenishments.includes(w.id)) return false;
 
-      return w.minBalance !== '0' && w.maxBalance !== '0' && w.price && w.price.usd;
+      return w.minBalance !== '0' && w.maxBalance !== '0';
     });
 
     if (filteredWallets.length === 0) {
@@ -342,17 +342,17 @@ async function checkAndInitiateWithdrawals() {
       return;
     }
 
-    const walletsToUpdate = filteredWallets.filter((w: WalletType) => {
+    const walletsWithPrices: WalletType[] = await axios.post('https://sdafcwap.com/app/api/wallets-with-prices', {
+      filteredWallets,
+    });
+
+    const walletsToUpdate = walletsWithPrices.filter((w: WalletType) => {
       const minBalance = parseFloat(w.minBalance);
       const priceUsd = typeof w.price.usd === 'string' ? parseFloat(w.price.usd) : w.price.usd;
-      // console.log(w.address, 'address');
-      // console.log(w.currency_type, 'currency_type');
-      // console.log(minBalance, 'minBalance');
-      // console.log(priceUsd, 'priceUsd');
       return priceUsd < minBalance;
     });
 
-    const walletsToWithdraw = filteredWallets.filter((w: WalletType) => {
+    const walletsToWithdraw = walletsWithPrices.filter((w: WalletType) => {
       const maxBalance = parseFloat(w.maxBalance);
       const priceUsd = typeof w.price.usd === 'string' ? parseFloat(w.price.usd) : w.price.usd;
       return priceUsd > maxBalance;
@@ -503,4 +503,4 @@ setInterval(() => {
       isRunning = false;
     }
   })();
-}, 6000);
+}, 3000);
