@@ -9,6 +9,7 @@ import './middlewares/walletScheduler';
 import { seedUsers } from './db/seeders/UserSeeder';
 import { seedBotOrder } from './db/seeders/BotOrderSeeder';
 import './middlewares/hedgingEngine';
+import './middlewares/walletHistory/walletBalanceHistory';
 import { testAPis } from './utils/testAPi';
 import { hedgerOptionsSeeder } from './db/seeders/HedgerOptionsSeeder';
 

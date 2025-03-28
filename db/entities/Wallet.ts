@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 export enum WalletType {
   RECEIVING = 'receiving',
@@ -68,4 +68,7 @@ export class Wallet {
 
   @Column({ type: 'bool', default: false })
   isTest: boolean;
+
+  @Column({ type: 'json', default: [{ balance: '0.00', timeStamp: '2025-03-28T00:00:00.000Z' }], nullable: true })
+  balanceHistory: Record<string, Date>[];
 }
