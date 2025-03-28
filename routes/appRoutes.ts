@@ -1,24 +1,25 @@
 import makeTransaction, { validateTransaction } from '../controllers/makeTransaction';
 import {
+  createBotOrderController,
+  deleteBotOrderController,
   editMarginController,
+  editRebalancerWalletsStatus,
   getAllMarginsController,
   getAllWallets,
+  getBalanceOfAddress,
+  getBotOrdersController,
   getOrders,
+  getRebalancersWallets,
+  loginUser,
   refreshToken,
+  saveWallet,
   setUpMinAndMaxWallet,
   updateBotOrderController,
   validateEditMargin,
+  validateGetBalance,
   validateSetUpMixMaxInWallet,
-  getBotOrdersController,
-  deleteBotOrderController,
-  createBotOrderController,
-  getRebalancersWallets,
-  editRebalancerWalletsStatus,
 } from '../controllers';
-import { saveWallet } from '../controllers';
 import express from 'express';
-import { getBalanceOfAddress, validateGetBalance } from '../controllers';
-import { loginUser } from '../controllers';
 import {
   dropAllAutoTransactions,
   getAllAutoTransactions,
@@ -31,7 +32,7 @@ import { getUserBalance } from '../controllers/getUserBalanceCeffu';
 import { getWithdrawalHistoryCeffu } from '../controllers/getWithdrawalHistoryCeffu';
 import { initiateWithdrawalCeffu } from '../controllers/initiateWithdrawalCeffu';
 import { getWithdrawalDetailsCeffu } from '../controllers/getWithdrawalDetailsCeffu';
-import { getAllWalletsWithoutPrice } from '../controllers/getAllWalletsWithoutPrice';
+import { walletsWithPrices } from '../controllers/walletsWithPrices';
 import { getDepositAddressCeffu } from '../controllers/getDepositAddressCeffu';
 import { getDepositDetailCeffu } from '../controllers/getDepositDetailCeffu';
 import { makeRebalancerTransaction } from '../controllers/makeRebalancerTransaction';
@@ -57,10 +58,10 @@ const router = express.Router();
 
 router.post('/save/wallet', authenticate, saveWallet);
 router.get('/wallets', getAllWallets);
+router.post('/wallets-with-prices', walletsWithPrices);
 router.get('/wallets/rebalancers', getRebalancersWallets);
 router.put('/wallets/rebalancers/set-up/:id', editRebalancerWalletsStatus);
 router.get('/wallets/balance/history/:address', getWalletBalanceHistory);
-router.get('/wallets-without-price', authenticate, getAllWalletsWithoutPrice);
 router.post('/transaction', validateTransaction, authenticate, makeTransaction);
 router.get('/balance', validateGetBalance, getBalanceOfAddress);
 router.put('/wallet/update-minmax/:id', validateSetUpMixMaxInWallet, setUpMinAndMaxWallet);
