@@ -13,6 +13,7 @@ import {
   loginUser,
   refreshToken,
   saveWallet,
+  setUpMarginToAll,
   setUpMinAndMaxWallet,
   updateBotOrderController,
   validateEditMargin,
@@ -79,6 +80,7 @@ router.get('/auto-send/transactions/drop-all', authenticate, dropAllAutoTransact
 
 //quoting engine
 router.get('/quoting-engine/margins', getAllMarginsController);
+router.patch('/quoting-engine/margins/update-margin-value', setUpMarginToAll);
 router.put('/quoting-engine/margins/:id', validateEditMargin, editMarginController);
 router.get('/quoting-engine/orders', getOrders);
 

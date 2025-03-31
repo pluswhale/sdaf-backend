@@ -37,3 +37,29 @@ export const editMarginController = async (req: Request, res: Response): Promise
   }
 };
 
+export const setUpMarginToAll = async (req: Request, res: Response): Promise<any> => {
+  const { marginBps } = req.body;
+
+  if (!marginBps) {
+    return res.status(400).json({ message: 'marginBps is required' });
+  }
+
+  try {
+    const margins = await marginRepository.find();
+
+    let updatedMargin: Margin[] = [];
+
+    if (margins.length) {
+      updatedMargin = margins.map((margin) => {
+        return { ...margin, marginValue: marginBps };
+      });
+    }
+
+    await marginRepository.save(updatedMargin);
+
+    return res.json({ message: 'Margin updated successfully', updatedMargin });
+  } catch (error) {
+    console.error('Error updating margin:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
