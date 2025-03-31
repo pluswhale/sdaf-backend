@@ -343,8 +343,10 @@ async function checkAndInitiateWithdrawals() {
     }
 
     const walletsWithPrices: WalletType[] = (
-      await axios.post('http://localhost:5002/api/wallets-with-prices', filteredWallets)
+      await axios.post('https://sdafcwap.com/app/api/wallets-with-prices', filteredWallets)
     ).data;
+
+    console.log('walletsWithPrices AAAAAAAAA', walletsWithPrices);
 
     const walletsToUpdate = walletsWithPrices.filter((w: WalletType) => {
       const minBalance = parseFloat(w.minBalance);
