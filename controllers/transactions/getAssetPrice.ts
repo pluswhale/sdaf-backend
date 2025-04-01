@@ -3,9 +3,10 @@ import axiosRetry from 'axios-retry';
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import * as dotenv from 'dotenv';
 import NodeCache from 'node-cache';
+
 dotenv.config();
 
-const ASSETS = ['BTC', 'ETH', 'BNB', 'USDT'];
+const ASSETS = ['BTC', 'ETH', 'BNB', 'USDT', 'TRX'];
 
 const priceCache = new NodeCache({ stdTTL: 60, checkperiod: 120 });
 
@@ -56,6 +57,7 @@ const mapAssetToCoinGeckoId = (asset: string): string => {
     USDT: 'tether',
     BNB: 'binancecoin',
     ETH: 'ethereum',
+    TRX: 'tron',
   };
   return mapping[asset] || asset.toLowerCase();
 };
@@ -92,4 +94,3 @@ export const fetchUsdPrices = async (assets: string[]): Promise<Record<string, n
     throw new Error('Unable to retrieve asset prices.');
   }
 };
-
