@@ -6,7 +6,7 @@ import { sleep } from './sleep';
 
 dotenv.config();
 
-export const getBitcoinBalance = async (btcAddress: string, isMainnet: boolean): Promise<number> => {
+export const getBitcoinBalance = async (btcAddress: string, isMainnet: boolean): Promise<number | null> => {
   const network: string = isMainnet ? '' : 'testnet/';
   const cacheKey = `BTC_BALANCE_${network}${btcAddress}`;
 
@@ -31,6 +31,6 @@ export const getBitcoinBalance = async (btcAddress: string, isMainnet: boolean):
     return balance;
   } catch (error) {
     console.error('Error fetching Bitcoin balance:', error);
-    throw new Error('Unable to retrieve Bitcoin balance.');
+    return null;
   }
 };
