@@ -348,13 +348,13 @@ async function checkAndInitiateWithdrawals() {
 
     const walletsToUpdate = walletsWithPrices.filter((w: WalletType) => {
       const minBalance = parseFloat(w.minBalance);
-      const priceUsd = typeof w.price.usd === 'string' ? parseFloat(w.price.usd) : w.price.usd;
+      const priceUsd = typeof w?.price?.usd === 'string' ? parseFloat(w?.price?.usd) : w?.price?.usd;
       return priceUsd < minBalance;
     });
 
     const walletsToWithdraw = walletsWithPrices.filter((w: WalletType) => {
       const maxBalance = parseFloat(w.maxBalance);
-      const priceUsd = typeof w.price.usd === 'string' ? parseFloat(w.price.usd) : w.price.usd;
+      const priceUsd = typeof w?.price?.usd === 'string' ? parseFloat(w?.price?.usd) : w?.price?.usd;
       return priceUsd > maxBalance;
     });
 

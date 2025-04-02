@@ -12,17 +12,27 @@ dotenv.config();
 //BNB Block
 
 export const checkBalanceInBNB = async (address: string, isMainnet: boolean) => {
-  const provider = isMainnet ? ethProviders['bscMainnet'] : ethProviders['bscTestnet'];
-  const balanceInWei = await provider?.getBalance(address);
+  try {
+    const provider = isMainnet ? ethProviders['bscMainnet'] : ethProviders['bscTestnet'];
+    const balanceInWei = await provider?.getBalance(address);
 
-  return balanceInWei?.toString() === '0n' || !balanceInWei ? 0 : parseFloat(formatEther(balanceInWei));
+    return balanceInWei?.toString() === '0n' || !balanceInWei ? 0 : parseFloat(formatEther(balanceInWei));
+  } catch (error) {
+    console.error('Error fetching BNB balance:', error);
+    return null;
+  }
 };
 
 export const checkBalanceInETH = async (address: string, isMainnet: boolean) => {
-  const provider = isMainnet ? ethProviders['ethMainnet'] : ethProviders['ethTestnet'];
-  const balanceInWei = await provider?.getBalance(address);
+  try {
+    const provider = isMainnet ? ethProviders['ethMainnet'] : ethProviders['ethTestnet'];
+    const balanceInWei = await provider?.getBalance(address);
 
-  return balanceInWei?.toString() === '0n' || !balanceInWei ? 0 : parseFloat(formatEther(balanceInWei));
+    return balanceInWei?.toString() === '0n' || !balanceInWei ? 0 : parseFloat(formatEther(balanceInWei));
+  } catch (error) {
+    console.error('Error fetching ETH balance:', error);
+    return null;
+  }
 };
 
 export const checkBalanceBNBToUSD = async (bnbAddress: string, isMainnet: boolean) => {
@@ -34,8 +44,8 @@ export const checkBalanceBNBToUSD = async (bnbAddress: string, isMainnet: boolea
 
   const bnbToUsdRate = prices.BNB;
 
-  if (bnbToUsdRate === 0) {
-    return { usd: '0.00', bnb: balanceInBNB };
+  if (bnbToUsdRate === 0 || bnbToUsdRate === undefined || balanceInBNB === null || balanceInBNB === undefined) {
+    return {};
   }
 
   const balanceInUSD = balanceInBNB * bnbToUsdRate;
@@ -51,8 +61,8 @@ export const checkBalanceETHToUSD = async (bnbAddress: string, isMainnet: boolea
 
   const ethToUsdRate = prices.ETH;
 
-  if (ethToUsdRate === 0) {
-    return { usd: '0.00', eth: balanceInETH };
+  if (ethToUsdRate === 0 || ethToUsdRate === undefined || balanceInETH === null || balanceInETH === undefined) {
+    return {};
   }
 
   const balanceInUSD = balanceInETH * ethToUsdRate;
@@ -69,8 +79,8 @@ export const checkBalanceBTCToUSDT = async (btcAddress: string, isMainnet: boole
 
   const btcToUsdtRate = prices.BTC;
 
-  if (btcToUsdtRate === 0) {
-    return { usd: '0.00', btc: balanceInBTC };
+  if (btcToUsdtRate === 0 || btcToUsdtRate === undefined || balanceInBTC === null || balanceInBTC === undefined) {
+    return {};
   }
 
   const balanceInUSDT = balanceInBTC * btcToUsdtRate;
@@ -83,7 +93,7 @@ export const checkBalanceUSDTToUSD = async (
   isMainnet: boolean,
   type: Currency.USDT_BEP20 | Currency.USDT_ERC20 | Currency.USDT_TRC20,
 ) => {
-  let balanceInUSDT = 0;
+  let balanceInUSDT;
 
   switch (type) {
     case Currency.USDT_BEP20: {
@@ -95,9 +105,6 @@ export const checkBalanceUSDTToUSD = async (
       balanceInUSDT = await checkBalanceUSDTErc20(usdtAddress, isMainnet);
       break;
     }
-
-    default: {
-    }
   }
 
   const response = await axios.get(`https://sdafcwap.com/app/api/get-asset-price`);
@@ -105,6 +112,10 @@ export const checkBalanceUSDTToUSD = async (
   const { prices } = response.data;
 
   const usdtToUsdRate = prices.USDT || 1;
+
+  if (balanceInUSDT === null || balanceInUSDT === undefined) {
+    return {};
+  }
 
   const balanceInUSD = balanceInUSDT * usdtToUsdRate;
   return { usd: balanceInUSD.toFixed(2), usdt: balanceInUSDT };
@@ -123,9 +134,8 @@ export const checkBalanceUSDTErc20 = async (walletAddress: string, isMainnet: bo
     return balanceInUSDT.toString() === '0n' || !balanceInUSDT ? 0 : parseFloat(formatUnits(balanceInUSDT, decimals));
   } catch (e) {
     console.log('error get usdt balance: ', e);
+    return null;
   }
-
-  return 0;
 };
 
 export const checkBalanceUSDTBep20 = async (walletAddress: string, isMainnet: boolean) => {
@@ -141,9 +151,8 @@ export const checkBalanceUSDTBep20 = async (walletAddress: string, isMainnet: bo
     return balanceInUSDT.toString() === '0n' || !balanceInUSDT ? 0 : parseFloat(formatUnits(balanceInUSDT, decimals));
   } catch (e) {
     console.log('error get usdt balance: ', e);
+    return null;
   }
-
-  return 0;
 };
 
 export const checkBalanceUSDT_CT = async (walletAddress: string, isMainnet: boolean) => {
