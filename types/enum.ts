@@ -2,11 +2,11 @@ export enum Network {
   USDT = 'ETH',
   USDT_BEP20 = 'BSC',
   USDT_ERC20 = 'ETH',
-  USDT_TRC20 = 'TRN',
+  USDT_TRC20 = 'TRX',
   BTC = 'BTC',
   BNB = 'BSC',
   ETH = 'ETH',
-  TRX = 'TRN',
+  TRX = 'TRX',
   LTC = 'LTC',
 }
 
