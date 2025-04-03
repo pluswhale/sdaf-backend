@@ -113,7 +113,7 @@ async function handleSendingWallet(wallet: WalletType) {
     BTC: 8,
     BNB: 8,
     ETH: 8,
-    TRX: 8,
+    TRX: 6,
   };
 
   const precision = precisionMap[wallet.currency_type] || 2;
@@ -125,6 +125,8 @@ async function handleSendingWallet(wallet: WalletType) {
     walletId: wallet.rebalancingWallet,
     withdrawalAddress: wallet.address,
   };
+
+  console.log(payload, 'payload');
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -263,7 +265,7 @@ async function handleReceivingWallet(wallet: WalletType) {
         BTC: 8,
         BNB: 8,
         ETH: 8,
-        TRX: 8,
+        TRX: 6,
       };
 
       const precision = precisionMap[wallet.currency_type] || 2;
