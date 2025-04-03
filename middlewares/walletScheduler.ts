@@ -113,7 +113,7 @@ async function handleSendingWallet(wallet: WalletType) {
     BTC: 8,
     BNB: 8,
     ETH: 8,
-    TRX: 8,
+    TRX: 6,
   };
 
   const precision = precisionMap[wallet.currency_type] || 2;
@@ -126,11 +126,11 @@ async function handleSendingWallet(wallet: WalletType) {
     withdrawalAddress: wallet.address,
   };
 
+  console.log(payload, 'payload');
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
-
-  console.log(payload);
 
   try {
     const response = await axios.post(
@@ -263,7 +263,7 @@ async function handleReceivingWallet(wallet: WalletType) {
         BTC: 8,
         BNB: 8,
         ETH: 8,
-        TRX: 8,
+        TRX: 6,
       };
 
       const precision = precisionMap[wallet.currency_type] || 2;
