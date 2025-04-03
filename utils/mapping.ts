@@ -22,9 +22,10 @@ export function getWalletMapping(currencyType: CurrencyType): WalletMapping | nu
       return { network: Network.BNB, coinSymbol: CoinSymbol.BNB };
     case CurrencyType.ETH:
       return { network: Network.ETH, coinSymbol: CoinSymbol.ETH };
+    case CurrencyType.TRX:
+      return { network: Network.TRX, coinSymbol: CoinSymbol.TRX };
     default:
       console.error(`Unknown type wallet: ${currencyType}`);
       return null;
   }
 }
-
