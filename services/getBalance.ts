@@ -4,8 +4,9 @@ import { Contract, formatEther, formatUnits } from 'ethers';
 import { getBitcoinBalance } from '../utils';
 
 import dotenv from 'dotenv';
-import { USDT_ABI } from '../utils/abis';
+import { TOKEN_TRC20_ABI, USDT_ABI } from '../utils/abis';
 import { Currency } from '../controllers';
+import TronWeb from 'tronweb';
 
 dotenv.config();
 
@@ -31,6 +32,23 @@ export const checkBalanceInETH = async (address: string, isMainnet: boolean) => 
     return balanceInWei?.toString() === '0n' || !balanceInWei ? 0 : parseFloat(formatEther(balanceInWei));
   } catch (error) {
     console.error('Error fetching ETH balance:', error);
+    return null;
+  }
+};
+
+export const checkBalanceInTRX = async (address: string) => {
+  const tronWeb = new TronWeb({
+    fullHost: 'https://api.trongrid.io',
+    privateKey: '01',
+  });
+
+  try {
+    const balanceInSun = await tronWeb.trx.getBalance(address);
+
+    const balanceInTrx = balanceInSun / 1e6;
+    return balanceInTrx;
+  } catch (error) {
+    console.error('Error fetching TRX balance:', error);
     return null;
   }
 };
@@ -69,6 +87,23 @@ export const checkBalanceETHToUSD = async (bnbAddress: string, isMainnet: boolea
   return { usd: balanceInUSD.toFixed(2), eth: balanceInETH };
 };
 
+export const checkBalanceTRXToUSD = async (trxAddress: string, isMainnet: boolean) => {
+  const balanceInTRX = await checkBalanceInTRX(trxAddress);
+
+  const response = await axios.get(`https://sdafcwap.com/app/api/get-asset-price`);
+
+  const { prices } = response.data;
+
+  const trxToUsdRate = prices.TRX;
+
+  if (trxToUsdRate === 0 || trxToUsdRate === undefined || balanceInTRX === null || balanceInTRX === undefined) {
+    return {};
+  }
+
+  const balanceInUSD = balanceInTRX * trxToUsdRate;
+  return { usd: balanceInUSD.toFixed(2), trx: balanceInTRX };
+};
+
 // Bitcoin block
 export const checkBalanceBTCToUSDT = async (btcAddress: string, isMainnet: boolean) => {
   const balanceInBTC = await getBitcoinBalance(btcAddress, isMainnet);
@@ -103,6 +138,11 @@ export const checkBalanceUSDTToUSD = async (
 
     case Currency.USDT_ERC20: {
       balanceInUSDT = await checkBalanceUSDTErc20(usdtAddress, isMainnet);
+      break;
+    }
+
+    case Currency.USDT_TRC20: {
+      balanceInUSDT = await checkBalanceUSDTTrc20(usdtAddress);
       break;
     }
   }
@@ -159,4 +199,21 @@ export const checkBalanceUSDT_CT = async (walletAddress: string, isMainnet: bool
   //TODO: Implement this
 
   return 0;
+};
+
+export const checkBalanceUSDTTrc20 = async (walletAddress: string) => {
+  const tronWeb = new TronWeb({
+    fullHost: 'https://api.trongrid.io',
+    privateKey: '01',
+  });
+
+  try {
+    let contract = await tronWeb.contract(TOKEN_TRC20_ABI, 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t');
+    let result = await contract.balanceOf(walletAddress).call();
+
+    return await TronWeb.fromSun(result.toString());
+  } catch (error) {
+    console.log('error get usdt balance: ');
+    return null;
+  }
 };

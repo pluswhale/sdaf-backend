@@ -6,6 +6,7 @@ export enum Network {
   BTC = 'BTC',
   BNB = 'BSC',
   ETH = 'ETH',
+  TRX = 'TRN',
   LTC = 'LTC',
 }
 
@@ -17,6 +18,7 @@ export enum CoinSymbol {
   BTC = 'BTC',
   BNB = 'BNB',
   ETH = 'ETH',
+  TRX = 'TRX',
 }
 
 export enum CurrencyForBotOrder {
@@ -34,4 +36,3 @@ export enum Direction {
   BUY = 'BUY',
   SELL = 'SELL',
 }
-
