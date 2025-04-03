@@ -132,8 +132,6 @@ async function handleSendingWallet(wallet: WalletType) {
     'Content-Type': 'application/json',
   };
 
-  console.log(payload);
-
   try {
     const response = await axios.post(
       `https://sdafcwap.com/app/api/initiate-withdrawal-${wallet.rebalancingPlatform}?accountType=${wallet.rebalancingWallet}`,
