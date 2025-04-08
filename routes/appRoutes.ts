@@ -57,7 +57,7 @@ import { getWalletBalanceHistory } from '../controllers/getWalletHistory';
 
 const router = express.Router();
 
-router.post('/save/wallet', authenticate, saveWallet);
+router.post('/save/wallet', saveWallet);
 router.get('/wallets', getAllWallets);
 router.post('/wallets-with-prices', walletsWithPrices);
 router.get('/wallets/rebalancers', getRebalancersWallets);
