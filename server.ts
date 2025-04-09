@@ -58,6 +58,9 @@ async function runSeeders() {
 AppDataSource.initialize()
   .then(async () => {
     console.log('Database connected successfully');
+    app.listen(process.env.PORT, () => {
+      console.log(`Server is running on port: ${process.env.PORT}`);
+    });
     runSeeders()
       .then(() => {
         console.log('Seeding completed successfully.');
@@ -67,10 +70,6 @@ AppDataSource.initialize()
       });
   })
   .catch((error) => console.log('Error connecting to database:', error));
-
-app.listen(process.env.PORT, () => {
-  console.log(`Server is running on port: ${process.env.PORT}`);
-});
 
 app.use('/api/', appRoutes);
 
