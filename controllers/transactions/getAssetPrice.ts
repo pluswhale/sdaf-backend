@@ -6,7 +6,7 @@ import NodeCache from 'node-cache';
 
 dotenv.config();
 
-const ASSETS = ['BTC', 'ETH', 'BNB', 'USDT', 'TRX'];
+const ASSETS = ['BTC', 'ETH', 'BNB', 'USDT', 'TRX', 'WBTC'];
 
 const priceCache = new NodeCache({ stdTTL: 60, checkperiod: 120 });
 
@@ -58,6 +58,7 @@ const mapAssetToCoinGeckoId = (asset: string): string => {
     BNB: 'binancecoin',
     ETH: 'ethereum',
     TRX: 'tron',
+    WBTC: 'wrapped-bitcoin',
   };
   return mapping[asset] || asset.toLowerCase();
 };
