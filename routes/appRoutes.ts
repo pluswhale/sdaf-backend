@@ -54,21 +54,33 @@ import { getDepositAddressBinance } from '../controllers/binanceApi/getDepositAd
 import { getDepositDetailBinance } from '../controllers/binanceApi/getDepositDetailBinance';
 import { getWithdrawalDetailsBinance } from '../controllers/binanceApi/getWithdrawalDetailsBinance';
 import { getWalletBalanceHistory } from '../controllers/getWalletHistory';
+import { duplicateWallet } from '../controllers/duplicateWallet';
 
 const router = express.Router();
 
+/*//////////////////////////////////////////////////////////////
+                                WALLET
+   //////////////////////////////////////////////////////////////*/
 router.post('/save/wallet', saveWallet);
 router.get('/wallets', getAllWallets);
 router.post('/wallets-with-prices', walletsWithPrices);
 router.get('/wallets/rebalancers', getRebalancersWallets);
 router.put('/wallets/rebalancers/set-up/:id', editRebalancerWalletsStatus);
 router.get('/wallets/balance/history/:address', getWalletBalanceHistory);
-router.post('/transaction', validateTransaction, authenticate, makeTransaction);
-router.get('/balance', validateGetBalance, getBalanceOfAddress);
 router.put('/wallet/update-minmax/:id', validateSetUpMixMaxInWallet, setUpMinAndMaxWallet);
 router.patch('/wallet/update-name/:id', validateRenamingWallet, renameWallet);
 router.patch('/wallet/update-archive/:id', validateArchivedWallet, archiveWallet);
+router.post('/duplicate/wallet', duplicateWallet);
 
+/*//////////////////////////////////////////////////////////////
+                          TRANSACTION
+//////////////////////////////////////////////////////////////*/
+router.post('/transaction', validateTransaction, authenticate, makeTransaction);
+router.get('/balance', validateGetBalance, getBalanceOfAddress);
+
+/*//////////////////////////////////////////////////////////////
+                         AUTHORIZATION
+//////////////////////////////////////////////////////////////*/
 router.post('/login', loginUser);
 router.post('/refresh', refreshToken);
 
