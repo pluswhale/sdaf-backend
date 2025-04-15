@@ -118,9 +118,11 @@ async function handleSendingWallet(wallet: WalletType) {
 
   const precision = precisionMap[wallet.currency_type] || 2;
 
+  const [coinSymbol] = wallet.currency_type.split('_');
+
   const payload = {
     amount: parseFloat(amountToWithdrawCrypto.toFixed(precision)),
-    coinSymbol: mapping.coinSymbol,
+    coinSymbol: coinSymbol,
     network: mapping.network,
     walletId: wallet.rebalancingWallet,
     withdrawalAddress: wallet.address,
