@@ -5,7 +5,7 @@ import { AppDataSource } from '../db/AppDataSource';
 const walletRepository = AppDataSource.getRepository(Wallet);
 
 export const duplicateWallet = async (req: Request, res: Response): Promise<any> => {
-  const { duplicateWallets, walletName } = req.body.values;
+  const { duplicateWallets, walletName, currencyWallet } = req.body.values;
 
   try {
     if (duplicateWallets) {
@@ -13,7 +13,7 @@ export const duplicateWallet = async (req: Request, res: Response): Promise<any>
         const updatedWallet = new Wallet();
         updatedWallet.wallet_name = walletName;
         updatedWallet.wallet_type = wallet.wallet_type;
-        updatedWallet.currency_type = wallet.currency_type;
+        updatedWallet.currency_type = currencyWallet;
         updatedWallet.pub_key = wallet.pub_key;
         updatedWallet.address = wallet.address;
 
