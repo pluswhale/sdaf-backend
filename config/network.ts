@@ -1,23 +1,34 @@
-import { JsonRpcProvider } from 'ethers';
+type Providers = 'Mainnet' | 'Testnet';
 
-export type Providers = 'bscMainnet' | 'bscTestnet' | 'ethTestnet' | 'ethMainnet';
-
-export const ethProviders: Partial<Record<Providers, JsonRpcProvider>> = {
-  bscMainnet: new JsonRpcProvider('https://bsc-dataseed.binance.org'),
-  bscTestnet: new JsonRpcProvider('https://data-seed-prebsc-1-s1.binance.org:8545/'),
-  ethMainnet: new JsonRpcProvider('https://ethereum-rpc.publicnode.com'),
-  ethTestnet: new JsonRpcProvider('https://rpc.sepolia.org'),
+const baseUrls: Partial<Record<Providers, Record<string, string>>> = {
+  Mainnet: {
+    BSC: 'https://bsc-dataseed.binance.org',
+    ETH: 'https://ethereum-rpc.publicnode.com',
+  },
+  Testnet: {
+    BSC: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
+    ETH: 'https://rpc.sepolia.org',
+  },
 };
 
-export const CoinWebProviders = {
-  mainnet: new JsonRpcProvider('https://geth-devnet-l1b.coinweb.io'),
-  testnet: new JsonRpcProvider('https://geth-devnet-l1b.coinweb.io'),
-} as { [key: string]: JsonRpcProvider };
+const currencyGroups: { [key: string]: string[] } = {
+  ETH: ['ETH', 'USDT_ERC20'],
+  BSC: ['BNB', 'USDT_BEP20'],
+};
 
-const bitcoinProvider = {
-  mainnet: '',
-  testnet: '',
-} as { [key: string]: string };
+export const getProviderUrl = (provider: Providers, currency: string): any => {
+  const currencyGroup = Object.keys(currencyGroups).find((group) => currencyGroups[group].includes(currency));
 
-const ethProvider = ethProviders['bscMainnet'];
-export { ethProvider };
+  if (currencyGroup) {
+    return baseUrls?.[provider]?.[currencyGroup] || null;
+  }
+
+  return null;
+};
+
+// export const CoinWebProviders = {
+//   mainnet: new JsonRpcProvider('https://geth-devnet-l1b.coinweb.io'),
+//   testnet: new JsonRpcProvider('https://geth-devnet-l1b.coinweb.io'),
+// } as { [key: string]: JsonRpcProvider };
+//
+
