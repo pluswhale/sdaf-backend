@@ -14,7 +14,6 @@ export const getEVMBalance = async (address: string, isMainnet: boolean, currenc
 
     if (TOKEN_CONTRACTS[currency]) {
       const contract = new Contract(TOKEN_CONTRACTS[currency], USDT_ABI, provider);
-      console.log('contract', contract);
       balanceInWei = await contract?.balanceOf(address);
       const decimals = await contract.decimals();
       return balanceInWei.toString() === '0n' || !balanceInWei ? 0 : parseFloat(formatUnits(balanceInWei, decimals));

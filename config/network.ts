@@ -1,13 +1,15 @@
+import { JsonRpcProvider } from 'ethers';
+
 type Providers = 'Mainnet' | 'Testnet';
 
-const baseUrls: Partial<Record<Providers, Record<string, string>>> = {
+const baseUrls: Partial<Record<Providers, Record<string, JsonRpcProvider>>> = {
   Mainnet: {
-    BSC: 'https://bsc-dataseed.binance.org',
-    ETH: 'https://ethereum-rpc.publicnode.com',
+    BSC: new JsonRpcProvider('https://bsc-dataseed.binance.org'),
+    ETH: new JsonRpcProvider('https://ethereum-rpc.publicnode.com'),
   },
   Testnet: {
-    BSC: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
-    ETH: 'https://rpc.sepolia.org',
+    BSC: new JsonRpcProvider('https://data-seed-prebsc-1-s1.binance.org:8545/'),
+    ETH: new JsonRpcProvider('https://rpc.sepolia.org'),
   },
 };
 
@@ -31,4 +33,3 @@ export const getProviderUrl = (provider: Providers, currency: string): any => {
 //   testnet: new JsonRpcProvider('https://geth-devnet-l1b.coinweb.io'),
 // } as { [key: string]: JsonRpcProvider };
 //
-

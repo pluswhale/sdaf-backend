@@ -11,12 +11,13 @@ dotenv.config();
 
 let isRunning: boolean = false;
 
-const pendingWithdrawalRepository: Repository<PendingWithdrawal> = AppDataSource.getRepository(PendingWithdrawal);
-const pendingReplenishmentRepository: Repository<PendingReplenishment> =
+export const pendingWithdrawalRepository: Repository<PendingWithdrawal> =
+  AppDataSource.getRepository(PendingWithdrawal);
+export const pendingReplenishmentRepository: Repository<PendingReplenishment> =
   AppDataSource.getRepository(PendingReplenishment);
 const walletRepository: Repository<Wallet> = AppDataSource.getRepository(Wallet);
 
-interface WalletType {
+export interface WalletType {
   id: string;
   wallet_type: string;
   currency_type: CurrencyType;
@@ -42,7 +43,7 @@ async function fetchAllWallets(): Promise<WalletType[]> {
   return response.data;
 }
 
-async function handleSendingWallet(wallet: WalletType) {
+export async function handleSendingWallet(wallet: WalletType) {
   const minBalance = parseFloat(wallet.minBalance);
   const maxBalance = parseFloat(wallet.maxBalance);
 
@@ -89,6 +90,7 @@ async function handleSendingWallet(wallet: WalletType) {
     BNB: 'BNB',
     ETH: 'ETH',
     TRX: 'TRX',
+    WBTC: 'WBTC',
   };
 
   const coinId = coinIdMap[wallet.currency_type];
@@ -111,6 +113,7 @@ async function handleSendingWallet(wallet: WalletType) {
     USDT_BEP20: 2,
     USDT_TRC20: 2,
     BTC: 8,
+    WBTC: 8,
     BNB: 8,
     ETH: 8,
     TRX: 6,
@@ -241,6 +244,7 @@ async function handleReceivingWallet(wallet: WalletType) {
         BNB: 'BNB',
         ETH: 'ETH',
         TRX: 'TRX',
+        WBTC: 'WBTC',
       };
 
       const coinId = coinIdMap[wallet.currency_type];
@@ -263,6 +267,7 @@ async function handleReceivingWallet(wallet: WalletType) {
         USDT_BEP20: 2,
         USDT_TRC20: 2,
         BTC: 8,
+        WBTC: 8,
         BNB: 8,
         ETH: 8,
         TRX: 6,

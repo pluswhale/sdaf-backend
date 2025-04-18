@@ -24,6 +24,8 @@ export function getWalletMapping(currencyType: CurrencyType): WalletMapping | nu
       return { network: Network.ETH, coinSymbol: CoinSymbol.ETH };
     case CurrencyType.TRX:
       return { network: Network.TRX, coinSymbol: CoinSymbol.TRX };
+    case CurrencyType.WBTC:
+      return { network: Network.WBTC, coinSymbol: CoinSymbol.WBTC };
     default:
       console.error(`Unknown type wallet: ${currencyType}`);
       return null;

@@ -8,6 +8,7 @@ export enum Network {
   ETH = 'ETH',
   TRX = 'TRX',
   LTC = 'LTC',
+  WBTC = 'ETH',
 }
 
 export enum CoinSymbol {
@@ -19,6 +20,7 @@ export enum CoinSymbol {
   BNB = 'BNB',
   ETH = 'ETH',
   TRX = 'TRX',
+  WBTC = 'WBTC',
 }
 
 export enum CurrencyForBotOrder {
