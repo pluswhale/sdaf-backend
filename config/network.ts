@@ -12,7 +12,7 @@ const baseUrls: Partial<Record<Providers, Record<string, string>>> = {
 };
 
 const currencyGroups: { [key: string]: string[] } = {
-  ETH: ['ETH', 'USDT_ERC20'],
+  ETH: ['ETH', 'USDT_ERC20', 'WBTC'],
   BSC: ['BNB', 'USDT_BEP20'],
 };
 

@@ -6,7 +6,6 @@ import {
   editRebalancerWalletsStatus,
   getAllMarginsController,
   getAllWallets,
-  getBalanceOfAddress,
   getBotOrdersController,
   getOrders,
   getRebalancersWallets,
@@ -17,7 +16,6 @@ import {
   setUpMinAndMaxWallet,
   updateBotOrderController,
   validateEditMargin,
-  validateGetBalance,
   validateSetUpMixMaxInWallet,
 } from '../controllers';
 import express from 'express';
@@ -76,7 +74,6 @@ router.post('/duplicate/wallet', duplicateWallet);
                           TRANSACTION
 //////////////////////////////////////////////////////////////*/
 router.post('/transaction', validateTransaction, authenticate, makeTransaction);
-router.get('/balance', validateGetBalance, getBalanceOfAddress);
 
 /*//////////////////////////////////////////////////////////////
                          AUTHORIZATION
