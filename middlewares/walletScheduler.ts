@@ -15,7 +15,7 @@ export const pendingWithdrawalRepository: Repository<PendingWithdrawal> =
   AppDataSource.getRepository(PendingWithdrawal);
 export const pendingReplenishmentRepository: Repository<PendingReplenishment> =
   AppDataSource.getRepository(PendingReplenishment);
-const walletRepository: Repository<Wallet> = AppDataSource.getRepository(Wallet);
+export const walletRepository: Repository<Wallet> = AppDataSource.getRepository(Wallet);
 
 export interface WalletType {
   id: string;
@@ -43,7 +43,7 @@ async function fetchAllWallets(): Promise<WalletType[]> {
   return response.data;
 }
 
-export async function handleSendingWallet(wallet: WalletType) {
+export const handleSendingWallet = async (wallet: WalletType) => {
   const minBalance = parseFloat(wallet.minBalance);
   const maxBalance = parseFloat(wallet.maxBalance);
 
@@ -172,9 +172,9 @@ export async function handleSendingWallet(wallet: WalletType) {
     if (statusCode.includes(responseStatusCode))
       await walletRepository.update(wallet.id, { isRebalancingActive: false });
   }
-}
+};
 
-async function handleReceivingWallet(wallet: WalletType) {
+export const handleReceivingWallet = async (wallet: WalletType) => {
   try {
     const mapping = getWalletMapping(wallet.currency_type);
     if (!mapping) {
@@ -200,7 +200,7 @@ async function handleReceivingWallet(wallet: WalletType) {
       { headers },
     );
 
-    const depositAddress = response.data?.DepositAddress;
+    const depositAddress = response?.data?.depositAddress;
     console.log(`Ceffu prime wallet address: ${depositAddress}`);
 
     try {
@@ -278,7 +278,7 @@ async function handleReceivingWallet(wallet: WalletType) {
       const payload = {
         pub_key: wallet.pub_key,
         from: wallet.address,
-        to: depositAddress,
+        to: '123',
         amount: parseFloat(amountToWithdrawCrypto.toFixed(precision)),
         currencyType: wallet.currency_type,
       };
@@ -325,7 +325,7 @@ async function handleReceivingWallet(wallet: WalletType) {
     if (statusCode.includes(responseStatusCode))
       await walletRepository.update(wallet.id, { isRebalancingActive: false });
   }
-}
+};
 
 async function checkAndInitiateWithdrawals() {
   console.log('Launching wallet check for the need for replenishment...');

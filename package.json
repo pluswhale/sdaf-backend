@@ -7,6 +7,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "watch": "yarn nodemon --inspect .dist/server.js",
+    "test": "jest",
     "dev": "ts-node-dev --respawn ./server.ts"
   },
   "dependencies": {
