@@ -60,6 +60,7 @@ const mapAssetToCoinGeckoId = (asset: string): string => {
     ETH: 'ethereum',
     TRX: 'tron',
     WBTC: 'wrapped-bitcoin',
+    WBTC_BNB: 'berachain-bridged-wbtc-berachain',
   };
   return mapping[asset] || asset.toLowerCase();
 };
