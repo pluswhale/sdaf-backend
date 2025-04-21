@@ -6,7 +6,7 @@ import NodeCache from 'node-cache';
 
 dotenv.config();
 
-const ASSETS = ['BTC', 'ETH', 'BNB', 'USDT', 'TRX', 'WBTC'];
+const ASSETS = ['BTC', 'ETH', 'BNB', 'USDT', 'USDC', 'TRX', 'WBTC'];
 
 const priceCache = new NodeCache({ stdTTL: 60, checkperiod: 120 });
 
@@ -55,6 +55,7 @@ const mapAssetToCoinGeckoId = (asset: string): string => {
   const mapping: Record<string, string> = {
     BTC: 'bitcoin',
     USDT: 'tether',
+    USDC: 'usd-coin',
     BNB: 'binancecoin',
     ETH: 'ethereum',
     TRX: 'tron',
@@ -95,3 +96,4 @@ export const fetchUsdPrices = async (assets: string[]): Promise<Record<string, n
     throw new Error('Unable to retrieve asset prices.');
   }
 };
+
