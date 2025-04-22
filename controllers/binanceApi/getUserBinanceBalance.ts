@@ -11,13 +11,11 @@ export const getUserBinanceBalance = async (req: Request, res: Response): Promis
 
     let apiKey: string | undefined;
     let apiSecret: string | undefined;
-    let basePath: string | undefined;
 
     switch (accountType) {
       case 'hwat':
         apiKey = process.env.BINANCE_API_KEY_HWAT;
         apiSecret = process.env.BINANCE_API_SECRET_KEY_HWAT;
-        basePath = 'https://testnet.binance.vision/api';
         break;
       case 'panchoBtc':
         apiKey = process.env.BINANCE_API_KEY_PANCHO_BTC;
@@ -44,7 +42,7 @@ export const getUserBinanceBalance = async (req: Request, res: Response): Promis
     }
 
     const client = new Spot(apiKey, apiSecret, {
-      baseUrl: basePath,
+      baseURL: 'https://testnet.binance.vision/api',
     });
 
     const response = await client.userAsset();
