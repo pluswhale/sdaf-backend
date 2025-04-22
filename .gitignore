@@ -8,3 +8,5 @@ dist
 packages/
 
 *.pem
+
+jest.setup.ts

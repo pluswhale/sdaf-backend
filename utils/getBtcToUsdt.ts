@@ -6,20 +6,24 @@ import { sleep } from './sleep';
 
 dotenv.config();
 
-export const getBitcoinBalance = async (btcAddress: string, isMainnet: boolean): Promise<number | null> => {
+export const getBitcoinBalance = async (
+  address: string,
+  isMainnet: boolean,
+  currency: string,
+): Promise<number | null> => {
   const network: string = isMainnet ? '' : 'testnet/';
-  const cacheKey = `BTC_BALANCE_${network}${btcAddress}`;
+  const cacheKey = `BTC_BALANCE_${network}${address}`;
 
   const cachedBalance = getCache(cacheKey);
   if (cachedBalance !== undefined) {
     return cachedBalance;
   }
 
-  console.log('Fetching balance for address:', btcAddress, 'on network:', network);
+  console.log('Fetching balance for address:', address, 'on network:', network);
 
   //https://blockstream.info
   try {
-    const response = await axios.get(`https://mempool.coinhq.store/${network}api/address/${btcAddress}`);
+    const response = await axios.get(`https://mempool.coinhq.store/${network}api/address/${address}`);
     await sleep(500);
     const funded = response?.data?.chain_stats?.funded_txo_sum;
     const spent = response?.data.chain_stats?.spent_txo_sum;

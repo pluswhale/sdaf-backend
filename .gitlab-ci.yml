@@ -16,7 +16,7 @@ variables:
 test:
   stage: test
   script:
-    - echo "tests disabled"
+    - echo "__tests__ disabled"
   when: manual
 
 deploy to production-green:

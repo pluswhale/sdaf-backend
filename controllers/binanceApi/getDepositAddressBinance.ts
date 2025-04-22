@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as dotenv from 'dotenv';
+
 dotenv.config();
 
 export const getDepositAddressBinance = async (req: Request, res: Response): Promise<any> => {
@@ -12,11 +13,13 @@ export const getDepositAddressBinance = async (req: Request, res: Response): Pro
 
     let apiKey: string | undefined;
     let apiSecret: string | undefined;
+    let basePath: string | undefined;
 
     switch (accountType) {
       case 'hwat':
         apiKey = process.env.BINANCE_API_KEY_HWAT;
         apiSecret = process.env.BINANCE_API_SECRET_KEY_HWAT;
+        basePath = 'https://testnet.binance.vision/api';
         break;
       case 'panchoBtc':
         apiKey = process.env.BINANCE_API_KEY_PANCHO_BTC;
@@ -42,7 +45,7 @@ export const getDepositAddressBinance = async (req: Request, res: Response): Pro
       });
     }
 
-    const client = new Spot(apiKey, apiSecret);
+    const client = new Spot(apiKey, apiSecret, basePath);
 
     client
       .depositAddress(coinSymbol)
@@ -65,4 +68,3 @@ export const getDepositAddressBinance = async (req: Request, res: Response): Pro
     });
   }
 };
-
