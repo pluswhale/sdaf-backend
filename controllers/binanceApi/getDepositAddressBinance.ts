@@ -45,7 +45,9 @@ export const getDepositAddressBinance = async (req: Request, res: Response): Pro
       });
     }
 
-    const client = new Spot(apiKey, apiSecret, basePath);
+    const client = new Spot(apiKey, apiSecret, {
+      baseUrl: basePath,
+    });
 
     client
       .depositAddress(coinSymbol)

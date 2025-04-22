@@ -48,7 +48,9 @@ export const initiateWithdrawalBinance = async (req: Request, res: Response): Pr
       });
     }
 
-    const client = new Spot(apiKey, apiSecret, basePath);
+    const client = new Spot(apiKey, apiSecret, {
+      baseUrl: basePath,
+    });
 
     client
       .withdraw(
