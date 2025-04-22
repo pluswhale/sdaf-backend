@@ -45,7 +45,9 @@ export const getWithdrawalDetailsBinance = async (req: Request, res: Response): 
       });
     }
 
-    const client = new Spot(apiKey, apiSecret, basePath);
+    const client = new Spot(apiKey, apiSecret, {
+      baseUrl: basePath,
+    });
 
     client
       .withdrawHistory({

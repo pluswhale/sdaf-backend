@@ -43,7 +43,9 @@ export const getUserBinanceBalance = async (req: Request, res: Response): Promis
       });
     }
 
-    const client = new Spot(apiKey, apiSecret, basePath);
+    const client = new Spot(apiKey, apiSecret, {
+      baseUrl: basePath,
+    });
 
     const response = await client.userAsset();
 
