@@ -11,7 +11,6 @@ import {
 import { CoinSymbol, Network } from '../../../types/enum';
 import { CurrencyType } from '../../../db/entities';
 
-jest.resetModules();
 jest.mock('axios');
 jest.mock('../../../utils/mapping');
 jest.mock('../../../middlewares/walletScheduler', () => {
@@ -56,9 +55,9 @@ function makeWallet(overrides?: Partial<WalletType>): WalletType {
   };
 }
 
-// jest.mock('../../../services/rebalancer/getStatusCodeByPlatform');
-
 describe('handleSendingWallet', () => {
+  jest.mock('axios');
+
   const spyLog = jest.spyOn(console, 'log').mockImplementation(() => {});
   const spyError = jest.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -157,59 +156,24 @@ describe('handleSendingWallet', () => {
 });
 
 describe('handleReceivingWallet', () => {
-  // const spyLog = jest.spyOn(console, 'log').mockImplementation(() => {});
-  // const spyError = jest.spyOn(console, 'error').mockImplementation(() => {});
-
   describe('WBTC', () => {
     beforeEach(() => {
       jest.clearAllMocks();
     });
 
     it('should take gepositAddress, create a transaction and save pendingReplenishment on successful flow', async () => {
-      (mappingModule.getWalletMapping as jest.Mock).mockReturnValue({
-        network: Network.WBTC,
-        coinSymbol: CoinSymbol.WBTC,
-      });
-      // (axios.post as jest.Mock).mockResolvedValueOnce({
-      //   data: {
-      //     transactionHash: {
-      //       hash: '123',
-      //     },
-      //   },
-      // });
-      //
-      // (axios.post as jest.Mock).mockResolvedValueOnce({
-      //   data: { DepositAddress: '0x4214310f69c582fc94a819db7f8b2ad5b840c4cc' },
-      // });
-
-      (axios.get as jest.Mock).mockReturnValue({ data: { prices: { WBTC: 80000 } } });
-
-      (pendingReplenishmentRepository.create as jest.Mock).mockImplementation((o) => o);
-
       const w = makeWallet({
-        rebalancingWallet: 'hwat',
+        rebalancingWallet: 'panchoSpot',
         minBalance: '50',
         maxBalance: '150',
         price: { usd: '200' },
       });
-      await handleReceivingWallet(w);
 
       const depositAddressPayload = {
         walletId: w.rebalancingWallet,
         coinSymbol: CoinSymbol.WBTC,
         network: Network.WBTC,
       };
-
-      // expect(axios.post).toHaveBeenCalledWith(
-      //   `https://sdafcwap.com/app/api/get-deposit-address-${w.rebalancingPlatform}?accountType=${w.rebalancingWallet}`,
-      //   depositAddressPayload,
-      //   { headers: { 'Content-Type': 'application/json' } },
-      // );
-
-      // expect(axios.get).toHaveBeenCalledWith('https://sdafcwap.com/app/api/get-asset-price');
-
-      // amountToWithdraw = 150 - 10 = 140;
-      // cryptoPrice = 1 → 140 / 1 = 140; precision for WBTC = 2 → 140.00
 
       const expectedPayload = {
         pub_key: w.pub_key,
@@ -219,36 +183,52 @@ describe('handleReceivingWallet', () => {
         currencyType: w.currency_type,
       };
 
-      expect(axios.get).toHaveBeenCalledTimes(1);
+      (mappingModule.getWalletMapping as jest.Mock).mockReturnValue({
+        network: Network.WBTC,
+        coinSymbol: CoinSymbol.WBTC,
+      });
 
-      expect(axios.post).toHaveBeenCalledTimes(4);
+      const spyPost = jest
+        .spyOn(axios, 'post')
+        .mockReturnValueOnce(
+          Promise.resolve({ data: { depositAddress: '0x4214310f69c582fc94a819db7f8b2ad5b840c4cc' } }),
+        )
+        .mockReturnValueOnce(Promise.resolve({ data: { transactionHash: { hash: '1111' } } }));
 
-      // expect(axios.post).toHaveBeenNthCalledWith(
-      //   2,
-      //   `https://sdafcwap.com/app/api/create-transaction`,
-      //   expectedPayload,
-      //   {
-      //     headers: { 'Content-Type': 'application/json' },
-      //   },
-      // );
+      (axios.get as jest.Mock).mockReturnValue({ data: { prices: { WBTC: 80000 } } });
+
+      (pendingReplenishmentRepository.create as jest.Mock).mockImplementation((o) => o);
+
+      await handleReceivingWallet(w);
+
+      expect(spyPost).toHaveBeenCalledTimes(2);
+
+      expect(spyPost.mock.calls[0]).toEqual([
+        `https://sdafcwap.com/app/api/get-deposit-address-${w.rebalancingPlatform}?accountType=${w.rebalancingWallet}`,
+        depositAddressPayload,
+        { headers: { 'Content-Type': 'application/json' } },
+      ]);
+
+      expect(spyPost.mock.calls[1]).toEqual([
+        'https://sdafcwap.com/app/api/create-transaction',
+        expectedPayload,
+        { headers: { 'Content-Type': 'application/json' } },
+      ]);
+
+      expect(axios.get).toHaveBeenCalledWith('https://sdafcwap.com/app/api/get-asset-price');
 
       expect(pendingReplenishmentRepository.create).toHaveBeenCalledWith({
         walletId: w.id,
-        orderViewId: '123',
+        orderViewId: '1111',
         coinSymbol: CoinSymbol.WBTC,
         accountType: 'panchoSpot',
         platform: 'binance',
         status: 10,
       });
       expect(pendingReplenishmentRepository.save).toHaveBeenCalled();
+      jest.resetAllMocks();
     });
 
-    // it('should skip if minBalance or maxBalance invalid', async () => {
-    //   const w = makeWallet({ minBalance: '0', maxBalance: '0' });
-    //   await handleSendingWallet(w);
-    //   expect(spyLog).toHaveBeenCalledWith(`Skipping the wallet ${w.id}: minBalance and maxBalance incorrect.`);
-    //   expect(axios.get).not.toHaveBeenCalled();
-    // });
     //
     // it('should skip if no valid price.usd', async () => {
     //   const w = makeWallet({ price: {} as any });

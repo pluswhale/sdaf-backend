@@ -255,7 +255,7 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
 
       const responsePrice = await axios.get(`https://sdafcwap.com/app/api/get-asset-price`);
 
-      const { prices } = responsePrice.data;
+      const { prices } = responsePrice?.data;
 
       const cryptoPrice = prices[coinId];
 
@@ -278,7 +278,7 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
       const payload = {
         pub_key: wallet.pub_key,
         from: wallet.address,
-        to: '123',
+        to: depositAddress,
         amount: parseFloat(amountToWithdrawCrypto.toFixed(precision)),
         currencyType: wallet.currency_type,
       };
@@ -293,7 +293,7 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
       //   await walletRepository.update(wallet.id, { isRebalancingActive: true });
       // }
 
-      const txHash = response.data.transactionHash.hash;
+      const txHash = response?.data?.transactionHash?.hash;
       console.log(`Top up your wallet ${wallet.id} initiated:`, txHash);
 
       const pendingReplenishment = pendingReplenishmentRepository.create({
