@@ -191,7 +191,7 @@ describe('handleReceivingWallet', () => {
       const spyPost = jest
         .spyOn(axios, 'post')
         .mockReturnValueOnce(
-          Promise.resolve({ data: { depositAddress: '0x4214310f69c582fc94a819db7f8b2ad5b840c4cc' } }),
+          Promise.resolve({ data: { DepositAddress: '0x4214310f69c582fc94a819db7f8b2ad5b840c4cc' } }),
         )
         .mockReturnValueOnce(Promise.resolve({ data: { transactionHash: { hash: '1111' } } }));
 
