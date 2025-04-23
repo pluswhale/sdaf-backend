@@ -75,7 +75,7 @@ deploy to production-green:
   # --set postgresqlPassword=$POSTGRES_PASSWORD
   environment:
     name: production-green
-    url: http://$KUBE_INGRESS_BASE_DOMAIN
+    url: http://green-$KUBE_INGRESS_BASE_DOMAIN
   when: manual
 
 deploy to production-blue:
@@ -109,7 +109,7 @@ deploy to production-blue:
     - auto-deploy deploy
   environment:
     name: production-blue
-    url: http://$KUBE_INGRESS_BASE_DOMAIN
+    url: http://blue-$KUBE_INGRESS_BASE_DOMAIN
   when: manual
 
 # production:
