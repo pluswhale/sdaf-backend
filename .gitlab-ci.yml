@@ -19,6 +19,16 @@ test:
     - echo "__tests__ disabled"
   when: manual
 
+# .check_current_production:
+#   script: &check_current_production
+#     - |
+#       CURRENT_COLOR=$(kubectl get ingress -n sdaf-cwap-production-services production-sdaf-backend-service -o jsonpath='{.metadata.labels.color}')
+#       echo "Current production color: $CURRENT_COLOR"
+#       if [ "$CURRENT_COLOR" = "$COLOR" ]; then
+#         echo "Already on $COLOR environment"
+#         exit 1
+#       fi
+
 deploy to production-green:
   extends: .auto-deploy
   stage: deploy
@@ -27,9 +37,10 @@ deploy to production-green:
     ENV_SPECIFIC_VALUES: ${ENV_SPECIFIC_VALUES}
     APP_VALUES_FILES: env-specific-values
     POSTGRES_ENABLED: 'true'
+    COLOR: "green"
   before_script:
+    - scripts/refuse-active-backend.sh "$COLOR"
     - printenv ENV_SPECIFIC_VALUES > chart/env-specific-values.yaml || true
-    - cat chart/env-specific-values.yaml
     - echo APP_VALUES_FILES=${APP_VALUES_FILES}
     - |
       for file in $APP_VALUES_FILES; do
@@ -64,9 +75,86 @@ deploy to production-green:
   environment:
     name: production-green
     url: http://$KUBE_INGRESS_BASE_DOMAIN
+  when: manual
 
-production:
+deploy to production-blue:
+  extends: .auto-deploy
+  stage: deploy
+  variables:
+    ENV_SPECIFIC_VALUES: ${ENV_SPECIFIC_VALUES}
+    APP_VALUES_FILES: env-specific-values
+    POSTGRES_ENABLED: 'true'
+    COLOR: "blue"
+  before_script:
+    - scripts/refuse-active-backend.sh "$COLOR"
+    - printenv ENV_SPECIFIC_VALUES > chart/env-specific-values.yaml || true
+    - echo APP_VALUES_FILES=${APP_VALUES_FILES}
+    - |
+      for file in $APP_VALUES_FILES; do
+        if [[ -f chart/${file}.yaml ]]; then
+          export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS} --values chart/${file}.yaml"
+        else
+          echo "File chart/${file}.yaml does not exist."
+        fi
+      done
+    - echo Final HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS}
+  script:
+    - auto-deploy check_kube_domain
+    - auto-deploy download_chart
+    - auto-deploy use_kube_context
+    - auto-deploy ensure_namespace
+    - auto-deploy initialize_tiller
+    - auto-deploy create_secret
+    - auto-deploy deploy
   environment:
-    name: production
+    name: production-blue
     url: http://$KUBE_INGRESS_BASE_DOMAIN
   when: manual
+
+# production:
+#   environment:
+#     name: production
+#     url: http://$KUBE_INGRESS_BASE_DOMAIN
+#   when: manual
+
+.switch_to_prod: &switch_to_prod
+  extends: .auto-deploy
+  stage: production
+  script:
+    # - printenv ENV_SPECIFIC_VALUES > chart/env-specific-values.yaml || true
+    # - echo APP_VALUES_FILES=${APP_VALUES_FILES}
+    # - |
+    #   for file in $APP_VALUES_FILES; do
+    #     if [[ -f chart/${file}.yaml ]]; then
+    #       export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS} --values chart/${file}.yaml"
+    #     else
+    #       echo "File chart/${file}.yaml does not exist."
+    #     fi
+    #   done
+    # - echo Final HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS}
+    - |
+      helm upgrade --install \
+           production-sdaf-backend-service \
+           $HELM_UPGRADE_EXTRA_ARGS \
+           production-service \
+           --debug \
+           -n sdaf-cwap-production-services \
+           --set service.url=http://app-green.sdafcwap.com/ \
+           --set ingress.path=/ \
+           --set externalService.namespace=sdaf-production-backend-$COLOR \
+           --set externalService.fullname=production-$COLOR-sdaf-cwap
+  environment:
+    name: $SERVICE_NAME_POSTFIX
+    url: http://$CI_PROJECT_PATH_SLUG-service.$KUBE_INGRESS_BASE_DOMAIN
+  when: manual
+  allow_failure: true
+
+switch to blue:
+  <<: *switchto_spec
+  variables:
+    COLOR: "blue"
+
+switch to green:
+  <<: *switchto_spec
+  variables:
+    COLOR: "green"

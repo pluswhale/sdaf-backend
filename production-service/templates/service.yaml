@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "fullname" . }}{{ include "namesuffix" . }}
+  labels:
+{{ include "sharedlabels" . | indent 4 }}
+spec:
+  type: ExternalName
+  externalName: {{ (pluck (toString .serviceOverride) .Values | first | default .Values.externalService).fullname }}
