@@ -1,12 +1,21 @@
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRole
+metadata:
+  name: allow-service-read
+rules:
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
 metadata:
   name: bind-service-read-to-gitlab
-  namespace: sdaf-cwap-production-services
 subjects:
   - kind: ServiceAccount
-    name: serviceaccount
-    namespace: default
+    name: default
+    namespace: gitlab-managed-apps
 roleRef:
   kind: ClusterRole
   name: allow-service-read
