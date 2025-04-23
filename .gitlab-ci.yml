@@ -150,11 +150,11 @@ deploy to production-blue:
   allow_failure: true
 
 switch to blue:
-  <<: *switchto_spec
+  <<: *switch_to_prod
   variables:
     COLOR: "blue"
 
 switch to green:
-  <<: *switchto_spec
+  <<: *switch_to_prod
   variables:
     COLOR: "green"
