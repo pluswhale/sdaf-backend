@@ -41,7 +41,7 @@ export const getUserBinanceBalance = async (req: Request, res: Response): Promis
       });
     }
 
-    const client = new Spot(apiKey, apiSecret, { baseURL: 'https://testnet.binance.vision' });
+    const client = new Spot(apiKey, apiSecret);
 
     const response = await client.userAsset();
 
