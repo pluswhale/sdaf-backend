@@ -135,15 +135,14 @@ deploy to production-blue:
     # - echo Final HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS}
     - |
       helm upgrade --install \
-           production-sdaf-backend-service \
+           production-sdaf-backend \
            $HELM_UPGRADE_EXTRA_ARGS \
            production-service \
            --debug \
            -n sdaf-cwap-production-services \
            --set service.url=http://app-green.sdafcwap.com/ \
            --set ingress.path=/ \
-           --set externalService.namespace=sdaf-production-backend-$COLOR \
-           --set externalService.fullname=production-$COLOR-sdaf-cwap
+           --set externalService.fullname=production-$COLOR-sdaf-cwap.sdaf-cwap-backend-production-$COLOR.svc.cluster.local
   environment:
     name: service
     url: http://$CI_PROJECT_PATH_SLUG-service.$KUBE_INGRESS_BASE_DOMAIN
