@@ -2,7 +2,7 @@ include:
   - template: Auto-DevOps.gitlab-ci.yml
 variables:
   AUTO_DEVOPS_DEPLOY_DEBUG: 'true'
-  AUTO_DEVOPS_DISABLE_MANUAL_DEPLOY: "true"
+  CI_DEPLOY_FREEZE: "true"
   AUTO_DEVOPS_COMMON_NAME: 'false'
   BROWSER_PERFORMANCE_DISABLED: 'true'
   CODE_QUALITY_DISABLED: 'true'
