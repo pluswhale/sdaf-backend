@@ -32,7 +32,7 @@ test:
 
 deploy to production-green:
   extends: .auto-deploy
-  stage: production
+  stage: deploy
   variables:
     # HELM_UPGRADE_EXTRA_ARGS: "--timeout 2h"
     ENV_SPECIFIC_VALUES: ${ENV_SPECIFIC_VALUES}
@@ -80,7 +80,7 @@ deploy to production-green:
 
 deploy to production-blue:
   extends: .auto-deploy
-  stage: production
+  stage: deploy
   variables:
     ENV_SPECIFIC_VALUES: ${ENV_SPECIFIC_VALUES}
     APP_VALUES_FILES: env-specific-values
