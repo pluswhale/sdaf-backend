@@ -1,0 +1,24 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: allow-service-read
+  namespace: sdaf-cwap-production-services
+rules:
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: bind-service-read-to-gitlab
+  namespace: sdaf-cwap-production-services
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: gitlab-managed-apps
+roleRef:
+  kind: Role
+  name: allow-service-read
+  apiGroup: rbac.authorization.k8s.io
