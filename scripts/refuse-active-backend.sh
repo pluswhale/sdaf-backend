@@ -33,10 +33,11 @@ main() {
 
 get_prod_color() {
     local -r external_name=$(kubectl get service \
-        -n sdaf-cwap-production-services \
-        -o jsonpath='{.items[?(.metadata.name == "production-sdaf-backend-service")].spec.externalName}'
+    -n sdaf-cwap-production-services \
+    -o jsonpath='{.items[0].spec.externalName}' \
+    | grep -Eo 'production-sdaf-backend-service[^"]*'
     )
-    echo "${external_name%-coinweb.*}"
+    echo "${external_name%-sdaf-backend-service.*}"
 }
 
 main "$@"
