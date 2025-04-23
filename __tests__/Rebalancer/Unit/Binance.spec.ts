@@ -228,42 +228,5 @@ describe('handleReceivingWallet', () => {
       expect(pendingReplenishmentRepository.save).toHaveBeenCalled();
       jest.resetAllMocks();
     });
-
-    //
-    // it('should skip if no valid price.usd', async () => {
-    //   const w = makeWallet({ price: {} as any });
-    //   await handleSendingWallet(w);
-    //   expect(spyLog).toHaveBeenCalledWith(`Skipping the wallet ${w.id}: There is no valid field price.usd`);
-    //   expect(axios.get).not.toHaveBeenCalled();
-    // });
-    //
-    // it('should skip if priceUsd >= minBalance', async () => {
-    //   const w = makeWallet({ price: { usd: '20' } });
-    //   await handleSendingWallet(w);
-    //   expect(spyLog).toHaveBeenCalledWith(
-    //     `Wallet ${w.id}: Current price 20 USD >= minBalance 10, no replenishment required.`,
-    //   );
-    //   expect(axios.get).not.toHaveBeenCalled();
-    // });
-    //
-    // it('should disable rebalancing on known error code from platform', async () => {
-    //   (mappingModule.getWalletMapping as jest.Mock).mockReturnValue({
-    //     network: Network.USDT_BEP20,
-    //     coinSymbol: CoinSymbol.USDT,
-    //   });
-    //   (axios.get as jest.Mock).mockResolvedValue({ data: { prices: { USDT: 1 } } });
-    //   const fakeError = {
-    //     response: { data: { details: { code: -4035 } } },
-    //     message: 'bad',
-    //   };
-    //   (axios.post as jest.Mock).mockRejectedValue(fakeError);
-    //
-    //   const w = makeWallet({ minBalance: '20', maxBalance: '100', price: { usd: '5' } });
-    //   await handleSendingWallet(w);
-    //
-    //   expect(walletRepository.update).toHaveBeenCalledWith(w.id, {
-    //     isRebalancingActive: false,
-    //   });
-    // });
   });
 });

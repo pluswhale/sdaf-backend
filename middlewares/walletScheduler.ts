@@ -200,7 +200,7 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
       { headers },
     );
 
-    const depositAddress = response?.data?.depositAddress;
+    const depositAddress = response?.data?.DepositAddress;
     console.log(`Ceffu prime wallet address: ${depositAddress}`);
 
     try {
