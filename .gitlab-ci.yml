@@ -145,7 +145,7 @@ deploy to production-blue:
            --set externalService.namespace=sdaf-production-backend-$COLOR \
            --set externalService.fullname=production-$COLOR-sdaf-cwap
   environment:
-    name: $SERVICE_NAME_POSTFIX
+    name: service
     url: http://$CI_PROJECT_PATH_SLUG-service.$KUBE_INGRESS_BASE_DOMAIN
   when: manual
   allow_failure: true
