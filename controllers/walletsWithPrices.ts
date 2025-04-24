@@ -22,6 +22,8 @@ export const walletsWithPrices = async (req: Request, res: Response): Promise<an
       walletsWithPrices.push(await walletWithPrice(wallet, true));
     }
 
+    console.log('walletsWithPrices', walletsWithPrices);
+
     res.status(200).json(walletsWithPrices);
   } catch (error) {
     console.error('Error fetching wallets:', error);
