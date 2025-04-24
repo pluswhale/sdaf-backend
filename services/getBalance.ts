@@ -17,7 +17,7 @@ export const checkBalance = async (address: string, isMainnet: boolean, currency
   const response = await axios.get('https://sdafcwap.com/app/api/get-asset-price');
   const { prices } = response.data;
 
-  rate = prices[currency];
+  rate = prices[currency.split('_')[0]];
 
   if (balance === null || balance === undefined || rate === undefined || rate === 0) {
     return {};

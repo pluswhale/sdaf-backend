@@ -1,32 +1,38 @@
 import { getDepositAddress } from './Func/getDepositAddress';
-import { CurrencyType } from '../../../db/entities';
+import { generateCryptoPairsDepAdd } from './Mocks/Mocks';
 
 jest.setTimeout(10000);
 
 describe('getDepositAddress', () => {
   describe('PanchoSPOT', () => {
-    it('should return real WBTC depositAddress ', async () => {
-      const walletData = {
-        coinSymbol: CurrencyType.WBTC,
-        account: 'panchoSpot',
-      };
+    const cryptoPairsDepAddPanchoSpot = generateCryptoPairsDepAdd('panchoSpot');
+    cryptoPairsDepAddPanchoSpot.forEach((el: any) => {
+      it(el.currencyType, async () => {
+        const walletData = {
+          coinSymbol: el.currencyType,
+          account: 'panchoSpot',
+        };
 
-      const res = await getDepositAddress(walletData);
+        const res = await getDepositAddress(walletData);
 
-      expect(res).toBe('0x4214310f69c582fc94a819db7f8b2ad5b840c4cc');
+        expect(res).toBe(el.address);
+      });
     });
   });
 
   describe('HWAT', () => {
-    it('should return real WBTC depositAddress ', async () => {
-      const walletData = {
-        coinSymbol: CurrencyType.WBTC,
-        account: 'hwat',
-      };
+    const cryptoPairsDepAddHwat = generateCryptoPairsDepAdd('hwat');
+    cryptoPairsDepAddHwat.forEach((el: any) => {
+      it(el.currencyType, async () => {
+        const walletData = {
+          coinSymbol: el.currencyType,
+          account: 'hwat',
+        };
 
-      const res = await getDepositAddress(walletData);
+        const res = await getDepositAddress(walletData);
 
-      expect(res).toBe('0xe0fcf473042e5522b4c0d63ab32d38c625eda868');
+        expect(res).toBe(el.address);
+      });
     });
   });
 });

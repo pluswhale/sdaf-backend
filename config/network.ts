@@ -14,8 +14,8 @@ const baseUrls: Partial<Record<Providers, Record<string, JsonRpcProvider>>> = {
 };
 
 const currencyGroups: { [key: string]: string[] } = {
-  ETH: ['ETH', 'USDT_ERC20', 'WBTC'],
-  BSC: ['BNB', 'USDT_BEP20'],
+  ETH: ['ETH', 'USDT_ERC20', 'WBTC', 'USDC_ERC20'],
+  BSC: ['BNB', 'USDT_BEP20', 'USDC_BEP20'],
 };
 
 export const getProviderUrl = (provider: Providers, currency: string): any => {

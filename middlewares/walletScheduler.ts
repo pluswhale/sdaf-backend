@@ -86,6 +86,8 @@ export const handleSendingWallet = async (wallet: WalletType) => {
     USDT_ERC20: 'USDT',
     USDT_BEP20: 'USDT',
     USDT_TRC20: 'USDT',
+    USDC_ERC20: 'USDC',
+    USDC_BEP20: 'USDC',
     BTC: 'BTC',
     BNB: 'BNB',
     ETH: 'ETH',
@@ -112,6 +114,8 @@ export const handleSendingWallet = async (wallet: WalletType) => {
     USDT_ERC20: 2,
     USDT_BEP20: 2,
     USDT_TRC20: 2,
+    USDC_ERC20: 2,
+    USDC_BEP20: 2,
     BTC: 8,
     WBTC: 8,
     BNB: 8,
@@ -151,7 +155,7 @@ export const handleSendingWallet = async (wallet: WalletType) => {
     const pendingWithdrawal = pendingWithdrawalRepository.create({
       walletId: wallet.id,
       orderViewId: orderViewId,
-      coinSymbol: mapping.coinSymbol,
+      coinSymbol: wallet.currency_type,
       accountType: wallet.rebalancingWallet,
       platform: wallet.rebalancingPlatform,
       status: 10,
@@ -162,12 +166,7 @@ export const handleSendingWallet = async (wallet: WalletType) => {
 
     const statusCode = getStatusCodeByPlatform(wallet.rebalancingPlatform);
 
-    console.log(statusCode, 'statusCode WOW');
     const responseStatusCode = Math.abs(Number(error.response?.data.details.code));
-
-    console.log(responseStatusCode, 'responseStatusCode AHA');
-
-    console.log(statusCode.includes(responseStatusCode), 'INCLUDES llalsdlasld');
 
     if (statusCode.includes(responseStatusCode))
       await walletRepository.update(wallet.id, { isRebalancingActive: false });
@@ -240,6 +239,8 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
         USDT_ERC20: 'USDT',
         USDT_BEP20: 'USDT',
         USDT_TRC20: 'USDT',
+        USDC_BEP20: 'USDC',
+        USDC_ERC20: 'USDC',
         BTC: 'BTC',
         BNB: 'BNB',
         ETH: 'ETH',
@@ -266,6 +267,8 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
         USDT_ERC20: 2,
         USDT_BEP20: 2,
         USDT_TRC20: 2,
+        USDC_BEP20: 2,
+        USDC_ERC20: 2,
         BTC: 8,
         WBTC: 8,
         BNB: 8,
@@ -299,7 +302,7 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
       const pendingReplenishment = pendingReplenishmentRepository.create({
         walletId: wallet.id,
         orderViewId: txHash,
-        coinSymbol: mapping.coinSymbol,
+        coinSymbol: wallet.currency_type,
         platform: wallet.rebalancingPlatform,
         accountType: wallet.rebalancingWallet,
         status: 10,
@@ -315,12 +318,7 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
 
     const statusCode = getStatusCodeByPlatform(wallet.rebalancingPlatform);
 
-    console.log(statusCode, 'statusCode WOW');
     const responseStatusCode = Math.abs(Number(error.response?.data.details.code));
-
-    console.log(responseStatusCode, 'responseStatusCode AHA');
-
-    console.log(statusCode.includes(responseStatusCode), 'INCLUDES llalsdlasld');
 
     if (statusCode.includes(responseStatusCode))
       await walletRepository.update(wallet.id, { isRebalancingActive: false });
