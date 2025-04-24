@@ -33,7 +33,7 @@ get_prod_color() {
         -n sdaf-cwap-production-services \
         -o jsonpath='{.items[?(@.metadata.name == "production-sdaf-backend-service")].spec.externalName}'
     )
-    echo "${external_name%-app-green.sdafcwap.*}"
+    echo "$external_name" | sed -n 's/^production-\(.*\)-sdaf-cwap\..*/\1/p'
 }
 
 main "$@"
