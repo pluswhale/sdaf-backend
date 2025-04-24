@@ -140,7 +140,7 @@ deploy to production-blue:
            production-service \
            --debug \
            -n sdaf-cwap-production-services \
-           --set service.url=http://app-green.sdafcwap.com/ \
+           --set service.url=http://sdafcwap.com/ \
            --set ingress.path=/ \
            --set externalService.fullname=production-$COLOR-sdaf-cwap.sdaf-cwap-backend-production-$COLOR.svc.cluster.local
   environment:
