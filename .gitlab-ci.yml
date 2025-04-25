@@ -39,6 +39,7 @@ deploy to production-green:
     APP_VALUES_FILES: env-specific-values
     POSTGRES_ENABLED: 'true'
     COLOR: "green"
+    DB_HOST: "production-green-postgresql"  
   before_script:
     - scripts/refuse-active-backend.sh "$COLOR"
     - printenv ENV_SPECIFIC_VALUES > chart/env-specific-values.yaml || true
@@ -86,6 +87,7 @@ deploy to production-blue:
     APP_VALUES_FILES: env-specific-values
     POSTGRES_ENABLED: 'true'
     COLOR: "blue"
+    DB_HOST: "production-blue-postgresql"
   before_script:
     - scripts/refuse-active-backend.sh "$COLOR"
     - printenv ENV_SPECIFIC_VALUES > chart/env-specific-values.yaml || true
