@@ -91,6 +91,7 @@ deploy to production-blue:
   before_script:
     - scripts/refuse-active-backend.sh "$COLOR"
     - printenv ENV_SPECIFIC_VALUES > chart/env-specific-values.yaml || true
+    - echo DB_HOST=${DB_HOST} >> chart/env-specific-values.yaml
     - echo APP_VALUES_FILES=${APP_VALUES_FILES}
     - |
       for file in $APP_VALUES_FILES; do
