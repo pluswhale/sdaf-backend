@@ -59,7 +59,7 @@ AppDataSource.initialize()
   .then(async () => {
     console.log('Database connected successfully');
     app.listen(process.env.PORT, () => {
-      console.log(`Server is running on port: ${process.env.PORT}`);
+      console.log(`Server! is running on port: ${process.env.PORT}`);
     });
     runSeeders()
       .then(() => {
