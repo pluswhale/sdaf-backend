@@ -53,6 +53,7 @@ import { getDepositDetailBinance } from '../controllers/binanceApi/getDepositDet
 import { getWithdrawalDetailsBinance } from '../controllers/binanceApi/getWithdrawalDetailsBinance';
 import { getWalletBalanceHistory } from '../controllers/getWalletHistory';
 import { duplicateWallet } from '../controllers/duplicateWallet';
+import { editTestWalletStatus, validateInEditinTestStatusWallet } from '../controllers/editTestWalletStatus';
 
 const router = express.Router();
 
@@ -68,6 +69,7 @@ router.get('/wallets/balance/history/:address', getWalletBalanceHistory);
 router.put('/wallet/update-minmax/:id', validateSetUpMixMaxInWallet, setUpMinAndMaxWallet);
 router.patch('/wallet/update-name/:id', validateRenamingWallet, renameWallet);
 router.patch('/wallet/update-archive/:id', validateArchivedWallet, archiveWallet);
+router.patch('/wallet/update-test/:id', validateInEditinTestStatusWallet, editTestWalletStatus);
 router.post('/duplicate/wallet', duplicateWallet);
 
 /*//////////////////////////////////////////////////////////////
