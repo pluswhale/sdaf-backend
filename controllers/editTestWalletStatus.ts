@@ -5,6 +5,7 @@ import { check, validationResult } from 'express-validator';
 
 export const validateInEditinTestStatusWallet = [
     check('isTest').isBoolean().withMessage('isTest field value must be a boolean'),
+    check('type').isString().withMessage('type field value must be a string'),
 ];
 
 const walletRepository = AppDataSource.getRepository(Wallet);
@@ -16,7 +17,7 @@ export const editTestWalletStatus = async (req: Request, res: Response): Promise
     }
 
     const { id } = req.params;
-    const { isTest } = req.body;
+    const { isTest, type } = req.body;
 
     try {
         const wallet = await walletRepository.findOne({ where: { id } });
@@ -26,7 +27,8 @@ export const editTestWalletStatus = async (req: Request, res: Response): Promise
         }
 
         wallet.isTest = isTest;
-        await walletRepository.update(id, { isTest });
+        wallet.wallet_type = type;
+        await walletRepository.update(id, { isTest, wallet_type: type });
 
         const updatedWallet = await walletRepository.findOne({ where: { id } });
 
