@@ -5,6 +5,7 @@ import { check, validationResult } from 'express-validator';
 
 export const validateInEditinTestStatusWallet = [
     check('isTest').isBoolean().withMessage('isTest field value must be a boolean'),
+    check('type').isString().withMessage('type field value must be a string'),
 ];
 
 const walletRepository = AppDataSource.getRepository(Wallet);
