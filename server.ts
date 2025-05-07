@@ -37,8 +37,7 @@ app.use(cookieParser());
 
 app.get('/', async (req, res) => {
   try {
-    const test = await testAPis();
-    res.send({ message: test, text: 'TEST APIS' });
+    res.send({ text: 'TEST APIS' });
   } catch (error) {
     res.status(500).send('Failed to start bot');
   }
