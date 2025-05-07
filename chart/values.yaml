@@ -100,7 +100,7 @@ ingress:
   tls:
     enabled: true
     acme: true
-    secretName: "coinz-team-tls"
+    secretName: "sdaf-cwap-tls"
     useDefaultSecret: false
   className: nginx
   modSecurity:
