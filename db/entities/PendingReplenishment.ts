@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class PendingReplenishment {
@@ -8,7 +8,7 @@ export class PendingReplenishment {
   @Column()
   walletId: string;
 
-  @Column()
+  @Column({ type: 'text', nullable: true })
   orderViewId: string;
 
   @Column({ type: 'varchar', default: '' })
@@ -26,4 +26,3 @@ export class PendingReplenishment {
   @CreateDateColumn()
   createdAt: Date;
 }
-
