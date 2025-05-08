@@ -15,7 +15,7 @@ export const refreshToken = async (req: Request, res: Response): Promise<any> =>
 
   try {
     const decoded = jwt.verify(refreshToken, secretKey as string) as unknown as JwtPayloadWithUser;
-    const accessToken = jwt.sign({ user: decoded.user }, secretKey as string, { expiresIn: '10s' });
+    const accessToken = jwt.sign({ user: decoded.user }, secretKey as string, { expiresIn: '40m' });
 
     res
       .setHeader('Access-Control-Allow-Credentials', 'true')
@@ -26,4 +26,3 @@ export const refreshToken = async (req: Request, res: Response): Promise<any> =>
     return res.status(400).send('Invalid refresh token.');
   }
 };
-
