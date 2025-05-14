@@ -1,4 +1,3 @@
-import axios from 'axios';
 import dotenv from 'dotenv';
 import { getWalletMapping } from '../utils';
 import { CurrencyType, PendingReplenishment, PendingWithdrawal, Wallet } from '../db/entities';
@@ -6,6 +5,14 @@ import { AppDataSource } from '../db/AppDataSource';
 import { getPlatformParams, platformConfig } from './Rebalancer/config';
 import { Repository } from 'typeorm';
 import { getStatusCodeByPlatform } from '../services/rebalancer/getStatusCodeByPlatform';
+import { fetchUsdPrices } from '../controllers/transactions/getAssetPrice';
+import { initiateBinanceWithdraw } from '../controllers/binanceApi/initiateWithdrawalBinance';
+import { getBinanceDepositAddress } from '../controllers/binanceApi/getDepositAddressBinance';
+import { makeTransaction } from '../controllers/makeRebalancerTransaction';
+import { takeWallets } from '../controllers';
+import { takeWalletsWithPrices } from '../controllers/walletsWithPrices';
+import { takeWithdrawalDetailsBinance } from '../controllers/binanceApi/getWithdrawalDetailsBinance';
+import { takeDepositDetailBinance } from '../controllers/binanceApi/getDepositDetailBinance';
 
 dotenv.config();
 
@@ -32,15 +39,6 @@ export interface WalletType {
     usd: string | number;
     bnb?: number;
   };
-}
-
-async function fetchAllWallets(): Promise<WalletType[]> {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-
-  const response = await axios.get(`https://sdafcwap.com/app/api/wallets`, { headers });
-  return response.data;
 }
 
 export const handleSendingWallet = async (wallet: WalletType) => {
@@ -101,9 +99,7 @@ export const handleSendingWallet = async (wallet: WalletType) => {
     return;
   }
 
-  const response = await axios.get(`https://sdafcwap.com/app/api/get-asset-price`);
-
-  const { prices } = response.data;
+  const prices = await fetchUsdPrices();
 
   const cryptoPrice = prices[coinId];
 
@@ -137,20 +133,13 @@ export const handleSendingWallet = async (wallet: WalletType) => {
 
   console.log(payload, 'payload');
 
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-
   try {
-    const response = await axios.post(
-      `https://sdafcwap.com/app/api/initiate-withdrawal-${wallet.rebalancingPlatform}?accountType=${wallet.rebalancingWallet}`,
-      payload,
-      { headers },
+    const orderViewId = await initiateBinanceWithdraw(payload, wallet.rebalancingWallet).then(
+      (response: any) => response.data.id,
     );
 
-    console.log(`Top up your wallet ${wallet.id} initiated:`, response.data);
+    console.log(`Top up your wallet ${wallet.id} initiated:`, orderViewId);
 
-    const orderViewId = response.data.orderViewId;
     console.log(`Extracted orderViewId: ${orderViewId}`);
     const pendingWithdrawal = pendingWithdrawalRepository.create({
       walletId: wallet.id,
@@ -187,19 +176,10 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
       network: mapping.network,
     };
 
-    console.log(params, 'PARAMS');
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-
-    const response = await axios.post(
-      `https://sdafcwap.com/app/api/get-deposit-address-${wallet.rebalancingPlatform}?accountType=${wallet.rebalancingWallet}`,
-      params,
-      { headers },
+    const depositAddress = await getBinanceDepositAddress(params, wallet.rebalancingWallet).then(
+      (response: any) => response.data.address,
     );
 
-    const depositAddress = response?.data?.DepositAddress;
     console.log(`Ceffu prime wallet address: ${depositAddress}`);
 
     try {
@@ -254,9 +234,7 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
         return;
       }
 
-      const responsePrice = await axios.get(`https://sdafcwap.com/app/api/get-asset-price`);
-
-      const { prices } = responsePrice?.data;
+      const prices = await fetchUsdPrices();
 
       const cryptoPrice = prices[coinId];
 
@@ -286,9 +264,7 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
         currencyType: wallet.currency_type,
       };
 
-      const response = await axios.post(`https://sdafcwap.com/app/api/create-transaction`, payload, {
-        headers,
-      });
+      const txHash = await makeTransaction(payload);
 
       // if (response.status !== 200) {
       //   throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
@@ -296,7 +272,6 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
       //   await walletRepository.update(wallet.id, { isRebalancingActive: true });
       // }
 
-      const txHash = response?.data?.transactionHash?.hash;
       console.log(`Top up your wallet ${wallet.id} initiated:`, txHash);
 
       const pendingReplenishment = pendingReplenishmentRepository.create({
@@ -328,7 +303,7 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
 async function checkAndInitiateWithdrawals() {
   console.log('Launching wallet check for the need for replenishment...');
   try {
-    const wallets = await fetchAllWallets();
+    const wallets = await takeWallets();
     if (!wallets || wallets.length === 0) {
       console.log('No wallets to process.');
       return;
@@ -351,9 +326,7 @@ async function checkAndInitiateWithdrawals() {
       return;
     }
 
-    const walletsWithPrices: WalletType[] = (
-      await axios.post('https://sdafcwap.com/app/api/wallets-with-prices', filteredWallets)
-    ).data;
+    const walletsWithPrices: WalletType[] = await takeWalletsWithPrices(filteredWallets);
 
     const walletsToUpdate = walletsWithPrices.filter((w: WalletType) => {
       const minBalance = parseFloat(w.minBalance);
@@ -413,16 +386,9 @@ async function updateWithdrawalStatuses() {
     for (const pw of pendingWithdrawals) {
       try {
         const params = getPlatformParams(pw.platform, pw);
-        const headers: Record<string, string> = {
-          'Content-Type': 'application/json',
-        };
 
-        const response = await axios.post(
-          `https://sdafcwap.com/app/api/get-withdrawal-details-${pw.platform}?accountType=${pw.accountType}`,
-          {
-            headers,
-            params: { ...params },
-          },
+        const status = await takeWithdrawalDetailsBinance(params, pw.accountType).then(
+          (response: any) => response.data.withdrawalDetails[0]?.status,
         );
 
         // if (response.status !== 200) {
@@ -430,8 +396,6 @@ async function updateWithdrawalStatuses() {
         // } else {
         //   await walletRepository.update(pw.walletId, { isRebalancingActive: true });
         // }
-
-        const status = response.data.withdrawalDetails[0]?.status;
 
         if (status === platformConfig[pw.platform].statusCode.statusCodeWithdraw) {
           await pendingWithdrawalRepository.remove(pw);
@@ -451,16 +415,9 @@ async function updateWithdrawalStatuses() {
     for (const pr of pendingReplishments) {
       try {
         const params = getPlatformParams(pr.platform, pr);
-        const headers: Record<string, string> = {
-          'Content-Type': 'application/json',
-        };
 
-        const response = await axios.post(
-          `https://sdafcwap.com/app/api/get-deposit-detail-${pr.platform}?accountType=${pr.accountType}`,
-          {
-            headers,
-            params: { ...params },
-          },
+        const status = await takeDepositDetailBinance(params, pr.accountType).then(
+          (response: any) => response.data.depositDetails[0]?.status,
         );
 
         // if (response.status !== 200) {
@@ -469,15 +426,13 @@ async function updateWithdrawalStatuses() {
         //   await walletRepository.update(pr.walletId, { isRebalancingActive: true });
         // }
 
-        const status = response.data.depositDetails[0]?.status;
-
         if (status === platformConfig[pr.platform].statusCode.statusCodeDeposit) {
           await pendingReplenishmentRepository.remove(pr);
-          console.log(`Replishment ${pr.orderViewId} confirmed and removed from pending.`);
+          console.log(`Replenishment ${pr.orderViewId} confirmed and removed from pending.`);
         } else {
           pr.status = status;
           await pendingReplenishmentRepository.save(pr);
-          console.log(`Replishment ${pr.orderViewId} updated status to ${status}.`);
+          console.log(`Replenishment ${pr.orderViewId} updated status to ${status}.`);
         }
       } catch (error) {
         console.error(`Failed to get details for replenishment ${pr.orderViewId}:`, error);

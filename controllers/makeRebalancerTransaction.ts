@@ -8,15 +8,15 @@ export const makeRebalancerTransaction = async (req: Request, res: Response): Pr
 
     console.log('Sending transaction request with the following data:', transactionData);
 
-    const response = await axios.post(`${backendUrl()}/api/transaction`, transactionData);
+    const response = await makeTransaction(transactionData);
 
-    if (!response || !response.data) {
+    if (!response) {
       return res.status(404).json({ message: 'Failed to send transaction: No response from backend' });
     }
 
     console.log('Transaction successfully processed:', response.data);
 
-    return res.status(200).json(response.data);
+    return res.status(200).json(response);
   } catch (error: any) {
     console.error('Error sending transaction:', error.message);
 
@@ -32,5 +32,6 @@ export const makeRebalancerTransaction = async (req: Request, res: Response): Pr
   }
 };
 
-export default makeRebalancerTransaction;
-
+export const makeTransaction = async (transactionData: any): Promise<any> => {
+  return (await axios.post(`${backendUrl()}/api/transaction`, transactionData)).data?.transactionHash?.hash;
+};

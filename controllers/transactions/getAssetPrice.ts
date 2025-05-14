@@ -6,8 +6,6 @@ import NodeCache from 'node-cache';
 
 dotenv.config();
 
-const ASSETS = ['BTC', 'ETH', 'BNB', 'USDT', 'USDC', 'TRX', 'WBTC', 'WBTC_BNB'];
-
 const priceCache = new NodeCache({ stdTTL: 60, checkperiod: 120 });
 
 const api = axios.create({
@@ -33,7 +31,7 @@ export const getAssetPrice: RequestHandler = async (req: Request, res: Response,
     }
 
     console.log('Fetching prices from API...');
-    const prices = await fetchUsdPrices(ASSETS);
+    const prices = await fetchUsdPrices();
     console.log('Prices fetched:', prices);
 
     priceCache.set('prices', prices);
@@ -65,12 +63,14 @@ const mapAssetToCoinGeckoId = (asset: string): string => {
   return mapping[asset] || asset.toLowerCase();
 };
 
-export const fetchUsdPrices = async (assets: string[]): Promise<Record<string, number>> => {
-  if (assets.length === 0) {
+export const fetchUsdPrices = async (): Promise<Record<string, number>> => {
+  const ASSETS = ['BTC', 'ETH', 'BNB', 'USDT', 'USDC', 'TRX', 'WBTC', 'WBTC_BNB'];
+
+  if (ASSETS.length === 0) {
     throw new Error('Assets List is blank now.');
   }
 
-  const ids = assets.map((asset) => mapAssetToCoinGeckoId(asset)).join(',');
+  const ids = ASSETS.map((asset) => mapAssetToCoinGeckoId(asset)).join(',');
 
   try {
     const response = await api.get('simple/price', {
@@ -82,7 +82,7 @@ export const fetchUsdPrices = async (assets: string[]): Promise<Record<string, n
     });
 
     const prices: Record<string, number> = {};
-    for (const asset of assets) {
+    for (const asset of ASSETS) {
       const coinId = mapAssetToCoinGeckoId(asset);
       if (response.data[coinId] && response.data[coinId].usd !== undefined) {
         prices[asset] = response.data[coinId].usd;

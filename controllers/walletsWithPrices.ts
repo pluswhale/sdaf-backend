@@ -16,17 +16,18 @@ export const walletsWithPrices = async (req: Request, res: Response): Promise<an
       return res.status(400).json({ message: 'No wallets provided' });
     }
 
-    const walletsWithPrices = [];
-
-    for (const wallet of req.body) {
-      walletsWithPrices.push(await walletWithPrice(wallet, true));
-    }
-
-    console.log('walletsWithPrices', walletsWithPrices);
-
-    res.status(200).json(walletsWithPrices);
+    res.status(200).json(await takeWalletsWithPrices(req.body));
   } catch (error) {
     console.error('Error fetching wallets:', error);
     res.status(500).json({ error: 'Failed to fetch wallets' });
   }
+};
+
+export const takeWalletsWithPrices = async (payload: any): Promise<any> => {
+  const walletsWithPrices = [];
+
+  for (const wallet of payload) {
+    walletsWithPrices.push(await walletWithPrice(wallet, true));
+  }
+  return walletsWithPrices;
 };
