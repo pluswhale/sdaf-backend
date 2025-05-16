@@ -382,7 +382,7 @@ async function updateWithdrawalStatuses() {
       try {
         const params = getPlatformParams(pw.platform, pw);
 
-        const status = (await takeWithdrawalDetailsBinance(params, pw.accountType)).data;
+        const status = await takeWithdrawalDetailsBinance(params, pw.accountType);
 
         console.log(status, 'statusNEW');
         // if (response.status !== 200) {
@@ -410,7 +410,9 @@ async function updateWithdrawalStatuses() {
       try {
         const params = getPlatformParams(pr.platform, pr);
 
-        const status = (await takeDepositDetailBinance(params, pr.accountType)).data[0]?.status;
+        const status = (await takeDepositDetailBinance(params, pr.accountType)).data[0];
+
+        console.log(status, 'statusNEW');
 
         // if (response.status !== 200) {
         //   throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
