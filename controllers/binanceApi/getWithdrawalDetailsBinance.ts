@@ -74,7 +74,7 @@ export const takeWithdrawalDetailsBinance = async (payload: any, accountType: st
     });
   } catch (error: any) {
     console.error('Unexpected Error:', error.message);
-    console.log(error);
+    console.log(error.response.data);
     return {};
   }
 };

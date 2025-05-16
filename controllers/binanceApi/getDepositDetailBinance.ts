@@ -74,7 +74,7 @@ export const takeDepositDetailBinance = async (payload: any, accountType: string
     });
   } catch (error: any) {
     console.error('Unexpected Error:', error.message);
-    console.log(error);
+    console.log(error.response.data);
     return {};
   }
 };

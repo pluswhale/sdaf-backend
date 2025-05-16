@@ -75,7 +75,7 @@ export const getBinanceDepositAddress = async (payload: DepositAddressPayload, a
     return client.depositAddress(coinSymbol);
   } catch (error: any) {
     console.error('Unexpected Error:', error.message);
-    console.log(error);
+    console.log(error.response.data);
     return {};
   }
 };

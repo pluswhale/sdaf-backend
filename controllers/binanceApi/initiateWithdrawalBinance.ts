@@ -92,7 +92,7 @@ export const initiateBinanceWithdraw = async (payload: WithdrawPayload, accountT
     });
   } catch (error: any) {
     console.error('Unexpected Error:', error.message);
-    console.log(error);
+    console.log(error.response.data);
     return {};
   }
 };
