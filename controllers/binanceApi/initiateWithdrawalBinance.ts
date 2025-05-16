@@ -87,7 +87,7 @@ export const initiateBinanceWithdraw = async (payload: WithdrawPayload, accountT
   const { amount, coinSymbol, network, withdrawalAddress } = payload;
 
   try {
-    return await client.withdraw(coinSymbol, withdrawalAddress, amount, {
+    return client.withdraw(coinSymbol, withdrawalAddress, amount, {
       network: network,
     });
   } catch (error: any) {
