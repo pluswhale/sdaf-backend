@@ -9,24 +9,13 @@ export const getDepositDetailBinance = async (req: Request, res: Response): Prom
 
     const result = await takeDepositDetailBinance(req.body, accountType);
 
-    if (result) {
-      res.status(200).json({
-        result,
-      });
+    if (result.error) {
+      return res.status(400).json({ error: result.error });
     }
 
-    takeDepositDetailBinance(req.body, accountType)
-      .then((response: any) =>
-        res.status(200).json({
-          depositDetails: response.data,
-        }),
-      )
-      .catch((error: any) =>
-        res.status(500).json({
-          error: 'Failed to get deposit history',
-          details: error || 'No data',
-        }),
-      );
+    res.status(200).json({
+      depositDetails: result,
+    });
   } catch (error: any) {
     console.error('Unexpected Error:', error.message);
     res.status(500).json({
