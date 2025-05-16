@@ -15,7 +15,6 @@ import { takeWithdrawalDetailsBinance } from '../controllers/binanceApi/getWithd
 import { takeDepositDetailBinance } from '../controllers/binanceApi/getDepositDetailBinance';
 
 dotenv.config();
-
 let isRunning: boolean = false;
 
 export const pendingWithdrawalRepository: Repository<PendingWithdrawal> =
@@ -383,8 +382,9 @@ async function updateWithdrawalStatuses() {
       try {
         const params = getPlatformParams(pw.platform, pw);
 
-        const status = (await takeWithdrawalDetailsBinance(params, pw.accountType)).data[0]?.status;
+        const status = (await takeWithdrawalDetailsBinance(params, pw.accountType)).data[0];
 
+        console.log(status, 'statusNEW');
         // if (response.status !== 200) {
         //   throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
         // } else {
