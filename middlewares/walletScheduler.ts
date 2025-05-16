@@ -134,9 +134,7 @@ export const handleSendingWallet = async (wallet: WalletType) => {
   console.log(payload, 'payload');
 
   try {
-    const orderViewId = await initiateBinanceWithdraw(payload, wallet.rebalancingWallet).then(
-      (response: any) => response.data.id,
-    );
+    const orderViewId = (await initiateBinanceWithdraw(payload, wallet.rebalancingWallet)).data.id;
 
     console.log(`Top up your wallet ${wallet.id} initiated:`, orderViewId);
 
@@ -176,9 +174,7 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
       network: mapping.network,
     };
 
-    const depositAddress = await getBinanceDepositAddress(params, wallet.rebalancingWallet).then(
-      (response: any) => response.data.address,
-    );
+    const depositAddress = (await getBinanceDepositAddress(params, wallet.rebalancingWallet)).data.address;
 
     console.log(`Ceffu prime wallet address: ${depositAddress}`);
 
@@ -387,9 +383,7 @@ async function updateWithdrawalStatuses() {
       try {
         const params = getPlatformParams(pw.platform, pw);
 
-        const status = await takeWithdrawalDetailsBinance(params, pw.accountType).then(
-          (response: any) => response.data.withdrawalDetails[0]?.status,
-        );
+        const status = (await takeWithdrawalDetailsBinance(params, pw.accountType)).data.withdrawalDetails[0]?.status;
 
         // if (response.status !== 200) {
         //   throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
@@ -416,9 +410,7 @@ async function updateWithdrawalStatuses() {
       try {
         const params = getPlatformParams(pr.platform, pr);
 
-        const status = await takeDepositDetailBinance(params, pr.accountType).then(
-          (response: any) => response.data.depositDetails[0]?.status,
-        );
+        const status = (await takeDepositDetailBinance(params, pr.accountType)).data.depositDetails[0]?.status;
 
         // if (response.status !== 200) {
         //   throw new Error(`Failed with status ${response.status}: ${response.statusText}`);

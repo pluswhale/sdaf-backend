@@ -7,9 +7,7 @@ export const getWithdrawalDetailsBinance = async (req: Request, res: Response): 
   try {
     const accountType = req.query.accountType as string;
 
-    const result = await takeWithdrawalDetailsBinance(req.body, accountType);
-
-    result
+    takeWithdrawalDetailsBinance(req.body, accountType)
       .then((response: any) =>
         res.status(200).json({
           withdrawalDetails: response.data,

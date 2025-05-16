@@ -19,8 +19,6 @@ export const getBitcoinBalance = async (
     return cachedBalance;
   }
 
-  console.log('Fetching balance for address:', address, 'on network:', network);
-
   //https://blockstream.info
   try {
     const response = await axios.get(`https://mempool.coinhq.store/${network}api/address/${address}`);

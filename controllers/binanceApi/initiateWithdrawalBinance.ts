@@ -14,9 +14,7 @@ export const initiateWithdrawalBinance = async (req: Request, res: Response): Pr
   try {
     const accountType = req.query.accountType as string;
 
-    const result = await initiateBinanceWithdraw(req.body, accountType);
-
-    result
+    initiateBinanceWithdraw(req.body, accountType)
       .then((response: any) =>
         res.status(200).json({
           orderViewId: response.data.id,
@@ -89,7 +87,7 @@ export const initiateBinanceWithdraw = async (payload: WithdrawPayload, accountT
   const { amount, coinSymbol, network, withdrawalAddress } = payload;
 
   try {
-    return client.withdraw(coinSymbol, withdrawalAddress, amount, {
+    return await client.withdraw(coinSymbol, withdrawalAddress, amount, {
       network: network,
     });
   } catch (error: any) {

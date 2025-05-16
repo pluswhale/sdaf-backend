@@ -11,9 +11,7 @@ export const getDepositAddressBinance = async (req: Request, res: Response): Pro
   try {
     const accountType = req.query.accountType as string;
 
-    const result = await getBinanceDepositAddress(req.body, accountType);
-
-    result
+    getBinanceDepositAddress(req.body, accountType)
       .then((response: any) =>
         res.status(200).json({
           DepositAddress: response.data.address,
