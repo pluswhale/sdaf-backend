@@ -7,7 +7,7 @@ const userRepository = AppDataSource.getRepository(User);
 const roleRepository = AppDataSource.getRepository(Role);
 
 export const createUser = async (req: Request, res: Response): Promise<void> => {
-    const { fullName, username, password, roleId } = req.body;
+    const { fullName, username, password, role } = req.body;
 
     try {
         const existingUser = await userRepository.findOne({ where: { username } });
@@ -21,10 +21,10 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
                 password,
             });
 
-            if (roleId) {
-                const role = await roleRepository.findOne({ where: { id: roleId } });
-                if (role) {
-                    newUser.role = role;
+            if (role) {
+                const fullRole = await roleRepository.findOne({ where: { name: role } });
+                if (fullRole) {
+                    newUser.role = fullRole;
                 }
             }
 
