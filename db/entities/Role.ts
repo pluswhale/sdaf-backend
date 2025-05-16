@@ -7,7 +7,7 @@ export class Role {
     id: number;
 
     @Column()
-    name: 'admin' | 'user';
+    name: string
 
     @ManyToMany(() => User, user => user.role)
     @JoinTable()

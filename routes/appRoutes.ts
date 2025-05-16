@@ -60,6 +60,9 @@ import {
   getLastActiveSessionByUserId,
   updateActiveSession,
 } from '../controllers/sessionTrackerController';
+import { getUsers } from '../controllers/getUsers';
+import { createUser } from '../controllers/createUser';
+import { deleteUser } from '../controllers/deleteUser';
 
 const router = express.Router();
 
@@ -88,6 +91,9 @@ router.post('/transaction', validateTransaction, authenticate, makeTransaction);
 //////////////////////////////////////////////////////////////*/
 router.post('/login', loginUser);
 router.post('/refresh', refreshToken);
+router.post('/register', createUser)
+router.get('/users', getUsers)
+router.delete('/user/:id', deleteUser)
 
 /*//////////////////////////////////////////////////////////////
                           AUTO-SEND
