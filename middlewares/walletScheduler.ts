@@ -410,7 +410,7 @@ async function updateWithdrawalStatuses() {
       try {
         const params = getPlatformParams(pr.platform, pr);
 
-        const status = await takeDepositDetailBinance(params, pr.accountType);
+        const status = (await takeDepositDetailBinance(params, pr.accountType)).data[0];
 
         console.log(status, 'statusNEW');
 
