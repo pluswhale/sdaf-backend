@@ -73,8 +73,9 @@ export const takeDepositDetailBinance = async (payload: any, accountType: string
       txId: txId,
     });
   } catch (error: any) {
-    console.error('Unexpected Error:', error.message);
-    console.log(error.response.data);
-    return {};
+    return {
+      error: 'Failed to get deposit history',
+      details: error.response.data || 'No data available from Binance response',
+    };
   }
 };

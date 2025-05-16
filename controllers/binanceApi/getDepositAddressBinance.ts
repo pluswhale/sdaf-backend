@@ -74,8 +74,9 @@ export const getBinanceDepositAddress = async (payload: DepositAddressPayload, a
   try {
     return client.depositAddress(coinSymbol);
   } catch (error: any) {
-    console.error('Unexpected Error:', error.message);
-    console.log(error.response.data);
-    return {};
+    return {
+      error: 'Failed to get deposit address',
+      details: error.response.data || 'No data available from Binance response',
+    };
   }
 };

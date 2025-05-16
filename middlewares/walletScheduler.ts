@@ -156,7 +156,7 @@ export const handleSendingWallet = async (wallet: WalletType) => {
 
     const statusCode = getStatusCodeByPlatform(wallet.rebalancingPlatform);
 
-    const responseStatusCode = Math.abs(Number(error.response?.data.details.code));
+    const responseStatusCode = Math.abs(Number(error.response?.data?.details?.code));
 
     if (statusCode.includes(responseStatusCode))
       await walletRepository.update(wallet.id, { isRebalancingActive: false });
@@ -294,7 +294,7 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
 
     const statusCode = getStatusCodeByPlatform(wallet.rebalancingPlatform);
 
-    const responseStatusCode = Math.abs(Number(error.response?.data.details.code));
+    const responseStatusCode = Math.abs(Number(error.response?.data?.details?.code));
 
     if (statusCode.includes(responseStatusCode))
       await walletRepository.update(wallet.id, { isRebalancingActive: false });

@@ -73,8 +73,9 @@ export const takeWithdrawalDetailsBinance = async (payload: any, accountType: st
       idList: txId,
     });
   } catch (error: any) {
-    console.error('Unexpected Error:', error.message);
-    console.log(error.response.data);
-    return {};
+    return {
+      error: 'Failed to get withdraw history',
+      details: error.response.data || 'No data available from Binance response',
+    };
   }
 };
