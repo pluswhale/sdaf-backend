@@ -141,7 +141,7 @@ export const handleSendingWallet = async (wallet: WalletType) => {
     const pendingWithdrawal = pendingWithdrawalRepository.create({
       walletId: wallet.id,
       orderViewId: orderViewId,
-      coinSymbol: wallet.currency_type,
+      coinSymbol: coinSymbol,
       accountType: wallet.rebalancingWallet,
       platform: wallet.rebalancingPlatform,
       status: 10,
@@ -269,10 +269,12 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
 
       console.log(`Top up your wallet ${wallet.id} initiated:`, txHash);
 
+      const [coinSymbol] = wallet.currency_type.split('_');
+
       const pendingReplenishment = pendingReplenishmentRepository.create({
         walletId: wallet.id,
         orderViewId: txHash,
-        coinSymbol: wallet.currency_type,
+        coinSymbol: coinSymbol,
         platform: wallet.rebalancingPlatform,
         accountType: wallet.rebalancingWallet,
         status: 10,
@@ -382,9 +384,8 @@ async function updateWithdrawalStatuses() {
       try {
         const params = getPlatformParams(pw.platform, pw);
 
-        const status = await takeWithdrawalDetailsBinance(params, pw.accountType);
+        const status = (await takeWithdrawalDetailsBinance(params, pw.accountType)).data?.[0]?.status;
 
-        console.log(status, 'statusNEW');
         // if (response.status !== 200) {
         //   throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
         // } else {
@@ -410,10 +411,7 @@ async function updateWithdrawalStatuses() {
       try {
         const params = getPlatformParams(pr.platform, pr);
 
-        // const status = (await takeDepositDetailBinance(params, pr.accountType)).data?.[0]?.status;
-
-        const status = (await takeDepositDetailBinance(params, pr.accountType)).data;
-        console.log(status, 'statusNEW');
+        const status = (await takeDepositDetailBinance(params, pr.accountType)).data?.[0]?.status;
 
         // if (response.status !== 200) {
         //   throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
