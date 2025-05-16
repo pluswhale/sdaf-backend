@@ -133,7 +133,11 @@ export const handleSendingWallet = async (wallet: WalletType) => {
   console.log(payload, 'payload');
 
   try {
+    console.log(payload, 'payload');
+    console.log(wallet.rebalancingWallet, 'wallet.rebalancingWallet');
     const orderViewId = (await initiateBinanceWithdraw(payload, wallet.rebalancingWallet)).data.id;
+
+    console.log(orderViewId, 'orderViewId');
 
     console.log(`Top up your wallet ${wallet.id} initiated:`, orderViewId);
 
