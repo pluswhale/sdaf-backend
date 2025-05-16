@@ -10,7 +10,9 @@ export const getDepositDetailBinance = async (req: Request, res: Response): Prom
     const result = await takeDepositDetailBinance(req.body, accountType);
 
     if (result) {
-      res.status(200).json(result);
+      res.status(200).json({
+        result,
+      });
     }
 
     takeDepositDetailBinance(req.body, accountType)
