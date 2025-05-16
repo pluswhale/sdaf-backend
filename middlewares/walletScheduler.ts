@@ -382,7 +382,7 @@ async function updateWithdrawalStatuses() {
       try {
         const params = getPlatformParams(pw.platform, pw);
 
-        const status = (await takeWithdrawalDetailsBinance(params, pw.accountType)).data[0];
+        const status = (await takeWithdrawalDetailsBinance(params, pw.accountType)).data;
 
         console.log(status, 'statusNEW');
         // if (response.status !== 200) {
