@@ -54,6 +54,12 @@ import { getWithdrawalDetailsBinance } from '../controllers/binanceApi/getWithdr
 import { getWalletBalanceHistory } from '../controllers/getWalletHistory';
 import { duplicateWallet } from '../controllers/duplicateWallet';
 import { editTestWalletStatus, validateInEditinTestStatusWallet } from '../controllers/editTestWalletStatus';
+import {
+  createSession,
+  getAllSessions,
+  getLastActiveSessionByUserId,
+  updateActiveSession,
+} from '../controllers/sessionTrackerController';
 
 const router = express.Router();
 
@@ -154,5 +160,13 @@ router.get('/hedgine-engine/history', getHedgineEngineHistoryLog);
 router.get('/hedgine-engine/finalise-logs', getFinaliseLog);
 router.get('/hedgine-engine/config-options', getHedgerConfigurationOptions);
 router.put('/hedgine-engine/config-options', updateHedgerConfigOption);
+
+/*//////////////////////////////////////////////////////////////
+                               ACTIVE USER SESSIONS
+//////////////////////////////////////////////////////////////*/
+router.get('/active-sessions', getAllSessions);
+router.get('/active-sessions/:userId', getLastActiveSessionByUserId);
+router.post('/active-sessions/create', createSession);
+router.patch('/active-sessions/update', updateActiveSession);
 
 export default router;

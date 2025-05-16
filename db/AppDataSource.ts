@@ -8,6 +8,7 @@ import {
   PendingWithdrawal,
   Wallet,
   HedgineEngineLog,
+  ActiveSessionTracker,
 } from './entities';
 import { User } from './entities';
 
@@ -57,10 +58,10 @@ export const AppDataSource = new DataSource({
     BotOrder,
     HedgineEngineLog,
     FinaliseLog,
+    ActiveSessionTracker,
   ],
   migrations: [],
   subscribers: [],
 });
 
 export default InitDataSource;
-

@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, OneToMany } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { ActiveSessionTracker } from './ActiveSessionTracker';
 
 @Entity()
 export class User {
@@ -15,9 +16,11 @@ export class User {
   @Column({ type: 'varchar', length: 256 })
   password: string;
 
+  @OneToMany(() => ActiveSessionTracker, (session) => session.user)
+  sessions: ActiveSessionTracker[];
+
   @BeforeInsert()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 10);
   }
 }
-
