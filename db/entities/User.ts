@@ -1,6 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, OneToMany, ManyToMany, JoinTable, ManyToOne } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ActiveSessionTracker } from './ActiveSessionTracker';
+import { Permission } from './Permission';
+import { Role } from './Role';
 
 @Entity()
 export class User {
@@ -18,6 +20,13 @@ export class User {
 
   @OneToMany(() => ActiveSessionTracker, (session) => session.user)
   sessions: ActiveSessionTracker[];
+
+  @ManyToOne(() => Role, role => role.users)
+  role: Role;
+
+  @ManyToMany(() => Permission, permission => permission.users)
+  @JoinTable()
+  permissions: Permission[];
 
   @BeforeInsert()
   async hashPassword() {

@@ -7,3 +7,5 @@ export * from './BotOrder';
 export * from './HedgineEngineLog';
 export * from './FinaliseLog';
 export * from './ActiveSessionTracker';
+export * from './Permission';
+export * from './Role';
