@@ -60,6 +60,7 @@ import {
   getLastActiveSessionByUserId,
   updateActiveSession,
 } from '../controllers/sessionTrackerController';
+import { getCurrentUser } from '../controllers/getCurrentUser';
 
 const router = express.Router();
 
@@ -88,7 +89,7 @@ router.post('/transaction', validateTransaction, authenticate, makeTransaction);
 //////////////////////////////////////////////////////////////*/
 router.post('/login', loginUser);
 router.post('/refresh', refreshToken);
-
+router.get('/user/me', authenticate, getCurrentUser);
 /*//////////////////////////////////////////////////////////////
                           AUTO-SEND
 //////////////////////////////////////////////////////////////*/
