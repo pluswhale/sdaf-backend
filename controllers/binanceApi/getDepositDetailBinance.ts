@@ -14,7 +14,7 @@ export const getDepositDetailBinance = async (req: Request, res: Response): Prom
     }
 
     res.status(200).json({
-      depositDetails: result,
+      depositDetails: result.data,
     });
   } catch (error: any) {
     console.error('Unexpected Error:', error.message);
