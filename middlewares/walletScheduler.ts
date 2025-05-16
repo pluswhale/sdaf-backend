@@ -67,6 +67,7 @@ export const handleSendingWallet = async (wallet: WalletType) => {
   }
 
   const amountToWithdraw = maxBalance - priceUsd;
+
   if (amountToWithdraw <= 0) {
     console.log(`Wallet ${wallet.id}: amountToWithdraw <= 0, no replenishment required.`);
     return;
@@ -133,8 +134,6 @@ export const handleSendingWallet = async (wallet: WalletType) => {
   console.log(payload, 'payload');
 
   try {
-    console.log(payload, 'payload');
-    console.log(wallet.rebalancingWallet, 'wallet.rebalancingWallet');
     const orderViewId = (await initiateBinanceWithdraw(payload, wallet.rebalancingWallet)).data.id;
 
     console.log(orderViewId, 'orderViewId');
