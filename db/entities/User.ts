@@ -18,13 +18,17 @@ export class User {
   @Column({ type: 'varchar', length: 256 })
   password: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  comment: string;
+
   @OneToMany(() => ActiveSessionTracker, (session) => session.user)
   sessions: ActiveSessionTracker[];
 
-  @ManyToOne(() => Role, role => role.users)
-  role: Role;
+  @ManyToMany(() => Role, role => role.users, { nullable: true })
+  @JoinTable()
+  roles: Role;
 
-  @ManyToMany(() => Permission, permission => permission.users)
+  @ManyToMany(() => Permission, permission => permission.users, { nullable: true })
   @JoinTable()
   permissions: Permission[];
 

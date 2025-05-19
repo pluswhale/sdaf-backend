@@ -6,10 +6,10 @@ const userRepository = AppDataSource.getRepository(User);
 
 export const getUsers = async (req: Request, res: Response): Promise<any> => {
     try {
-        const users = await userRepository.find({ relations: ['role'] });
+        const users = await userRepository.find({ relations: { roles: true, permissions: true } });
         res.status(200).json(users);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: 'Internal server error', error });
     }
 };

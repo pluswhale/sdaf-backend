@@ -63,6 +63,8 @@ import {
 import { getUsers } from '../controllers/getUsers';
 import { createUser } from '../controllers/createUser';
 import { deleteUser } from '../controllers/deleteUser';
+import { getAllPermissions } from '../controllers/getAllPermissions';
+import { assignPermissionsToUser } from '../controllers/assignPermissionsToUser';
 
 const router = express.Router();
 
@@ -174,5 +176,12 @@ router.get('/active-sessions', getAllSessions);
 router.get('/active-sessions/:userId', getLastActiveSessionByUserId);
 router.post('/active-sessions/create', createSession);
 router.patch('/active-sessions/update', updateActiveSession);
+
+
+/*//////////////////////////////////////////////////////////////
+                              PERMISSIONS
+//////////////////////////////////////////////////////////////*/
+router.get('/permissions', getAllPermissions);
+router.patch('/permissions/user/assign', assignPermissionsToUser)
 
 export default router;

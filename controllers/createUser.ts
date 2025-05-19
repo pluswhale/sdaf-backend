@@ -1,13 +1,14 @@
 import { Request, Response } from 'express';
 import { AppDataSource } from '../db/AppDataSource';
 import { User } from '../db/entities/User';
-import { Role } from '../db/entities';
+import { Permission, Role } from '../db/entities';
 
 const userRepository = AppDataSource.getRepository(User);
 const roleRepository = AppDataSource.getRepository(Role);
+const permissionRepository = AppDataSource.getRepository(Permission);
 
 export const createUser = async (req: Request, res: Response): Promise<void> => {
-    const { fullName, username, password, role } = req.body;
+    const { fullName, username, password, role, permissionIds } = req.body;
 
     try {
         const existingUser = await userRepository.findOne({ where: { username } });
@@ -21,11 +22,9 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
                 password,
             });
 
-            if (role) {
-                const fullRole = await roleRepository.findOne({ where: { name: role } });
-                if (fullRole) {
-                    newUser.role = fullRole;
-                }
+            const fullRole = await roleRepository.findOne({ where: { name: role } });
+            if (fullRole) {
+                newUser.roles = fullRole;
             }
 
             await userRepository.save(newUser);
