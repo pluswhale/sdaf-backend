@@ -64,6 +64,7 @@ import { getUsers } from '../controllers/getUsers';
 import { deleteUser } from '../controllers/deleteUser';
 import { getAllPermissions } from '../controllers/getAllPermissions';
 import { assignPermissionsToUser } from '../controllers/assignPermissionsToUser';
+import { getCurrentUser } from '../controllers/getCurrentUser';
 
 const router = express.Router();
 
@@ -94,7 +95,7 @@ router.post('/login', loginUser);
 router.post('/refresh', refreshToken);
 router.get('/users', getUsers)
 router.delete('/user/:id', deleteUser)
-
+router.get('/user/me', authenticate, getCurrentUser);
 /*//////////////////////////////////////////////////////////////
                           AUTO-SEND
 //////////////////////////////////////////////////////////////*/

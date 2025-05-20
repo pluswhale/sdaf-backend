@@ -15,7 +15,6 @@ import { takeWithdrawalDetailsBinance } from '../controllers/binanceApi/getWithd
 import { takeDepositDetailBinance } from '../controllers/binanceApi/getDepositDetailBinance';
 
 dotenv.config();
-
 let isRunning: boolean = false;
 
 export const pendingWithdrawalRepository: Repository<PendingWithdrawal> =
@@ -68,6 +67,7 @@ export const handleSendingWallet = async (wallet: WalletType) => {
   }
 
   const amountToWithdraw = maxBalance - priceUsd;
+
   if (amountToWithdraw <= 0) {
     console.log(`Wallet ${wallet.id}: amountToWithdraw <= 0, no replenishment required.`);
     return;
@@ -136,13 +136,15 @@ export const handleSendingWallet = async (wallet: WalletType) => {
   try {
     const orderViewId = (await initiateBinanceWithdraw(payload, wallet.rebalancingWallet)).data.id;
 
+    console.log(orderViewId, 'orderViewId');
+
     console.log(`Top up your wallet ${wallet.id} initiated:`, orderViewId);
 
     console.log(`Extracted orderViewId: ${orderViewId}`);
     const pendingWithdrawal = pendingWithdrawalRepository.create({
       walletId: wallet.id,
       orderViewId: orderViewId,
-      coinSymbol: wallet.currency_type,
+      coinSymbol: coinSymbol,
       accountType: wallet.rebalancingWallet,
       platform: wallet.rebalancingPlatform,
       status: 10,
@@ -153,7 +155,7 @@ export const handleSendingWallet = async (wallet: WalletType) => {
 
     const statusCode = getStatusCodeByPlatform(wallet.rebalancingPlatform);
 
-    const responseStatusCode = Math.abs(Number(error.response?.data.details.code));
+    const responseStatusCode = Math.abs(Number(error.response?.data?.details?.code));
 
     if (statusCode.includes(responseStatusCode))
       await walletRepository.update(wallet.id, { isRebalancingActive: false });
@@ -270,10 +272,12 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
 
       console.log(`Top up your wallet ${wallet.id} initiated:`, txHash);
 
+      const [coinSymbol] = wallet.currency_type.split('_');
+
       const pendingReplenishment = pendingReplenishmentRepository.create({
         walletId: wallet.id,
         orderViewId: txHash,
-        coinSymbol: wallet.currency_type,
+        coinSymbol: coinSymbol,
         platform: wallet.rebalancingPlatform,
         accountType: wallet.rebalancingWallet,
         status: 10,
@@ -289,7 +293,7 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
 
     const statusCode = getStatusCodeByPlatform(wallet.rebalancingPlatform);
 
-    const responseStatusCode = Math.abs(Number(error.response?.data.details.code));
+    const responseStatusCode = Math.abs(Number(error.response?.data?.details?.code));
 
     if (statusCode.includes(responseStatusCode))
       await walletRepository.update(wallet.id, { isRebalancingActive: false });
@@ -383,7 +387,7 @@ async function updateWithdrawalStatuses() {
       try {
         const params = getPlatformParams(pw.platform, pw);
 
-        const status = (await takeWithdrawalDetailsBinance(params, pw.accountType)).data[0]?.status;
+        const status = (await takeWithdrawalDetailsBinance(params, pw.accountType)).data?.[0]?.status;
 
         // if (response.status !== 200) {
         //   throw new Error(`Failed with status ${response.status}: ${response.statusText}`);
@@ -410,7 +414,7 @@ async function updateWithdrawalStatuses() {
       try {
         const params = getPlatformParams(pr.platform, pr);
 
-        const status = (await takeDepositDetailBinance(params, pr.accountType)).data[0]?.status;
+        const status = (await takeDepositDetailBinance(params, pr.accountType)).data?.[0]?.status;
 
         // if (response.status !== 200) {
         //   throw new Error(`Failed with status ${response.status}: ${response.statusText}`);

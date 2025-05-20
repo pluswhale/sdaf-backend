@@ -87,12 +87,13 @@ export const initiateBinanceWithdraw = async (payload: WithdrawPayload, accountT
   const { amount, coinSymbol, network, withdrawalAddress } = payload;
 
   try {
-    return await client.withdraw(coinSymbol, withdrawalAddress, amount, {
+    return client.withdraw(coinSymbol, withdrawalAddress, amount, {
       network: network,
     });
   } catch (error: any) {
-    console.error('Unexpected Error:', error.message);
-    console.log(error);
-    return {};
+    return {
+      error: 'Failed to withdraw user assets',
+      details: error.response.data || 'No data available from Binance response',
+    };
   }
 };
