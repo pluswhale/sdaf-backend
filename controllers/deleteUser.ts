@@ -12,7 +12,7 @@ export const deleteUser = async (req: Request, res: Response): Promise<any> => {
         const userToDelete = await userRepository.findOne({ where: { id } });
 
     if (!userToDelete) {
-        return res.status(404).json({ message: 'User ID is incorrect' });
+        return res.status(404).json({ message: 'User not found' });
     }
 
     await userRepository.remove(userToDelete);
