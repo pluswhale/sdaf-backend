@@ -437,7 +437,7 @@ async function updateWithdrawalStatuses() {
   }
 }
 
-/* setInterval(async () => {
+setInterval(async () => {
   if (isRunning) {
     console.warn('Previous task is still running. Skipping current run.');
     return;
@@ -459,4 +459,3 @@ async function updateWithdrawalStatuses() {
     isRunning = false;
   }
 }, 3000);
- */
