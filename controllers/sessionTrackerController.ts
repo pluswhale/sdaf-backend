@@ -36,11 +36,6 @@ export const getLastActiveSessionByUserId = async (req: Request, res: Response):
 };
 
 export const createSession = async (req: Request, res: Response): Promise<any> => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
   const { loginTime, optionalInfo, userId } = req.body;
   const userRepo = AppDataSource.getRepository(User);
   const trackerRepo = AppDataSource.getRepository(ActiveSessionTracker);
