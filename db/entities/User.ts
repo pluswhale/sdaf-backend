@@ -24,6 +24,9 @@ export class User {
   @Column({ type: 'varchar', length: 70, nullable: true })
   email: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  created_at: string;
+
   @OneToMany(() => ActiveSessionTracker, (session) => session.user)
   sessions: ActiveSessionTracker[];
 

@@ -9,7 +9,7 @@ export const getCurrentUser = async (req: any, res: Response): Promise<any> => {
 
   try {
     const userRepo = AppDataSource.getRepository(User);
-    const user = await userRepo.findOne({ where: { id: req.user.id } });
+    const user = await userRepo.findOne({ where: { id: req.user.id }, relations: { roles: true, permissions: true } });
 
     if (!user) return res.status(404).json({ message: 'User not found' });
 
