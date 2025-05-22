@@ -45,6 +45,10 @@ app.get('/', async (req, res) => {
 });
 
 async function runSeeders() {
+  console.log('Seeding roles ...');
+  await roleSeeder(AppDataSource);
+  console.log('Seeding permissions ...');
+  await permissionSeeder(AppDataSource);
   console.log('Seeding users...');
   await seedUsers(AppDataSource);
   console.log('Seeding margins...');
@@ -53,10 +57,6 @@ async function runSeeders() {
   await seedBotOrder(AppDataSource);
   console.log('Seeding hedger options....');
   await hedgerOptionsSeeder(AppDataSource);
-  console.log('Seeding permissions ...');
-  await permissionSeeder(AppDataSource);
-  console.log('Seeding roles ...');
-  await roleSeeder(AppDataSource);
 }
 
 AppDataSource.initialize()

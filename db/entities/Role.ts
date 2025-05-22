@@ -9,6 +9,6 @@ export class Role {
     @Column()
     name: string
 
-    @ManyToMany(() => User, user => user.roles)
+    @ManyToMany(() => User, user => user.roles, { nullable: true, cascade: false, onDelete: 'CASCADE', })
     users: User[];
 }

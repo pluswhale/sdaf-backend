@@ -9,6 +9,6 @@ export class Permission {
     @Column()
     name: string;
 
-    @ManyToMany(() => User, user => user.permissions)
+    @ManyToMany(() => User, user => user.permissions, { nullable: true, cascade: false, onDelete: 'CASCADE', })
     users: User[];
 }

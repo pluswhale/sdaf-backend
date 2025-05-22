@@ -21,20 +21,20 @@ export class User {
   @Column({ type: 'varchar', nullable: true })
   comment: string;
 
-  @Column({ type: 'varchar', length: 70, nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   email: string;
 
   @Column({ type: 'varchar', nullable: true })
   created_at: string;
 
-  @OneToMany(() => ActiveSessionTracker, (session) => session.user)
+  @OneToMany(() => ActiveSessionTracker, (session) => session.user, { cascade: false, onDelete: 'SET NULL' })
   sessions: ActiveSessionTracker[];
 
-  @ManyToMany(() => Role, role => role.users, { nullable: true })
+  @ManyToMany(() => Role, role => role.users, { nullable: true, cascade: false, onDelete: 'CASCADE' })
   @JoinTable()
-  roles: Role;
+  roles: Role[];
 
-  @ManyToMany(() => Permission, permission => permission.users, { nullable: true })
+  @ManyToMany(() => Permission, permission => permission.users, { nullable: true, cascade: false, onDelete: 'CASCADE' })
   @JoinTable()
   permissions: Permission[];
 

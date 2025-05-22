@@ -1,8 +1,10 @@
 import { DataSource } from 'typeorm';
 import { User } from '../entities/User';
+import { Role } from '../entities';
 
 export const seedUsers = async (dataSource: DataSource) => {
   const userRepository = dataSource.getRepository(User);
+  const roleRepository = dataSource.getRepository(Role);
 
   // User data to seed
   const userData = [
@@ -20,6 +22,8 @@ export const seedUsers = async (dataSource: DataSource) => {
     { fullName: 'Johan Ditz Lemche', username: 'jd_lemche', password: 'hwapp_90', email: 'j_lemche@savaim.com', comment: 'SAVA Representative', created_at: '2024-10-12' },
   ];
 
+  const userRole = await roleRepository.findOne({ where: { name: 'user' } });
+
   for (const user of userData) {
     // Check if the user already exists by username
     const existingUser = await userRepository.findOne({ where: { username: user.username } });
@@ -27,6 +31,7 @@ export const seedUsers = async (dataSource: DataSource) => {
     // If user doesn't exist, create and save
     if (!existingUser) {
       const newUser = userRepository.create(user); // Create user instance
+      newUser.roles = [userRole] as Role[];
       await userRepository.save(newUser); // Save to the database
       console.log(`User ${user.username} seeded successfully.`);
     } else {

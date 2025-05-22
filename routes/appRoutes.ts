@@ -66,6 +66,7 @@ import { getAllPermissions } from '../controllers/getAllPermissions';
 import { assignPermissionsToUser } from '../controllers/assignPermissionsToUser';
 import { getCurrentUser } from '../controllers/getCurrentUser';
 import { editUserComment } from '../controllers/editUserComment';
+import { sendEmail } from '../controllers/sendEmail';
 
 const router = express.Router();
 
@@ -98,6 +99,7 @@ router.get('/users', getUsers)
 router.delete('/user/:id', deleteUser)
 router.get('/user/me', authenticate, getCurrentUser);
 router.patch('/user/comment', editUserComment)
+router.post('/user/email', sendEmail)
 /*//////////////////////////////////////////////////////////////
                           AUTO-SEND
 //////////////////////////////////////////////////////////////*/
