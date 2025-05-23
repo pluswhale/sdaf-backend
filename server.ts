@@ -11,6 +11,8 @@ import { seedBotOrder } from './db/seeders/BotOrderSeeder';
 import './middlewares/hedgingEngine';
 import './middlewares/walletHistory/walletBalanceHistory';
 import { hedgerOptionsSeeder } from './db/seeders/HedgerOptionsSeeder';
+import { permissionSeeder } from './db/seeders/PermissionSeeder';
+import { roleSeeder } from './db/seeders/RoleSeeder';
 
 dotenv.config();
 
@@ -43,6 +45,10 @@ app.get('/', async (req, res) => {
 });
 
 async function runSeeders() {
+  console.log('Seeding roles ...');
+  await roleSeeder(AppDataSource);
+  console.log('Seeding permissions ...');
+  await permissionSeeder(AppDataSource);
   console.log('Seeding users...');
   await seedUsers(AppDataSource);
   console.log('Seeding margins...');

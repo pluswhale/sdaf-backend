@@ -18,7 +18,7 @@ export class ActiveSessionTracker {
   @Column({ type: 'text', nullable: true })
   optionalInfo?: string;
 
-  @ManyToOne(() => User, (user) => user.sessions, { eager: true })
+  @ManyToOne(() => User, (user) => user.sessions, { eager: true, nullable: true })
   user: User;
 
   @CreateDateColumn()

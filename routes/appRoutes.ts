@@ -60,7 +60,12 @@ import {
   getLastActiveSessionByUserId,
   updateActiveSession,
 } from '../controllers/sessionTrackerController';
+import { getUsers } from '../controllers/getUsers';
+import { deleteUser } from '../controllers/deleteUser';
+import { getAllPermissions } from '../controllers/getAllPermissions';
+import { assignPermissionsToUser } from '../controllers/assignPermissionsToUser';
 import { getCurrentUser } from '../controllers/getCurrentUser';
+import { editUserComment } from '../controllers/editUserComment';
 
 const router = express.Router();
 
@@ -89,7 +94,10 @@ router.post('/transaction', validateTransaction, authenticate, makeTransaction);
 //////////////////////////////////////////////////////////////*/
 router.post('/login', loginUser);
 router.post('/refresh', refreshToken);
+router.get('/users', getUsers)
+router.delete('/user/:id', deleteUser)
 router.get('/user/me', authenticate, getCurrentUser);
+router.patch('/user/comment', editUserComment)
 /*//////////////////////////////////////////////////////////////
                           AUTO-SEND
 //////////////////////////////////////////////////////////////*/
@@ -169,5 +177,12 @@ router.get('/active-sessions', getAllSessions);
 router.get('/active-sessions/:userId', getLastActiveSessionByUserId);
 router.post('/active-sessions/create', createSession);
 router.patch('/active-sessions/update', updateActiveSession);
+
+
+/*//////////////////////////////////////////////////////////////
+                              PERMISSIONS
+//////////////////////////////////////////////////////////////*/
+router.get('/permissions', getAllPermissions);
+router.patch('/permissions/user/assign', assignPermissionsToUser)
 
 export default router;

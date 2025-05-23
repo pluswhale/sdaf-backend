@@ -1,6 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, OneToMany, ManyToMany, JoinTable, ManyToOne } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ActiveSessionTracker } from './ActiveSessionTracker';
+import { Permission } from './Permission';
+import { Role } from './Role';
 
 @Entity()
 export class User {
@@ -16,8 +18,25 @@ export class User {
   @Column({ type: 'varchar', length: 256 })
   password: string;
 
-  @OneToMany(() => ActiveSessionTracker, (session) => session.user)
+  @Column({ type: 'varchar', nullable: true })
+  comment: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  email: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  created_at: string;
+
+  @OneToMany(() => ActiveSessionTracker, (session) => session.user, { cascade: false, onDelete: 'SET NULL' })
   sessions: ActiveSessionTracker[];
+
+  @ManyToMany(() => Role, role => role.users, { nullable: true, cascade: false, onDelete: 'CASCADE' })
+  @JoinTable()
+  roles: Role[];
+
+  @ManyToMany(() => Permission, permission => permission.users, { nullable: true, cascade: false, onDelete: 'CASCADE' })
+  @JoinTable()
+  permissions: Permission[];
 
   @BeforeInsert()
   async hashPassword() {
