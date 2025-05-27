@@ -96,6 +96,14 @@ export const seedUsers = async (dataSource: DataSource) => {
       comment: 'SAVA Representative',
       created_at: '2024-10-12',
     },
+    {
+      fullName: 'Yahor Yushkevich',
+      username: 'y_yakshevich_bh',
+      password: 'hwapp_51',
+      email: 'egoryashkevich@gmail.com',
+      comment: 'Dev',
+      created_at: '2024-10-12',
+    },
   ];
 
   const userRole = await roleRepository.findOne({ where: { name: 'user' } });
