@@ -25,6 +25,7 @@ app.use(
       'http://localhost:3000',
       'https://sdafcwap.com',
       'https://blue.sdafcwap.com',
+      'https://staging.sdafcwap.com',
       'http://localhost:5000',
       'https://cwap3.coinhq.store',
       'https://app.cwap.io/botHedging',
