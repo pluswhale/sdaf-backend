@@ -9,3 +9,4 @@ export * from './FinaliseLog';
 export * from './ActiveSessionTracker';
 export * from './Permission';
 export * from './Role';
+export * from './AmlCheckedWallet';
