@@ -67,6 +67,7 @@ import { getAllPermissions } from '../controllers/getAllPermissions';
 import { assignPermissionsToUser } from '../controllers/assignPermissionsToUser';
 import { getCurrentUser } from '../controllers/getCurrentUser';
 import { editUserComment } from '../controllers/editUserComment';
+import { checkWalletAddressByAmlCryptoSimple } from '../controllers/checkWalletAddressByAmlCryptoSimple';
 
 const router = express.Router();
 
@@ -188,6 +189,6 @@ router.patch('/permissions/user/assign', assignPermissionsToUser);
 /*//////////////////////////////////////////////////////////////
                               AML
 //////////////////////////////////////////////////////////////*/
-router.post('/aml/check', checkWalletAddressByAmlCrypto);
+router.post('/aml/check', checkWalletAddressByAmlCryptoSimple);
 
 export default router;
