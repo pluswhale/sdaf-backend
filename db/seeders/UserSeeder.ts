@@ -33,6 +33,14 @@ export const seedUsers = async (dataSource: DataSource) => {
       created_at: '2024-10-12',
     },
     {
+      fullName: 'Andrew',
+      username: 'andrew_rozenfields_hw',
+      password: 'hwapp_205',
+      email: '-',
+      comment: '-',
+      created_at: '2024-10-12',
+    },
+    {
       fullName: 'Yaraslau Zubrytski',
       username: 'y_zubrytski_bh',
       password: 'hwapp_02',
