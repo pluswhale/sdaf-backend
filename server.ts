@@ -4,7 +4,7 @@ import cors from 'cors';
 import { AppDataSource } from './db/AppDataSource';
 import appRoutes from './routes/appRoutes';
 import cookieParser from 'cookie-parser';
-import './middlewares/walletScheduler';
+// import './middlewares/walletScheduler';
 import { seedUsers } from './db/seeders/UserSeeder';
 import { seedBotOrder } from './db/seeders/BotOrderSeeder';
 import './middlewares/hedgingEngine';
