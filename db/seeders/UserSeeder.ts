@@ -25,6 +25,14 @@ export const seedUsers = async (dataSource: DataSource) => {
       created_at: '2024-10-12',
     },
     {
+      fullName: 'Knut',
+      username: 'k_vinger_cw',
+      password: 'hwapp_59',
+      email: 'knur@gmail.com',
+      comment: 'Coinweb Tech Lead',
+      created_at: '2024-10-12',
+    },
+    {
       fullName: 'Yaraslau Zubrytski',
       username: 'y_zubrytski_bh',
       password: 'hwapp_02',

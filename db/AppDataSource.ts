@@ -10,7 +10,8 @@ import {
   HedgineEngineLog,
   ActiveSessionTracker,
   Permission,
-  Role
+  Role,
+  AmlCheckedWallet,
 } from './entities';
 import { User } from './entities';
 
@@ -62,7 +63,8 @@ export const AppDataSource = new DataSource({
     FinaliseLog,
     ActiveSessionTracker,
     Permission,
-    Role
+    Role,
+    AmlCheckedWallet,
   ],
   migrations: [],
   subscribers: [],

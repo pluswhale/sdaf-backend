@@ -1,5 +1,6 @@
 import makeTransaction, { validateTransaction } from '../controllers/makeTransaction';
 import {
+  checkWalletAddressByAmlCrypto,
   createBotOrderController,
   deleteBotOrderController,
   editMarginController,
@@ -94,10 +95,10 @@ router.post('/transaction', validateTransaction, authenticate, makeTransaction);
 //////////////////////////////////////////////////////////////*/
 router.post('/login', loginUser);
 router.post('/refresh', refreshToken);
-router.get('/users', getUsers)
-router.delete('/user/:id', deleteUser)
+router.get('/users', getUsers);
+router.delete('/user/:id', deleteUser);
 router.get('/user/me', authenticate, getCurrentUser);
-router.patch('/user/comment', editUserComment)
+router.patch('/user/comment', editUserComment);
 /*//////////////////////////////////////////////////////////////
                           AUTO-SEND
 //////////////////////////////////////////////////////////////*/
@@ -178,11 +179,15 @@ router.get('/active-sessions/:userId', getLastActiveSessionByUserId);
 router.post('/active-sessions/create', createSession);
 router.patch('/active-sessions/update', updateActiveSession);
 
-
 /*//////////////////////////////////////////////////////////////
                               PERMISSIONS
 //////////////////////////////////////////////////////////////*/
 router.get('/permissions', getAllPermissions);
-router.patch('/permissions/user/assign', assignPermissionsToUser)
+router.patch('/permissions/user/assign', assignPermissionsToUser);
+
+/*//////////////////////////////////////////////////////////////
+                              AML
+//////////////////////////////////////////////////////////////*/
+router.post('/aml/check', checkWalletAddressByAmlCrypto);
 
 export default router;

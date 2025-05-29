@@ -13,3 +13,4 @@ export * from './deleteBotOrder';
 export * from './createBotOrder';
 export * from './getRebalancersWallets';
 export * from './editRebalancerWalletsStatus';
+export * from './checkWalletAddressByAmlCrypto';
