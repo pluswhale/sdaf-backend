@@ -4,7 +4,6 @@ import cors from 'cors';
 import { AppDataSource } from './db/AppDataSource';
 import appRoutes from './routes/appRoutes';
 import cookieParser from 'cookie-parser';
-import { seedMargins } from './db/seeders/MarginSeeder';
 import './middlewares/walletScheduler';
 import { seedUsers } from './db/seeders/UserSeeder';
 import { seedBotOrder } from './db/seeders/BotOrderSeeder';
@@ -54,7 +53,7 @@ async function runSeeders() {
   console.log('Seeding users...');
   await seedUsers(AppDataSource);
   console.log('Seeding margins...');
-  await seedMargins(AppDataSource);
+  // await seedMargins(AppDataSource);
   console.log('Seeding bot order...');
   await seedBotOrder(AppDataSource);
   console.log('Seeding hedger options....');

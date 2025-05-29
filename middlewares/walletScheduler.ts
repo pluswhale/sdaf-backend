@@ -462,4 +462,4 @@ setInterval(async () => {
   } finally {
     isRunning = false;
   }
-}, 3000);
+}, 4000);
