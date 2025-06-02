@@ -4,7 +4,6 @@ import cors from 'cors';
 import { AppDataSource } from './db/AppDataSource';
 import appRoutes from './routes/appRoutes';
 import cookieParser from 'cookie-parser';
-// import './middlewares/walletScheduler';
 import { seedUsers } from './db/seeders/UserSeeder';
 import { seedBotOrder } from './db/seeders/BotOrderSeeder';
 import './middlewares/hedgingEngine';
@@ -14,6 +13,10 @@ import { permissionSeeder } from './db/seeders/PermissionSeeder';
 import { roleSeeder } from './db/seeders/RoleSeeder';
 
 dotenv.config();
+
+if (process.env.GITLAB_ENVIRONMENT_NAME && process.env.GITLAB_ENVIRONMENT_NAME.includes('green')) {
+  import('./middlewares/walletScheduler');
+}
 
 const app = express();
 
