@@ -1,6 +1,6 @@
-import axios from 'axios';
 import dotenv from 'dotenv';
 import { SUPPORTED_CURRENCIES } from '../controllers/transactions/checkers/constants/constants';
+import { fetchUsdPrices } from '../controllers/transactions/getAssetPrice';
 
 dotenv.config();
 
@@ -14,8 +14,7 @@ export const checkBalance = async (address: string, isMainnet: boolean, currency
     balance = await balanceFunction(address, isMainnet, currency);
   }
 
-  const response = await axios.get('https://sdafcwap.com/app/api/get-asset-price');
-  const { prices } = response.data;
+  const prices = await fetchUsdPrices();
 
   rate = prices[currency.split('_')[0]];
 

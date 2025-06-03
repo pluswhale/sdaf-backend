@@ -1,6 +1,6 @@
-import axios from 'axios';
 import { getWalletMapping } from '../../../../utils';
 import { CurrencyType } from '../../../../db/entities';
+import axios from 'axios';
 
 interface walletDataType {
   coinSymbol: CurrencyType;
