@@ -68,6 +68,7 @@ import { assignPermissionsToUser } from '../controllers/assignPermissionsToUser'
 import { getCurrentUser } from '../controllers/getCurrentUser';
 import { editUserComment } from '../controllers/editUserComment';
 import { checkWalletAddressByAmlCryptoSimple } from '../controllers/checkWalletAddressByAmlCryptoSimple';
+import { adminGuard } from '../middlewares/adminGuard';
 
 const router = express.Router();
 
@@ -97,7 +98,7 @@ router.post('/transaction', validateTransaction, authenticate, makeTransaction);
 router.post('/login', loginUser);
 router.post('/refresh', refreshToken);
 router.get('/users', getUsers);
-router.delete('/user/:id', deleteUser);
+router.delete('/user/:id', adminGuard(), deleteUser);
 router.get('/user/me', authenticate, getCurrentUser);
 router.patch('/user/comment', editUserComment);
 /*//////////////////////////////////////////////////////////////
