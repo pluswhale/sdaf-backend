@@ -68,7 +68,6 @@ import { assignPermissionsToUser } from '../controllers/assignPermissionsToUser'
 import { getCurrentUser } from '../controllers/getCurrentUser';
 import { editUserComment } from '../controllers/editUserComment';
 import { checkWalletAddressByAmlCryptoSimple } from '../controllers/checkWalletAddressByAmlCryptoSimple';
-import { adminGuard } from '../middlewares/adminGuard';
 
 const router = express.Router();
 
@@ -98,9 +97,9 @@ router.post('/transaction', validateTransaction, authenticate, makeTransaction);
 router.post('/login', loginUser);
 router.post('/refresh', refreshToken);
 router.get('/users', getUsers);
-router.delete('/user/:id', adminGuard(), deleteUser);
+router.delete('/user/:id', deleteUser);
 router.get('/user/me', authenticate, getCurrentUser);
-router.patch('/user/comment', editUserComment);
+router.patch('/user/comment', authenticate, editUserComment);
 /*//////////////////////////////////////////////////////////////
                           AUTO-SEND
 //////////////////////////////////////////////////////////////*/
@@ -184,7 +183,7 @@ router.patch('/active-sessions/update', updateActiveSession);
 /*//////////////////////////////////////////////////////////////
                               PERMISSIONS
 //////////////////////////////////////////////////////////////*/
-router.get('/permissions', getAllPermissions);
+router.get('/permissions', authenticate, getAllPermissions);
 router.patch('/permissions/user/assign', assignPermissionsToUser);
 
 /*//////////////////////////////////////////////////////////////
