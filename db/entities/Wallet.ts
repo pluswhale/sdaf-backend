@@ -20,6 +20,8 @@ export enum CurrencyType {
   ETH = 'ETH',
   TRX = 'TRX',
   WBTC = 'WBTC',
+  USD1_ERC20 = 'USD1_ERC20',
+  USD1_BEP20 = 'USD1_BEP20'
 }
 
 @Entity()

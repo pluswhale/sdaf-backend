@@ -19,6 +19,7 @@ export const permissionSeeder = async (dataSource: DataSource) => {
         { name: 'Edit coins to show at Pairs tab' },
         { name: 'Setup bot order parameters' },
         { name: 'Modify wallets on Test Dasboard' },
+        { name: 'View Customer Dashboard' },
     ];
 
     for (const permission of permissions) {
