@@ -174,13 +174,14 @@ deploy database to production:
   script:
     - |
       helm repo add bitnami https://charts.bitnami.com/bitnami      
+      helm repo update
       helm upgrade --install \
            production-backend-postgres \
            bitnami/postgresql \
            --debug \
-           --namespace "$NAMESPACE" \ 
-           --set auth.username="${{ secrets.POSTGRES_USER }}" \
-           --set auth.postgresPassword="${{ POSTGRES_PASSWORD }}" \
-           --set auth.password="${{ POSTGRES_PASSWORD}}" \
+           --namespace "$NAMESPACE" \
+           --set auth.username="$POSTGRES_USER" \
+           --set auth.postgresPassword="$POSTGRES_PASSWORD" \
+           --set auth.password="$POSTGRES_PASSWORD" \
            --set auth.database="$DATABASE_NAME" \
            --set persistence.size=8Gi
