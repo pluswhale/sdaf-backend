@@ -109,6 +109,7 @@ deploy to production-green:
     COLOR: "green"
     DB_HOST: "production-green-postgresql"
     POSTGRES_ENABLED: 'true'
+    POSTGRES_VERSION: '13'
   environment:
     name: production-green
     url: http://green.$KUBE_INGRESS_BASE_DOMAIN
