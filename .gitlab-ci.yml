@@ -165,10 +165,6 @@ deploy database to production:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       when: manual
       allow_failure: true
-  rules:
-    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
-      when: manual
-      allow_failure: true
   variables:
     NAMESPACE: "sdaf-cwap-production-database-backend"
     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
