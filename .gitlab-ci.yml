@@ -107,9 +107,6 @@ deploy to production-green:
     ENV_SPECIFIC_VALUES: ${ENV_SPECIFIC_VALUES}
     APP_VALUES_FILES: env-specific-values
     COLOR: "green"
-    DB_HOST: "production-green-postgresql"
-    POSTGRES_ENABLED: 'true'
-    POSTGRES_VERSION: '13'
   environment:
     name: production-green
     url: http://green.$KUBE_INGRESS_BASE_DOMAIN
