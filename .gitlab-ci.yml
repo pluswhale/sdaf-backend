@@ -174,7 +174,6 @@ deploy database to production:
   script:
     - auto-deploy check_kube_domain
     - auto-deploy use_kube_context
-    - auto-deploy ensure_namespace
     - auto-deploy initialize_tiller
     - auto-deploy create_secret
     - |
