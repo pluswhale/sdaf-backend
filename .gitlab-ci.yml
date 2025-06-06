@@ -121,7 +121,6 @@ deploy to production-blue:
     APP_VALUES_FILES: env-specific-values
     COLOR: "blue"
     # DB_HOST: "production-backend-postgres-postgresql.sdaf-cwap-production-database-backend.svc.cluster.local" 
-    POSTGRES_ENABLED: 'true'
   environment:
     name: production-blue
     url: http://blue.$KUBE_INGRESS_BASE_DOMAIN
