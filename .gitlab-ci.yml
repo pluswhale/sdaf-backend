@@ -44,7 +44,6 @@ staging:
     APP_VALUES_FILES: env-specific-values-staging
   before_script:
     - printenv ENV_SPECIFIC_VALUES_STAGING > chart/env-specific-values-staging.yaml || true
-    - cat chart/env-specific-values-staging.yaml  
     - echo APP_VALUES_FILES=${APP_VALUES_FILES}
     - |
       for file in $APP_VALUES_FILES; do
