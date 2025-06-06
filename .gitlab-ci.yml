@@ -172,6 +172,11 @@ deploy database to production:
     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     DATABASE_NAME: "sdaf"
   script:
+    - auto-deploy check_kube_domain
+    - auto-deploy use_kube_context
+    - auto-deploy ensure_namespace
+    - auto-deploy initialize_tiller
+    - auto-deploy create_secret
     - |
       helm repo add bitnami https://charts.bitnami.com/bitnami      
       helm repo update
