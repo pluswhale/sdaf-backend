@@ -171,9 +171,11 @@ deploy database to production:
     NAMESPACE: "production-database-backend"
     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     DATABASE_NAME: "sdaf"
+    KUBE_NAMESPACE: "production-database-backend"
   script:
     - auto-deploy check_kube_domain
     - auto-deploy use_kube_context
+    - auto-deploy ensure_namespace
     - auto-deploy initialize_tiller
     - auto-deploy create_secret
     - |
