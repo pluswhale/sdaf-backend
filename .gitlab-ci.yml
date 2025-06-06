@@ -176,7 +176,6 @@ deploy database to production:
     - auto-deploy check_kube_domain
     - auto-deploy use_kube_context
     - export KUBE_NAMESPACE="production-database-backend"
-    - echo "Using namespace:$KUBE_NAMESPACE"
     - auto-deploy ensure_namespace
     - auto-deploy initialize_tiller
     - auto-deploy create_secret
