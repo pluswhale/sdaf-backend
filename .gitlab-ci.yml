@@ -168,7 +168,7 @@ deploy database to production:
       when: manual
       allow_failure: true
   variables:
-    NAMESPACE: "sdaf-cwap-production-database-backend"
+    NAMESPACE: "production-database-backend"
     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     DATABASE_NAME: "sdaf"
   script:
