@@ -168,10 +168,10 @@ deploy database to production:
       when: manual
       allow_failure: true
   variables:
-    NAMESPACE: "production-database-backend"
+    KUBE_NAMESPACE: "production-database-backend"
+    # NAMESPACE: "production-database-backend"
     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     DATABASE_NAME: "sdaf"
-    KUBE_NAMESPACE: "production-database-backend"
   script:
     - auto-deploy check_kube_domain
     - auto-deploy use_kube_context
@@ -185,7 +185,7 @@ deploy database to production:
            production-backend-postgres \
            bitnami/postgresql \
            --debug \
-           --namespace "$NAMESPACE" \
+           --namespace "$KUBE_NAMESPACE" \
            --set auth.username="$POSTGRES_USER" \
            --set auth.postgresPassword="$POSTGRES_PASSWORD" \
            --set auth.password="$POSTGRES_PASSWORD" \
