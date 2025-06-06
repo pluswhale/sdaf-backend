@@ -1,50 +1,49 @@
-include:
-  - template: Auto-DevOps.gitlab-ci.yml
 variables:
+  AUTO_DEPLOY_IMAGE_VERSION: 'v2.130.0'
   AUTO_DEVOPS_DEPLOY_DEBUG: 'true'
   CI_DEPLOY_FREEZE: "true"
   AUTO_DEVOPS_COMMON_NAME: 'false'
   BROWSER_PERFORMANCE_DISABLED: 'true'
   CODE_QUALITY_DISABLED: 'true'
   DAST_DISABLED: 'true'
-  POSTGRES_ENABLED: 'true'
+  POSTGRES_ENABLED: "false"
   DEPENDENCY_SCANNING_DISABLED: 'true'
   LICENSE_MANAGEMENT_DISABLED: 'true'
   SAST_DISABLED: 'true'
-  POSTGRES_VERSION: '13'
+  CS_DOCKERFILE_PATH: "./Dockerfile"
   DOCKER_HOST: 'tcp://docker-dind.gitlab-managed-apps:2375'
 
-test:
-  stage: test
-  script:
-    - echo "__tests__ disabled"
-  when: manual
 
-# .check_current_production:
-#   script: &check_current_production
-#     - |
-#       CURRENT_COLOR=$(kubectl get ingress -n sdaf-cwap-production-services production-sdaf-backend-service -o jsonpath='{.metadata.labels.color}')
-#       echo "Current production color: $CURRENT_COLOR"
-#       if [ "$CURRENT_COLOR" = "$COLOR" ]; then
-#         echo "Already on $COLOR environment"
-#         exit 1
-#       fi
+.auto-deploy:
+  image: "${CI_TEMPLATE_REGISTRY_HOST}/gitlab-org/cluster-integration/auto-deploy-image:${AUTO_DEPLOY_IMAGE_VERSION}"
+  dependencies: []
 
-deploy to production-green:
+stages:
+  - build
+  - test
+  - staging
+  - deploy
+  - switch-prod
+  - deploy-database
+
+include:
+  - template: Jobs/Build.gitlab-ci.yml
+  - template: Jobs/Secret-Detection.gitlab-ci.yml
+  - template: Jobs/Container-Scanning.gitlab-ci.yml
+
+staging:
   extends: .auto-deploy
-  stage: deploy
+  stage: staging
+  rules:
+    - when: on_success
   variables:
-    # HELM_UPGRADE_EXTRA_ARGS: "--timeout 2h"
-    ENV_SPECIFIC_VALUES: ${ENV_SPECIFIC_VALUES}
-    APP_VALUES_FILES: env-specific-values
+    POSTGRES_USER: user
+    POSTGRES_VERSION: '13'
     POSTGRES_ENABLED: 'true'
-    COLOR: "green"
-    DB_HOST: "production-green-postgresql"  
+    ENV_SPECIFIC_VALUES_STAGING: ${ENV_SPECIFIC_VALUES_STAGING}
+    APP_VALUES_FILES: env-specific-values-staging
   before_script:
-    - scripts/refuse-active-backend.sh "$COLOR"
-    - printenv ENV_SPECIFIC_VALUES > chart/env-specific-values.yaml || true
-    - |
-      echo -e "  - name: DB_HOST\n    value: ${DB_HOST}" >> chart/env-specific-values.yaml
+    - printenv ENV_SPECIFIC_VALUES_STAGING > chart/env-specific-values-staging.yaml || true
     - echo APP_VALUES_FILES=${APP_VALUES_FILES}
     - |
       for file in $APP_VALUES_FILES; do
@@ -54,7 +53,6 @@ deploy to production-green:
           echo "File chart/${file}.yaml does not exist."
         fi
       done
-    - echo Final HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS}
   script:
     - auto-deploy check_kube_domain
     - auto-deploy download_chart
@@ -63,82 +61,77 @@ deploy to production-green:
     - auto-deploy initialize_tiller
     - auto-deploy create_secret
     - auto-deploy deploy
-  # variables:
-  #   COLOR: "dev-green"
-  # HELM_UPGRADE_EXTRA_ARGS: >-
-  #    --set ingress.annotations[0].key="kubernetes.io/ingress.class"
-  #    --set ingress.annotations[0].value="public"
-  #    --set ingress.annotations[1].key="cert-manager.io/cluster-issuer"
-  #    --set ingress.annotations[1].value="letsencrypt-prod"
-  # HELM_UPGRADE_EXTRA_ARGS: |
-  #    --set ingress.enabled=false
-  # POSTGRES_HELM_UPGRADE_EXTRA_ARGS: >-
-  # --set persistence.storageClass=hdd-hostpath
-  # --set postgresqlPostgresPassword=$POSTGRES_PASSWORD
-  # --set postgresqlPassword=$POSTGRES_PASSWORD
+  dependencies:
+    - build
+  environment:
+    name: staging
+    url: http://staging.$KUBE_INGRESS_BASE_DOMAIN
+
+.deploy_template: &deploy_template
+  extends: .auto-deploy
+  stage: deploy
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: manual
+      allow_failure: true
+  before_script:
+    - scripts/refuse-active-backend.sh "$COLOR"
+    - printenv ENV_SPECIFIC_VALUES > chart/env-specific-values.yaml || true
+    # - |
+    #   echo -e "  - name: DB_HOST\n    value: ${DB_HOST}" >> chart/env-specific-values.yaml
+    - echo APP_VALUES_FILES=${APP_VALUES_FILES}
+    - |
+      for file in $APP_VALUES_FILES; do
+        if [[ -f chart/${file}.yaml ]]; then
+          export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS} --values chart/${file}.yaml"
+        else
+          echo "File chart/${file}.yaml does not exist."
+        fi
+      done
+  script:
+    - auto-deploy check_kube_domain
+    - auto-deploy download_chart
+    - auto-deploy use_kube_context
+    - auto-deploy ensure_namespace
+    - auto-deploy initialize_tiller
+    - auto-deploy create_secret
+    - auto-deploy deploy
+  dependencies:
+    - build
+    - staging
+
+deploy to production-green:
+  <<: *deploy_template
+  variables:
+    # HELM_UPGRADE_EXTRA_ARGS: "--timeout 2h"
+    ENV_SPECIFIC_VALUES: ${ENV_SPECIFIC_VALUES}
+    APP_VALUES_FILES: env-specific-values
+    COLOR: "green"
   environment:
     name: production-green
     url: http://green.$KUBE_INGRESS_BASE_DOMAIN
   when: manual
 
 deploy to production-blue:
-  extends: .auto-deploy
-  stage: deploy
+  <<: *deploy_template
   variables:
     ENV_SPECIFIC_VALUES: ${ENV_SPECIFIC_VALUES}
     APP_VALUES_FILES: env-specific-values
-    POSTGRES_ENABLED: 'true'
     COLOR: "blue"
-    DB_HOST: "production-blue-postgresql"
-  before_script:
-    - scripts/refuse-active-backend.sh "$COLOR"
-    - printenv ENV_SPECIFIC_VALUES > chart/env-specific-values.yaml || true
-    - |
-      echo -e "  - name: DB_HOST\n    value: ${DB_HOST}" >> chart/env-specific-values.yaml
-    - echo APP_VALUES_FILES=${APP_VALUES_FILES}
-    - |
-      for file in $APP_VALUES_FILES; do
-        if [[ -f chart/${file}.yaml ]]; then
-          export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS} --values chart/${file}.yaml"
-        else
-          echo "File chart/${file}.yaml does not exist."
-        fi
-      done
-    - echo Final HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS}
-  script:
-    - auto-deploy check_kube_domain
-    - auto-deploy download_chart
-    - auto-deploy use_kube_context
-    - auto-deploy ensure_namespace
-    - auto-deploy initialize_tiller
-    - auto-deploy create_secret
-    - auto-deploy deploy
+    # DB_HOST: "production-backend-postgres-postgresql.sdaf-cwap-production-database-backend.svc.cluster.local" 
   environment:
     name: production-blue
     url: http://blue.$KUBE_INGRESS_BASE_DOMAIN
   when: manual
 
-# production:
-#   environment:
-#     name: production
-#     url: http://$KUBE_INGRESS_BASE_DOMAIN
-#   when: manual
-
 .switch_to_prod: &switch_to_prod
   extends: .auto-deploy
-  stage: production
+  stage: switch-prod
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: manual
+      allow_failure: true
   script:
-    # - printenv ENV_SPECIFIC_VALUES > chart/env-specific-values.yaml || true
-    # - echo APP_VALUES_FILES=${APP_VALUES_FILES}
-    # - |
-    #   for file in $APP_VALUES_FILES; do
-    #     if [[ -f chart/${file}.yaml ]]; then
-    #       export HELM_UPGRADE_EXTRA_ARGS="${HELM_UPGRADE_EXTRA_ARGS} --values chart/${file}.yaml"
-    #     else
-    #       echo "File chart/${file}.yaml does not exist."
-    #     fi
-    #   done
-    # - echo Final HELM_UPGRADE_EXTRA_ARGS=${HELM_UPGRADE_EXTRA_ARGS}
     - |
       helm upgrade --install \
            production-sdaf-backend \
@@ -152,8 +145,7 @@ deploy to production-blue:
   environment:
     name: service
     url: http://$KUBE_INGRESS_BASE_DOMAIN
-  when: manual
-  allow_failure: true
+
 
 switch to blue:
   <<: *switch_to_prod
@@ -164,3 +156,36 @@ switch to green:
   <<: *switch_to_prod
   variables:
     COLOR: "green"
+
+deploy database to production:
+  extends: .auto-deploy
+  stage: deploy-database
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: manual
+      allow_failure: true
+  variables:
+    KUBE_NAMESPACE: "production-database-backend"
+    # NAMESPACE: "production-database-backend"
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    DATABASE_NAME: "sdaf"
+  script:
+    - auto-deploy check_kube_domain
+    - auto-deploy use_kube_context
+    - export KUBE_NAMESPACE="production-database-backend"
+    - auto-deploy ensure_namespace
+    - auto-deploy initialize_tiller
+    - auto-deploy create_secret
+    - |
+      helm repo add bitnami https://charts.bitnami.com/bitnami      
+      helm repo update
+      helm upgrade --install \
+           production-backend-postgres \
+           bitnami/postgresql \
+           --debug \
+           --namespace "$KUBE_NAMESPACE" \
+           --set auth.username="$POSTGRES_USER" \
+           --set auth.postgresPassword="$POSTGRES_PASSWORD" \
+           --set auth.password="$POSTGRES_PASSWORD" \
+           --set auth.database="$DATABASE_NAME" \
+           --set persistence.size=8Gi
