@@ -1,0 +1,16 @@
+export enum PermissionsEnum {
+  MANUAL_SEND_DASHBOARD = 'Send funds manually from Dashboard',
+  MANUAL_SEND_ARCHIVE = 'Send funds manually from Archive',
+  MANUAL_SEND_TEST_DASHBOARD = 'Send funds manually from Test Dashboard',
+  CONTROL_REBALANCER_DASHBOARD = 'Run/stop Rebalancer on Dashboard',
+  CONTROL_REBALANCER_ARCHIVE = 'Run/stop Rebalancer in Archive',
+  CONTROL_REBALANCER_TEST_DASHBOARD = 'Run/stop Rebalancer on Test Dashboard',
+  CONTROL_HEDGER_PRODUCTION = 'Run/stop Hedger on Production',
+  CONTROL_HEDGER_TEST = 'Run/stop Test Hedger',
+  DOWNLOAD_CSV = 'Download csv-file',
+  SETUP_MARGIN = 'Setup margin',
+  ARCHIVE_WALLETS = 'Archive/unarchive wallets',
+  EDIT_PAIRS = 'Edit coins to show at Pairs tab',
+  SETUP_BOT_ORDERS = 'Setup bot order parameters',
+  MODIFY_TEST_WALLETS = 'Modify wallets on Test Dasboard',
+}

@@ -68,6 +68,8 @@ import { assignPermissionsToUser } from '../controllers/assignPermissionsToUser'
 import { getCurrentUser } from '../controllers/getCurrentUser';
 import { editUserComment } from '../controllers/editUserComment';
 import { checkWalletAddressByAmlCryptoSimple } from '../controllers/checkWalletAddressByAmlCryptoSimple';
+import { checkPermission } from '../middlewares/checkPermission';
+import { PermissionsEnum } from '../utils/permissions';
 
 const router = express.Router();
 
@@ -80,16 +82,62 @@ router.post('/wallets-with-prices', walletsWithPrices);
 router.get('/wallets/rebalancers', getRebalancersWallets);
 router.put('/wallets/rebalancers/set-up/:id', editRebalancerWalletsStatus);
 router.get('/wallets/balance/history/:address', getWalletBalanceHistory);
-router.put('/wallet/update-minmax/:id', validateSetUpMixMaxInWallet, setUpMinAndMaxWallet);
+router.put(
+  '/wallet/update-minmax/:id',
+  validateSetUpMixMaxInWallet,
+  authenticate,
+  checkPermission(PermissionsEnum.CONTROL_REBALANCER_DASHBOARD),
+  setUpMinAndMaxWallet,
+);
+router.put(
+  '/wallet/update-minmax/archive/:id',
+  validateSetUpMixMaxInWallet,
+  authenticate,
+  checkPermission(PermissionsEnum.CONTROL_REBALANCER_ARCHIVE),
+  setUpMinAndMaxWallet,
+);
+router.put(
+  '/wallet/update-minmax/test/:id',
+  validateSetUpMixMaxInWallet,
+  authenticate,
+  checkPermission(PermissionsEnum.CONTROL_REBALANCER_TEST_DASHBOARD),
+  setUpMinAndMaxWallet,
+);
 router.patch('/wallet/update-name/:id', validateRenamingWallet, renameWallet);
 router.patch('/wallet/update-archive/:id', validateArchivedWallet, archiveWallet);
-router.patch('/wallet/update-test/:id', validateInEditinTestStatusWallet, editTestWalletStatus);
+router.patch(
+  '/wallet/update-test/:id',
+  validateInEditinTestStatusWallet,
+  authenticate,
+  checkPermission(PermissionsEnum.MODIFY_TEST_WALLETS),
+  editTestWalletStatus,
+);
 router.post('/duplicate/wallet', duplicateWallet);
 
 /*//////////////////////////////////////////////////////////////
                           TRANSACTION
 //////////////////////////////////////////////////////////////*/
-router.post('/transaction', validateTransaction, authenticate, makeTransaction);
+router.post(
+  '/transaction',
+  validateTransaction,
+  authenticate,
+  checkPermission(PermissionsEnum.MANUAL_SEND_DASHBOARD),
+  makeTransaction,
+);
+router.post(
+  '/transaction/test',
+  validateTransaction,
+  authenticate,
+  checkPermission(PermissionsEnum.MANUAL_SEND_TEST_DASHBOARD),
+  makeTransaction,
+);
+router.post(
+  '/transaction/archive',
+  validateTransaction,
+  authenticate,
+  checkPermission(PermissionsEnum.MANUAL_SEND_ARCHIVE),
+  makeTransaction,
+);
 
 /*//////////////////////////////////////////////////////////////
                          AUTHORIZATION
@@ -112,8 +160,19 @@ router.get('/auto-send/transactions/drop-all', authenticate, dropAllAutoTransact
                          QUOTING ENGINE
 //////////////////////////////////////////////////////////////*/
 router.get('/quoting-engine/margins', getAllMarginsController);
-router.patch('/quoting-engine/margins/update-margin-value', setUpMarginToAll);
-router.put('/quoting-engine/margins/:id', validateEditMargin, editMarginController);
+router.patch(
+  '/quoting-engine/margins/update-margin-value',
+  authenticate,
+  checkPermission(PermissionsEnum.SETUP_MARGIN),
+  setUpMarginToAll,
+);
+router.put(
+  '/quoting-engine/margins/:id',
+  validateEditMargin,
+  authenticate,
+  checkPermission(PermissionsEnum.SETUP_MARGIN),
+  editMarginController,
+);
 router.get('/quoting-engine/orders', getOrders);
 
 /*//////////////////////////////////////////////////////////////
@@ -160,9 +219,24 @@ router.get('/get-confirmations', getTransactionConfirmations);
                            BOT ORDER
 //////////////////////////////////////////////////////////////*/
 router.get('/bot-order', getBotOrdersController);
-router.put('/bot-order/create', createBotOrderController);
-router.patch('/bot-order/update/:id', updateBotOrderController);
-router.delete('/bot-order/delete/:id', deleteBotOrderController);
+router.put(
+  '/bot-order/create',
+  authenticate,
+  checkPermission(PermissionsEnum.SETUP_BOT_ORDERS),
+  createBotOrderController,
+);
+router.patch(
+  '/bot-order/update/:id',
+  authenticate,
+  checkPermission(PermissionsEnum.SETUP_BOT_ORDERS),
+  updateBotOrderController,
+);
+router.delete(
+  '/bot-order/delete/:id',
+  authenticate,
+  checkPermission(PermissionsEnum.SETUP_BOT_ORDERS),
+  deleteBotOrderController,
+);
 
 /*//////////////////////////////////////////////////////////////
                                HE
@@ -192,3 +266,4 @@ router.patch('/permissions/user/assign', assignPermissionsToUser);
 router.post('/aml/check', checkWalletAddressByAmlCryptoSimple);
 
 export default router;
+
