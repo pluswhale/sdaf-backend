@@ -54,6 +54,7 @@ const mapAssetToCoinGeckoId = (asset: string): string => {
     BTC: 'bitcoin',
     USDT: 'tether',
     USDC: 'usd-coin',
+    USD1: 'usd1-wlfi',
     BNB: 'binancecoin',
     ETH: 'ethereum',
     TRX: 'tron',
@@ -64,7 +65,7 @@ const mapAssetToCoinGeckoId = (asset: string): string => {
 };
 
 export const fetchUsdPrices = async (): Promise<Record<string, number>> => {
-  const ASSETS = ['BTC', 'ETH', 'BNB', 'USDT', 'USDC', 'TRX', 'WBTC', 'WBTC_BNB'];
+  const ASSETS = ['BTC', 'ETH', 'BNB', 'USDT', 'USDC', 'USD1', 'TRX', 'WBTC', 'WBTC_BNB'];
 
   if (ASSETS.length === 0) {
     throw new Error('Assets List is blank now.');

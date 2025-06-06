@@ -79,39 +79,13 @@ export const handleSendingWallet = async (wallet: WalletType) => {
     return;
   }
 
-  const coinIdMap: Partial<Record<CurrencyType, string>> = {
-    USDT: 'USDT',
-    USDT_ERC20: 'USDT',
-    USDT_BEP20: 'USDT',
-    USDT_TRC20: 'USDT',
-    USDC_ERC20: 'USDC',
-    USDC_BEP20: 'USDC',
-    BTC: 'BTC',
-    BNB: 'BNB',
-    ETH: 'ETH',
-    TRX: 'TRX',
-    WBTC: 'WBTC',
-  };
-
-  const coinId = coinIdMap[wallet.currency_type];
-  if (!coinId) {
-    console.error(`No coinId mapping found for currency type: ${wallet.currency_type}`);
-    return;
-  }
-
   const prices = await fetchUsdPrices();
 
-  const cryptoPrice = prices[coinId];
+  const cryptoPrice = prices[wallet.currency_type.split('_')[0]];
 
   const amountToWithdrawCrypto = amountToWithdraw / cryptoPrice;
 
   const precisionMap: Partial<Record<CurrencyType, number>> = {
-    USDT: 2,
-    USDT_ERC20: 2,
-    USDT_BEP20: 2,
-    USDT_TRC20: 2,
-    USDC_ERC20: 2,
-    USDC_BEP20: 2,
     BTC: 8,
     WBTC: 8,
     BNB: 8,
@@ -121,30 +95,21 @@ export const handleSendingWallet = async (wallet: WalletType) => {
 
   const precision = precisionMap[wallet.currency_type] || 2;
 
-  const [coinSymbol] = wallet.currency_type.split('_');
-
   const payload = {
     amount: parseFloat(amountToWithdrawCrypto.toFixed(precision)),
-    coinSymbol: coinSymbol,
+    coinSymbol: wallet.currency_type.split('_')[0],
     network: mapping.network,
     walletId: wallet.rebalancingWallet,
     withdrawalAddress: wallet.address,
   };
 
-  console.log(payload, 'payload');
-
   try {
     const orderViewId = (await initiateBinanceWithdraw(payload, wallet.rebalancingWallet)).data.id;
 
-    console.log(orderViewId, 'orderViewId');
-
-    console.log(`Top up your wallet ${wallet.id} initiated:`, orderViewId);
-
-    console.log(`Extracted orderViewId: ${orderViewId}`);
     const pendingWithdrawal = pendingWithdrawalRepository.create({
       walletId: wallet.id,
       orderViewId: orderViewId,
-      coinSymbol: coinSymbol,
+      coinSymbol: wallet.currency_type.split('_')[0],
       accountType: wallet.rebalancingWallet,
       platform: wallet.rebalancingPlatform,
       status: 10,
@@ -212,39 +177,13 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
         return;
       }
 
-      const coinIdMap: Partial<Record<CurrencyType, string>> = {
-        USDT: 'USDT',
-        USDT_ERC20: 'USDT',
-        USDT_BEP20: 'USDT',
-        USDT_TRC20: 'USDT',
-        USDC_BEP20: 'USDC',
-        USDC_ERC20: 'USDC',
-        BTC: 'BTC',
-        BNB: 'BNB',
-        ETH: 'ETH',
-        TRX: 'TRX',
-        WBTC: 'WBTC',
-      };
-
-      const coinId = coinIdMap[wallet.currency_type];
-      if (!coinId) {
-        console.error(`No coinId mapping found for currency type: ${wallet.currency_type}`);
-        return;
-      }
-
       const prices = await fetchUsdPrices();
 
-      const cryptoPrice = prices[coinId];
+      const cryptoPrice = prices[wallet.currency_type.split('_')[0]];
 
       const amountToWithdrawCrypto = amountToWithdraw / cryptoPrice;
 
       const precisionMap: Partial<Record<CurrencyType, number>> = {
-        USDT: 2,
-        USDT_ERC20: 2,
-        USDT_BEP20: 2,
-        USDT_TRC20: 2,
-        USDC_BEP20: 2,
-        USDC_ERC20: 2,
         BTC: 8,
         WBTC: 8,
         BNB: 8,
@@ -272,12 +211,10 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
 
       console.log(`Top up your wallet ${wallet.id} initiated:`, txHash);
 
-      const [coinSymbol] = wallet.currency_type.split('_');
-
       const pendingReplenishment = pendingReplenishmentRepository.create({
         walletId: wallet.id,
         orderViewId: txHash,
-        coinSymbol: coinSymbol,
+        coinSymbol: wallet.currency_type.split('_')[0],
         platform: wallet.rebalancingPlatform,
         accountType: wallet.rebalancingWallet,
         status: 10,

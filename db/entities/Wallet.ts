@@ -10,6 +10,8 @@ export enum CurrencyType {
   BTC_T = 'BTC_T',
   USDT = 'USDT',
   USDT_BEP20 = 'USDT_BEP20',
+  USD1_BEP20 = 'USD1_BEP20',
+  USD1_ERC20 = 'USD1_ERC20',
   USDT_CT = 'USDT_CT',
   USDT_T = 'USDT_T',
   USDT_TRC20 = 'USDT_TRC20',

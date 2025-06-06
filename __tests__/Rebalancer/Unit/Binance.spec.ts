@@ -1,4 +1,3 @@
-import axios from 'axios';
 import * as mappingModule from '../../../utils/mapping';
 import {
   handleReceivingWallet,
@@ -10,9 +9,16 @@ import {
 } from '../../../middlewares/walletScheduler';
 import { CurrencyType } from '../../../db/entities';
 import { cryptoPairs } from './Mocks/Mocks';
+import { fetchUsdPrices } from '../../../controllers/transactions/getAssetPrice';
+import { initiateBinanceWithdraw } from '../../../controllers/binanceApi/initiateWithdrawalBinance';
+import { getBinanceDepositAddress } from '../../../controllers/binanceApi/getDepositAddressBinance';
+import { makeTransaction } from '../../../controllers/makeRebalancerTransaction';
 
-jest.mock('axios');
 jest.mock('../../../utils/mapping');
+jest.mock('../../../controllers/binanceApi/getDepositAddressBinance');
+jest.mock('../../../controllers/makeRebalancerTransaction');
+jest.mock('../../../controllers/binanceApi/initiateWithdrawalBinance');
+jest.mock('../../../controllers/transactions/getAssetPrice');
 jest.mock('../../../middlewares/walletScheduler', () => {
   const originalModule = jest.requireActual('../../../middlewares/walletScheduler');
 
@@ -74,14 +80,14 @@ describe('Rebalancer', () => {
           const w = makeWallet({ minBalance: '0', maxBalance: '0', currency_type: el.currencyType });
           await handleSendingWallet(w);
           expect(spyLog).toHaveBeenCalledWith(`Skipping the wallet ${w.id}: minBalance and maxBalance incorrect.`);
-          expect(axios.get).not.toHaveBeenCalled();
+          expect(fetchUsdPrices).not.toHaveBeenCalled();
         });
 
         it('should skip if no valid price.usd', async () => {
           const w = makeWallet({ price: {} as any, currency_type: el.currencyType });
           await handleSendingWallet(w);
           expect(spyLog).toHaveBeenCalledWith(`Skipping the wallet ${w.id}: There is no valid field price.usd`);
-          expect(axios.get).not.toHaveBeenCalled();
+          expect(fetchUsdPrices).not.toHaveBeenCalled();
         });
 
         it('should skip if priceUsd >= minBalance', async () => {
@@ -90,7 +96,7 @@ describe('Rebalancer', () => {
           expect(spyLog).toHaveBeenCalledWith(
             `Wallet ${w.id}: Current price 20 USD >= minBalance 10, no replenishment required.`,
           );
-          expect(axios.get).not.toHaveBeenCalled();
+          expect(fetchUsdPrices).not.toHaveBeenCalled();
         });
 
         it('should call axios.post and save pendingWithdrawal on successful flow', async () => {
@@ -98,10 +104,10 @@ describe('Rebalancer', () => {
             network: el.network,
             coinSymbol: el.coinSymbol,
           });
-          (axios.get as jest.Mock).mockResolvedValue({
-            data: { prices: { [el.symbolPrice]: el.currencyType.startsWith('USD') ? 1 : 80000 } },
+          (fetchUsdPrices as jest.Mock).mockReturnValue({
+            [el.symbolPrice]: el.currencyType.startsWith('USD') ? 1 : 80000,
           });
-          (axios.post as jest.Mock).mockResolvedValue({ data: { orderViewId: '123' } });
+          (initiateBinanceWithdraw as jest.Mock).mockReturnValue({ data: { id: '123' } });
           (pendingWithdrawalRepository.create as jest.Mock).mockImplementation((o) => o);
 
           const w = makeWallet({
@@ -112,7 +118,7 @@ describe('Rebalancer', () => {
           });
           await handleSendingWallet(w);
 
-          expect(axios.get).toHaveBeenCalledWith('https://sdafcwap.com/app/api/get-asset-price');
+          expect(fetchUsdPrices).toHaveBeenCalled();
 
           // amountToWithdraw = 150 - 10 = 140;
           // cryptoPrice = 1 → 140 / 1 = 140; precision for WBTC = 2 → 140.00
@@ -123,16 +129,12 @@ describe('Rebalancer', () => {
             walletId: 'hwat',
             withdrawalAddress: w.address,
           };
-          expect(axios.post).toHaveBeenCalledWith(
-            'https://sdafcwap.com/app/api/initiate-withdrawal-binance?accountType=hwat',
-            expectedPayload,
-            { headers: { 'Content-Type': 'application/json' } },
-          );
+          expect(initiateBinanceWithdraw).toHaveBeenCalledWith(expectedPayload, w.rebalancingWallet);
 
           expect(pendingWithdrawalRepository.create).toHaveBeenCalledWith({
             walletId: w.id,
             orderViewId: '123',
-            coinSymbol: w.currency_type,
+            coinSymbol: w.currency_type.split('_')[0],
             accountType: 'hwat',
             platform: 'binance',
             status: 10,
@@ -145,12 +147,12 @@ describe('Rebalancer', () => {
             network: el.network,
             coinSymbol: el.coinSymbol,
           });
-          (axios.get as jest.Mock).mockResolvedValue({ data: { prices: { [el.currencyType]: 1 } } });
+          (fetchUsdPrices as jest.Mock).mockResolvedValue({ data: { prices: { [el.currencyType]: 1 } } });
           const fakeError = {
             response: { data: { details: { code: -4035 } } },
             message: 'bad',
           };
-          (axios.post as jest.Mock).mockRejectedValue(fakeError);
+          (initiateBinanceWithdraw as jest.Mock).mockRejectedValue(fakeError);
 
           const w = makeWallet({
             minBalance: '20',
@@ -203,41 +205,29 @@ describe('Rebalancer', () => {
             coinSymbol: el.coinSymbol,
           });
 
-          const spyPost = jest
-            .spyOn(axios, 'post')
-            .mockReturnValueOnce(
-              Promise.resolve({ data: { DepositAddress: '0x4214310f69c582fc94a819db7f8b2ad5b840c4cc' } }),
-            )
-            .mockReturnValueOnce(Promise.resolve({ data: { transactionHash: { hash: '1111' } } }));
+          (getBinanceDepositAddress as jest.Mock).mockReturnValue({
+            data: { address: '0x4214310f69c582fc94a819db7f8b2ad5b840c4cc' },
+          });
 
-          (axios.get as jest.Mock).mockReturnValue({
-            data: { prices: { [el.symbolPrice]: el.currencyType.startsWith('USD') ? 1 : 80000 } },
+          (makeTransaction as jest.Mock).mockReturnValue('1111');
+
+          (fetchUsdPrices as jest.Mock).mockReturnValue({
+            [el.symbolPrice]: el.currencyType.startsWith('USD') ? 1 : 80000,
           });
 
           (pendingReplenishmentRepository.create as jest.Mock).mockImplementation((o) => o);
 
           await handleReceivingWallet(w);
 
-          expect(spyPost).toHaveBeenCalledTimes(2);
+          expect(getBinanceDepositAddress).toHaveBeenCalledWith(depositAddressPayload, w.rebalancingWallet);
+          expect(makeTransaction).toHaveBeenCalledWith(expectedPayload);
 
-          expect(spyPost.mock.calls[0]).toEqual([
-            `https://sdafcwap.com/app/api/get-deposit-address-${w.rebalancingPlatform}?accountType=${w.rebalancingWallet}`,
-            depositAddressPayload,
-            { headers: { 'Content-Type': 'application/json' } },
-          ]);
-
-          expect(spyPost.mock.calls[1]).toEqual([
-            'https://sdafcwap.com/app/api/create-transaction',
-            expectedPayload,
-            { headers: { 'Content-Type': 'application/json' } },
-          ]);
-
-          expect(axios.get).toHaveBeenCalledWith('https://sdafcwap.com/app/api/get-asset-price');
+          expect(fetchUsdPrices).toHaveBeenCalled();
 
           expect(pendingReplenishmentRepository.create).toHaveBeenCalledWith({
             walletId: w.id,
             orderViewId: '1111',
-            coinSymbol: w.currency_type,
+            coinSymbol: w.currency_type.split('_')[0],
             accountType: 'panchoSpot',
             platform: 'binance',
             status: 10,
