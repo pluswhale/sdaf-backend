@@ -37,6 +37,7 @@ staging:
   rules:
     - when: on_success
   variables:
+    POSTGRES_VERSION: '13'
     POSTGRES_ENABLED: 'true'
     ENV_SPECIFIC_VALUES_STAGING: ${ENV_SPECIFIC_VALUES_STAGING}
     APP_VALUES_FILES: env-specific-values-staging
