@@ -47,7 +47,6 @@ export class User {
     nullable: true,
     cascade: false,
     onDelete: 'CASCADE',
-    eager: true,
   })
   @JoinTable()
   permissions: Permission[];

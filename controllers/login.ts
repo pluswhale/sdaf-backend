@@ -9,7 +9,7 @@ const userRepository = AppDataSource.getRepository(User);
 export const loginUser = async (req: Request, res: Response): Promise<any> => {
   const { username, password } = req.body;
   try {
-    const user = await userRepository.findOne({ where: { username } });
+    const user = await userRepository.findOne({ where: { username }, relations: { permissions: true } });
 
     console.log('bod', req.body);
     console.log('urser', user);
@@ -34,3 +34,4 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
     res.status(500).send('Error during login: ' + error);
   }
 };
+
