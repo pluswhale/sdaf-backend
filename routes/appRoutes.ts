@@ -83,14 +83,14 @@ router.get('/wallets/rebalancers', getRebalancersWallets);
 router.put('/wallets/rebalancers/set-up/:id', editRebalancerWalletsStatus);
 router.get('/wallets/balance/history/:address', getWalletBalanceHistory);
 router.put(
-  '/wallet/update-minmax/:id',
+  '/wallet/update-minmax/dashboard/:id',
   validateSetUpMixMaxInWallet,
   authenticate,
   checkPermission(PermissionsEnum.CONTROL_REBALANCER_DASHBOARD),
   setUpMinAndMaxWallet,
 );
 router.put(
-  '/wallet/update-minmax/archive/:id',
+  '/wallet/update-minmax/archive-wallet/:id',
   validateSetUpMixMaxInWallet,
   authenticate,
   checkPermission(PermissionsEnum.CONTROL_REBALANCER_ARCHIVE),
@@ -118,7 +118,7 @@ router.post('/duplicate/wallet', duplicateWallet);
                           TRANSACTION
 //////////////////////////////////////////////////////////////*/
 router.post(
-  '/transaction',
+  '/transaction/dashboard',
   validateTransaction,
   authenticate,
   checkPermission(PermissionsEnum.MANUAL_SEND_DASHBOARD),
@@ -132,7 +132,7 @@ router.post(
   makeTransaction,
 );
 router.post(
-  '/transaction/archive',
+  '/transaction/archive-wallet',
   validateTransaction,
   authenticate,
   checkPermission(PermissionsEnum.MANUAL_SEND_ARCHIVE),
