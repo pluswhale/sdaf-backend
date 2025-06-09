@@ -1,4 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, OneToMany, ManyToMany, JoinTable, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BeforeInsert,
+  OneToMany,
+  ManyToMany,
+  JoinTable,
+  ManyToOne,
+} from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ActiveSessionTracker } from './ActiveSessionTracker';
 import { Permission } from './Permission';
@@ -30,11 +39,16 @@ export class User {
   @OneToMany(() => ActiveSessionTracker, (session) => session.user, { cascade: false, onDelete: 'SET NULL' })
   sessions: ActiveSessionTracker[];
 
-  @ManyToMany(() => Role, role => role.users, { nullable: true, cascade: false, onDelete: 'CASCADE' })
+  @ManyToMany(() => Role, (role) => role.users, { nullable: true, cascade: false, onDelete: 'CASCADE' })
   @JoinTable()
   roles: Role[];
 
-  @ManyToMany(() => Permission, permission => permission.users, { nullable: true, cascade: false, onDelete: 'CASCADE' })
+  @ManyToMany(() => Permission, (permission) => permission.users, {
+    nullable: true,
+    cascade: false,
+    onDelete: 'CASCADE',
+    eager: true,
+  })
   @JoinTable()
   permissions: Permission[];
 
@@ -43,3 +57,4 @@ export class User {
     this.password = await bcrypt.hash(this.password, 10);
   }
 }
+
