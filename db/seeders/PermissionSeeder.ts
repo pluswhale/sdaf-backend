@@ -1,36 +1,49 @@
 import { DataSource } from 'typeorm';
-import { Permission } from '../entities';
+import { Permission } from '../entities/Permission';
+import { User } from '../entities/User';
 
 export const permissionSeeder = async (dataSource: DataSource) => {
     const permissionRepository = dataSource.getRepository(Permission);
+    const userRepository = dataSource.getRepository(User);
 
     const permissions = [
-        { name: 'Send funds manually from Dashboard' },
-        { name: 'Send funds manually from Archive' },
-        { name: 'Send funds manually from Test Dashboard' },
-        { name: 'Run/stop Rebalancer on Dashboard' },
-        { name: 'Run/stop Rebalancer in Archive' },
-        { name: 'Run/stop Rebalancer on Test Dashboard' },
-        { name: 'Run/stop Hedger on Production' },
-        { name: 'Run/stop Test Hedger' },
-        { name: 'Download csv-file' },
-        { name: 'Setup margin' },
-        { name: 'Archive/unarchive wallets' },
-        { name: 'Edit coins to show at Pairs tab' },
-        { name: 'Setup bot order parameters' },
-        { name: 'Modify wallets on Test Dasboard' },
-        { name: 'View Customer Dashboard' },
+        { name: 'Send funds manually from Dashboard', category: 'funds' },
+        { name: 'Send funds manually from Archive', category: 'funds' },
+        { name: 'Send funds manually from Test Dashboard', category: 'funds' },
+        { name: 'Run/stop Rebalancer on Dashboard', category: 'rebalancer' },
+        { name: 'Run/stop Rebalancer in Archive', category: 'rebalancer' },
+        { name: 'Run/stop Rebalancer on Test Dashboard', category: 'rebalancer' },
+        { name: 'Run/stop Hedger on Production', category: 'hedger' },
+        { name: 'Run/stop Test Hedger', category: 'hedger' },
+        { name: 'Download csv-file', category: 'another' },
+        { name: 'Setup margin', category: 'another' },
+        { name: 'Archive/unarchive wallets', category: 'another' },
+        { name: 'Edit coins to show at Pairs tab', category: 'another' },
+        { name: 'Setup bot order parameters', category: 'another' },
+        { name: 'Modify wallets on Test Dasboard', category: 'another' },
+        { name: 'View Customer Dashboard', category: 'another' },
     ];
 
-    for (const permission of permissions) {
+    for (const permissionData of permissions) {
         const existingPermission = await permissionRepository.findOne({
-            where: { name: permission.name },
+            where: { name: permissionData.name },
         });
+
         if (!existingPermission) {
-            await permissionRepository.save(permission);
+            const newPermission = await permissionRepository.save(permissionData);
+
+            const users = await userRepository.find({
+                relations: ['permissions'],
+            });
+
+            for (const user of users) {
+                if (!user.permissions.some(p => p.id === newPermission.id)) {
+                    user.permissions.push(newPermission);
+                    await userRepository.save(user);
+                }
+            }
         }
     }
 
-    console.log('Permissions seeded successfully.');
+    console.log('Permissions seeding completed.');
 };
-

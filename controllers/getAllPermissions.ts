@@ -8,9 +8,9 @@ const permissionRepository = AppDataSource.getRepository(Permission);
 export const getAllPermissions = async (req: Request, res: Response): Promise<any> => {
     try {
         const permissions = await permissionRepository.find();
-        const groupedPermissionsByCategories = groupPermissionsByCategory(permissions)
+        const groupedPermissionsByCategories = groupPermissionsByCategory(permissions);
 
-        res.status(200).json(permissions);
+        res.status(200).json(groupedPermissionsByCategories);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error', error });

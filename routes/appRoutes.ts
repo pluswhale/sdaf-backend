@@ -183,7 +183,7 @@ router.patch('/active-sessions/update', updateActiveSession);
 /*//////////////////////////////////////////////////////////////
                               PERMISSIONS
 //////////////////////////////////////////////////////////////*/
-router.get('/permissions', /* authenticate, */ getAllPermissions);
+router.get('/permissions', authenticate, getAllPermissions);
 router.patch('/permissions/user/assign', assignPermissionsToUser);
 
 /*//////////////////////////////////////////////////////////////
