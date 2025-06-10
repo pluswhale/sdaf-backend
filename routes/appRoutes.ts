@@ -151,8 +151,46 @@ router.patch('/user/comment', authenticate, editUserComment);
 /*//////////////////////////////////////////////////////////////
                           AUTO-SEND
 //////////////////////////////////////////////////////////////*/
-router.post('/auto-send/start', validateTransaction, authenticate, startAutoTransaction);
-router.delete('/auto-send/stop/:walletAddress', authenticate, stopAutoTransaction);
+router.post(
+  '/auto-send/start/dashboard',
+  validateTransaction,
+  authenticate,
+  checkPermission(PermissionsEnum.CONTROL_AUTOSEND_DASHBOARD),
+  startAutoTransaction
+);
+router.post(
+  '/auto-send/start/test',
+  validateTransaction,
+  authenticate,
+  checkPermission(PermissionsEnum.CONTROL_AUTOSEND_TEST_DASHBOARD),
+  startAutoTransaction
+);
+router.post(
+  '/auto-send/start/archive-wallet',
+  validateTransaction,
+  authenticate,
+  checkPermission(PermissionsEnum.CONTROL_AUTOSEND_ARCHIVE),
+  startAutoTransaction
+);
+
+router.delete(
+  '/auto-send/stop/dashboard/:walletAddress',
+  authenticate,
+  checkPermission(PermissionsEnum.CONTROL_AUTOSEND_DASHBOARD),
+  stopAutoTransaction
+);
+router.delete(
+  '/auto-send/stop/test/:walletAddress',
+  authenticate,
+  checkPermission(PermissionsEnum.CONTROL_AUTOSEND_TEST_DASHBOARD),
+  stopAutoTransaction
+);
+router.delete(
+  '/auto-send/stop/archive-wallet/:walletAddress',
+  authenticate,
+  checkPermission(PermissionsEnum.CONTROL_AUTOSEND_ARCHIVE),
+  stopAutoTransaction
+);
 router.get('/auto-send/transactions', authenticate, getAllAutoTransactions);
 router.get('/auto-send/transactions/drop-all', authenticate, dropAllAutoTransactions);
 
