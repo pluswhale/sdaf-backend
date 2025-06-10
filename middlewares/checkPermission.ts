@@ -13,7 +13,7 @@ export const checkPermission = (permission: string) => {
     if (token) {
       //@ts-ignore
       const userId = jwt.verify(token, process.env.SECRET_JWT_KEY).user.id;
-      const user = await usersRepo.findOne({ where: { id: userId } });
+      const user = await usersRepo.findOne({ where: { id: userId }, relations: { permissions: true } });
       const userPermissions: Permission[] = user?.permissions!;
       if (!userPermissions) {
         res.status(403).send({ error: 'Access denied' });
