@@ -9,20 +9,19 @@ const userRepository = AppDataSource.getRepository(User);
 export const loginUser = async (req: Request, res: Response): Promise<any> => {
   const { username, password } = req.body;
   try {
-    const user = await userRepository.findOne({ where: { username }, relations: { permissions: true } });
+    const userFromDb = await userRepository.findOne({ where: { username }, relations: { permissions: true } });
 
     console.log('bod', req.body);
-    console.log('urser', user);
+    console.log('urser', userFromDb);
 
-    if (user && (await bcrypt.compare(password, user.password))) {
+    if (userFromDb && (await bcrypt.compare(password, userFromDb.password))) {
       const secretKey = process.env.SECRET_JWT_KEY;
-      const userToAuth = {
-        ...user,
-        permissions: user.permissions.map((permission) => permission.id),
+      const user = {
+        id: userFromDb.id,
       };
 
-      const accessToken = jwt.sign({ userToAuth }, secretKey as string, { expiresIn: '40m' });
-      const refreshToken = jwt.sign({ userToAuth }, secretKey as string, { expiresIn: '50m' });
+      const accessToken = jwt.sign({ user }, secretKey as string, { expiresIn: '40m' });
+      const refreshToken = jwt.sign({ user }, secretKey as string, { expiresIn: '50m' });
 
       res
         .setHeader('Access-Control-Allow-Credentials', 'true')
