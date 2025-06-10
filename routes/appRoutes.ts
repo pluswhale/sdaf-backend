@@ -272,7 +272,7 @@ router.patch(
 router.delete(
   '/bot-order/delete/:id',
   authenticate,
-  checkPermission(PermissionsEnum.SETUP_BOT_ORDERS),
+  checkPermission(PermissionsEnum.REMOVE_ORDER),
   deleteBotOrderController,
 );
 

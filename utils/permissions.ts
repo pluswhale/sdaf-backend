@@ -16,4 +16,5 @@ export enum PermissionsEnum {
   EDIT_PAIRS = 'Edit coins to show at Pairs tab',
   SETUP_BOT_ORDERS = 'Setup bot order parameters',
   MODIFY_TEST_WALLETS = 'Modify wallets on Test Dasboard',
+  REMOVE_ORDER = 'Remove order'
 }
