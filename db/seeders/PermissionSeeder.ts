@@ -23,6 +23,7 @@ export const permissionSeeder = async (dataSource: DataSource) => {
         { name: 'Archive/unarchive wallets', category: 'other' },
         { name: 'Edit coins to show at Pairs tab', category: 'other' },
         { name: 'Setup bot order parameters', category: 'other' },
+        { name: 'Remove order', category: 'other' },
         { name: 'Modify wallets on Test Dasboard', category: 'other' },
         { name: 'View Customer Dashboard', category: 'other' },
     ];
