@@ -25,7 +25,7 @@ export const permissionSeeder = async (dataSource: DataSource) => {
         { name: 'Setup bot order parameters', category: 'other' },
         { name: 'Remove order', category: 'other' },
         { name: 'Modify wallets on Test Dasboard', category: 'other' },
-        { name: 'View Customer Dashboard', category: 'other' },
+        { name: "View Customer's Dashboard", category: 'other' },
     ];
 
     for (const permissionData of permissions) {
