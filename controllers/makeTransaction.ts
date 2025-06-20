@@ -27,11 +27,7 @@ export const makeTransaction = async (req: Request, res: Response): Promise<any>
   }
 
   try {
-    console.log('WHATS GOING ON ????', req.body);
-
     const response = await axios.post(`${backendUrl()}/api/transaction`, req.body);
-
-    console.log('THIS IS ENDING!');
 
     if (!response) {
       return res.status(404).json({ message: 'Can`t send transaction' });
@@ -45,4 +41,3 @@ export const makeTransaction = async (req: Request, res: Response): Promise<any>
 };
 
 export default makeTransaction;
-

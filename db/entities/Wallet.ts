@@ -7,6 +7,7 @@ export enum WalletType {
 
 export enum CurrencyType {
   BTC = 'BTC',
+  LTC = 'LTC',
   BTC_T = 'BTC_T',
   USDT = 'USDT',
   USDT_BEP20 = 'USDT_BEP20',

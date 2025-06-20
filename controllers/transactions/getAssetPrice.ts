@@ -52,6 +52,7 @@ export const getAssetPrice: RequestHandler = async (req: Request, res: Response,
 const mapAssetToCoinGeckoId = (asset: string): string => {
   const mapping: Record<string, string> = {
     BTC: 'bitcoin',
+    LTC: 'litecoin',
     USDT: 'tether',
     USDC: 'usd-coin',
     USD1: 'usd1-wlfi',
@@ -65,7 +66,7 @@ const mapAssetToCoinGeckoId = (asset: string): string => {
 };
 
 export const fetchUsdPrices = async (): Promise<Record<string, number>> => {
-  const ASSETS = ['BTC', 'ETH', 'BNB', 'USDT', 'USDC', 'USD1', 'TRX', 'WBTC', 'WBTC_BNB'];
+  const ASSETS = ['BTC', 'ETH', 'BNB', 'USDT', 'USDC', 'USD1', 'TRX', 'WBTC', 'WBTC_BNB', 'LTC'];
 
   if (ASSETS.length === 0) {
     throw new Error('Assets List is blank now.');
@@ -78,7 +79,7 @@ export const fetchUsdPrices = async (): Promise<Record<string, number>> => {
       params: {
         ids,
         vs_currencies: 'usd',
-        x_cg_pro_api_key: 'CG-UtKRgQ7Ec5dFK1XehQrLrwr4',
+        x_cg_pro_api_key: process.env.COINGEKO_PRO_API_KEY,
       },
     });
 
