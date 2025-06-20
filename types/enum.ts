@@ -21,6 +21,7 @@ export enum CoinSymbol {
   USDC_ERC20 = 'ETH',
   USDC_BEP20 = 'BNB',
   BTC = 'BTC',
+  LTC = 'LTC',
   BNB = 'BNB',
   ETH = 'ETH',
   TRX = 'TRX',

@@ -26,6 +26,8 @@ export function getWalletMapping(currencyType: CurrencyType): WalletMapping | nu
       return { network: Network.BNB, coinSymbol: CoinSymbol.USDC_BEP20 };
     case CurrencyType.BTC:
       return { network: Network.BTC, coinSymbol: CoinSymbol.BTC };
+    case CurrencyType.LTC:
+      return { network: Network.LTC, coinSymbol: CoinSymbol.LTC };
     case CurrencyType.BNB:
       return { network: Network.BNB, coinSymbol: CoinSymbol.BNB };
     case CurrencyType.ETH:

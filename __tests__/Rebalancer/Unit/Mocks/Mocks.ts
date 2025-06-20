@@ -7,6 +7,7 @@ const getAddressMapping = (account: 'panchoSpot' | 'hwat') => {
 
 export const AddressesPanchoSpot: { [key: string]: string } = {
   BTC: '1LuYJMNUbwJAasupgHPbDknyRrd4KfMb55',
+  LTC: 'LVA8tyVLSZVGk8X73xKpY2i9Kq7myzqJuD',
   WBTC: '0x4214310f69c582fc94a819db7f8b2ad5b840c4cc',
   ETH: '0x4214310f69c582fc94a819db7f8b2ad5b840c4cc',
   BNB: '0x4214310f69c582fc94a819db7f8b2ad5b840c4cc',
@@ -22,6 +23,7 @@ export const AddressesPanchoSpot: { [key: string]: string } = {
 
 export const AddressesHwat: { [key: string]: string } = {
   BTC: '1k2Y8527cuRAVxSidrr2kJtHhGXwnrc9d',
+  LTC: 'LVaAeX8yMJMmMaDQFbMjF22n6Aduj3mKtk',
   WBTC: '0xe0fcf473042e5522b4c0d63ab32d38c625eda868',
   ETH: '0xe0fcf473042e5522b4c0d63ab32d38c625eda868',
   BNB: '0xe0fcf473042e5522b4c0d63ab32d38c625eda868',
