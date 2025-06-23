@@ -334,7 +334,7 @@ async function updateWithdrawalStatuses() {
         //   await walletRepository.update(pw.walletId, { isRebalancingActive: true });
         // }
 
-        if (status === platformConfig[pw.platform].statusCode.statusCodeWithdraw) {
+        if (status === platformConfig[pw.platform].statusCode.statusCodeWithdraw || status === 3) {
           await pendingWithdrawalRepository.remove(pw);
           console.log(`Withdrawal ${pw.orderViewId} confirmed and removed from pending.`);
         } else {
