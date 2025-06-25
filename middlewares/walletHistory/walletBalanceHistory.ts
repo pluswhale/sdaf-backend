@@ -5,7 +5,7 @@ import { AppDataSource } from '../../db/AppDataSource';
 
 const walletRepository = AppDataSource.getRepository(Wallet);
 
-async function snapshotWalletsBalanceHistory(): Promise<void> {
+async function snapshotWalletsBalanceHistory(maxRetries = 5, retryCount = 0): Promise<void> {
   const wallets: Wallet[] = await walletRepository.find();
   const timeStamp = new Date().toISOString();
   const currentYear = new Date().getFullYear();
@@ -19,17 +19,25 @@ async function snapshotWalletsBalanceHistory(): Promise<void> {
         el.balanceHistory = [];
       }
 
-      el.balanceHistory.push({
-        balance: el?.price?.usd,
-        timeStamp: timeStamp,
-      });
+      if (el?.price?.usd) {
+        el.balanceHistory.push({
+          balance: el.price.usd,
+          timeStamp: timeStamp,
+        });
+      }
       delete el?.price;
       return el;
     });
 
     await walletRepository.save(updatedSnapshots);
   } catch (error) {
-    console.error('Error fetching wallets with prices:', error);
+    console.error(`Error fetching wallets with prices (attempt ${retryCount + 1}):`, error);
+    if (retryCount < maxRetries - 1) {
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      return snapshotWalletsBalanceHistory(maxRetries, retryCount + 1);
+    } else {
+      console.error('Max retries reached. Aborting.');
+    }
   }
 }
 
