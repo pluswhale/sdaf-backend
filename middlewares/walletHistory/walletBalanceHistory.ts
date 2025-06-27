@@ -8,17 +8,12 @@ const walletRepository = AppDataSource.getRepository(Wallet);
 async function snapshotWalletsBalanceHistory(maxRetries = 5, retryCount = 0): Promise<void> {
   const wallets: Wallet[] = await walletRepository.find();
   const timeStamp = new Date().toISOString();
-  const currentYear = new Date().getFullYear();
 
   try {
     const walletsWithPrices: Wallet[] = (await axios.post('https://sdafcwap.com/app/api/wallets-with-prices', wallets))
       .data;
 
     const updatedSnapshots = walletsWithPrices.map((el: any) => {
-      if (new Date(el.balanceHistory[0].timeStamp).getFullYear() !== currentYear) {
-        el.balanceHistory = [];
-      }
-
       if (el?.price?.usd) {
         el.balanceHistory.push({
           balance: el.price.usd,
