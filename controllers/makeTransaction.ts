@@ -4,7 +4,7 @@ import { Request, Response } from 'express';
 import { check, validationResult } from 'express-validator';
 
 export const validateTransaction = [
-  check('pub_key').isString().withMessage('Public key must be a string'),
+  check('path').isString().withMessage('Path must be a string'),
 
   check('from').isString().withMessage('"From" address must be a string'),
 

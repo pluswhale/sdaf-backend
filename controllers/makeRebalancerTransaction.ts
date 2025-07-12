@@ -4,11 +4,9 @@ import { Request, Response } from 'express';
 
 export const makeRebalancerTransaction = async (req: Request, res: Response): Promise<any> => {
   try {
-    const transactionData = req.body;
+    console.log('Sending transaction request with the following data:', req.body);
 
-    console.log('Sending transaction request with the following data:', transactionData);
-
-    const response = await makeTransaction(transactionData);
+    const response = await makeTransaction(req.body);
 
     if (!response) {
       return res.status(404).json({ message: 'Failed to send transaction: No response from backend' });
