@@ -15,6 +15,8 @@ export const saveWallet = async (req: Request, res: Response): Promise<any> => {
     },
   });
 
+  console.log('1');
+
   try {
     const { wallet_data } = (
       await axios.get(`${backendUrl()}/api/generate-wallet`, {
