@@ -52,6 +52,9 @@ export class Wallet {
   @Column({ type: 'varchar', length: 256, unique: false, default: '' })
   address: string;
 
+  @Column({ type: 'varchar', length: 256, unique: false, default: '' })
+  path: string;
+
   @Column({ type: 'varchar', default: 0 })
   minBalance: string;
 
