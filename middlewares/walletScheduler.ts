@@ -88,8 +88,10 @@ export const handleSendingWallet = async (wallet: WalletType) => {
   const precisionMap: Partial<Record<CurrencyType, number>> = {
     BTC: 8,
     LTC: 8,
+    DOGE: 8,
     WBTC: 8,
     BNB: 8,
+    POL: 8,
     ETH: 8,
     TRX: 6,
   };
@@ -187,8 +189,10 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
       const precisionMap: Partial<Record<CurrencyType, number>> = {
         BTC: 8,
         LTC: 8,
+        DOGE: 8,
         WBTC: 8,
         BNB: 8,
+        POL: 8,
         ETH: 8,
         TRX: 6,
       };

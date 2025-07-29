@@ -12,6 +12,7 @@ export enum Network {
   LTC = 'LTC',
   WBTC = 'ETH',
   POL = 'POL',
+  DOGE = 'DOGE',
 }
 
 export enum CoinSymbol {
@@ -28,6 +29,7 @@ export enum CoinSymbol {
   TRX = 'TRX',
   WBTC = 'WBTC',
   POL = 'POL',
+  DOGE = 'DOGE',
 }
 
 export enum CurrencyForBotOrder {
