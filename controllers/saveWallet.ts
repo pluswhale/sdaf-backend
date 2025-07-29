@@ -7,12 +7,18 @@ import { backendUrl } from '../config';
 const walletRepository = AppDataSource.getRepository(Wallet);
 
 export const saveWallet = async (req: Request, res: Response): Promise<any> => {
-  const { walletName, walletType, currencyWallet, mnemonic, privateKey } = req.body;
+  const { walletName, walletType, currencyWallet } = req.body;
+
+  let walletCount = await walletRepository.count({
+    where: {
+      wallet_type: walletType,
+    },
+  });
 
   try {
     const { wallet_data } = (
       await axios.get(`${backendUrl()}/api/generate-wallet`, {
-        params: { walletType: currencyWallet ?? 'BNB', mnemonic, privateKey },
+        params: { walletType: currencyWallet ?? 'BNB', walletCount: ++walletCount },
       })
     ).data;
 
@@ -25,6 +31,8 @@ export const saveWallet = async (req: Request, res: Response): Promise<any> => {
       wallet.wallet_type = walletType;
       wallet.currency_type = currencyWallet;
       wallet.pub_key = wallet_data.publicKeyCompressed;
+      wallet.address = wallet_data.address;
+      wallet.path = wallet_data.path;
 
       if (wallet_data.address) {
         wallet.address = wallet_data.address;
@@ -34,7 +42,7 @@ export const saveWallet = async (req: Request, res: Response): Promise<any> => {
 
       return res.status(201).send({
         message: 'Wallet generated and stored',
-        data: { mnemonic: wallet_data.mnemonic },
+        data: { address: wallet_data.address },
       });
     } else {
       return res.status(400).send({ message: 'There was error in generating or saving wallet' });
