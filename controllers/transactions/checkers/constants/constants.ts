@@ -6,6 +6,7 @@ import { getLTCBalance } from '../../../../utils/LTC/getLTCBalance';
 export const SUPPORTED_CURRENCIES: { [key: string]: Function } = {
   BNB: getEVMBalance,
   ETH: getEVMBalance,
+  POL: getEVMBalance,
   TRX: checkBalanceTRX,
   BTC: getBitcoinBalance,
   LTC: getLTCBalance,
