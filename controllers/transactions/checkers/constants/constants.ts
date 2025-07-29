@@ -2,6 +2,7 @@ import { getBitcoinBalance } from '../../../../utils';
 import { checkBalanceTRX } from '../balanceTRX';
 import { getEVMBalance } from '../EVMBalance';
 import { getLTCBalance } from '../../../../utils/LTC/getLTCBalance';
+import { getDOGEBalance } from '../../../../utils/DOGE/getDOGEBalance';
 
 export const SUPPORTED_CURRENCIES: { [key: string]: Function } = {
   BNB: getEVMBalance,
@@ -10,6 +11,7 @@ export const SUPPORTED_CURRENCIES: { [key: string]: Function } = {
   TRX: checkBalanceTRX,
   BTC: getBitcoinBalance,
   LTC: getLTCBalance,
+  DOGE: getDOGEBalance,
   USD1_BEP20: getEVMBalance,
   USD1_ERC20: getEVMBalance,
   USDT_BEP20: getEVMBalance,

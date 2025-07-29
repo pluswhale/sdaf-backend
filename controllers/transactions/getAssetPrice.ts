@@ -62,12 +62,13 @@ const mapAssetToCoinGeckoId = (asset: string): string => {
     WBTC: 'wrapped-bitcoin',
     WBTC_BNB: 'berachain-bridged-wbtc-berachain',
     POL: 'polygon-ecosystem-token',
+    DOGE: 'dogecoin',
   };
   return mapping[asset] || asset.toLowerCase();
 };
 
 export const fetchUsdPrices = async (): Promise<Record<string, number>> => {
-  const ASSETS = ['BTC', 'ETH', 'BNB', 'USDT', 'USDC', 'USD1', 'TRX', 'WBTC', 'WBTC_BNB', 'LTC', 'POL'];
+  const ASSETS = ['BTC', 'ETH', 'BNB', 'USDT', 'USDC', 'USD1', 'TRX', 'WBTC', 'WBTC_BNB', 'LTC', 'POL', 'DOGE'];
 
   if (ASSETS.length === 0) {
     throw new Error('Assets List is blank now.');

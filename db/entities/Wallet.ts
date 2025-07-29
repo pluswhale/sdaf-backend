@@ -24,6 +24,7 @@ export enum CurrencyType {
   TRX = 'TRX',
   WBTC = 'WBTC',
   POL = 'POL',
+  DOGE = 'DOGE',
 }
 
 @Entity()
