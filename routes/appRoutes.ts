@@ -1,6 +1,5 @@
 import makeTransaction, { validateTransaction } from '../controllers/makeTransaction';
 import {
-  checkWalletAddressByAmlCrypto,
   createBotOrderController,
   deleteBotOrderController,
   editMarginController,
@@ -157,40 +156,40 @@ router.post(
   validateTransaction,
   authenticate,
   checkPermission(PermissionsEnum.CONTROL_AUTOSEND_DASHBOARD),
-  startAutoTransaction
+  startAutoTransaction,
 );
 router.post(
   '/auto-send/start/test',
   validateTransaction,
   authenticate,
   checkPermission(PermissionsEnum.CONTROL_AUTOSEND_TEST_DASHBOARD),
-  startAutoTransaction
+  startAutoTransaction,
 );
 router.post(
   '/auto-send/start/archive-wallet',
   validateTransaction,
   authenticate,
   checkPermission(PermissionsEnum.CONTROL_AUTOSEND_ARCHIVE),
-  startAutoTransaction
+  startAutoTransaction,
 );
 
 router.delete(
   '/auto-send/stop/dashboard/:walletAddress',
   authenticate,
   checkPermission(PermissionsEnum.CONTROL_AUTOSEND_DASHBOARD),
-  stopAutoTransaction
+  stopAutoTransaction,
 );
 router.delete(
   '/auto-send/stop/test/:walletAddress',
   authenticate,
   checkPermission(PermissionsEnum.CONTROL_AUTOSEND_TEST_DASHBOARD),
-  stopAutoTransaction
+  stopAutoTransaction,
 );
 router.delete(
   '/auto-send/stop/archive-wallet/:walletAddress',
   authenticate,
   checkPermission(PermissionsEnum.CONTROL_AUTOSEND_ARCHIVE),
-  stopAutoTransaction
+  stopAutoTransaction,
 );
 router.get('/auto-send/transactions', authenticate, getAllAutoTransactions);
 router.get('/auto-send/transactions/drop-all', authenticate, dropAllAutoTransactions);
@@ -310,4 +309,3 @@ router.post('/aml/check', checkWalletAddressByAmlCryptoSimple);
 router.post('/sign/bot-tx', signTxFromBot);
 
 export default router;
-

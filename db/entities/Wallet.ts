@@ -24,6 +24,7 @@ export enum CurrencyType {
   TRX = 'TRX',
   WBTC = 'WBTC',
   POL = 'POL',
+  USDT_PRC20 = 'USDT_PRC20',
   DOGE = 'DOGE',
 }
 

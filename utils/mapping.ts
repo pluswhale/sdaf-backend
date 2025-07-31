@@ -38,6 +38,8 @@ export function getWalletMapping(currencyType: CurrencyType): WalletMapping | nu
       return { network: Network.WBTC, coinSymbol: CoinSymbol.WBTC };
     case CurrencyType.POL:
       return { network: Network.POL, coinSymbol: CoinSymbol.POL };
+    case CurrencyType.USDT_PRC20:
+      return { network: Network.POL, coinSymbol: CoinSymbol.POL };
     case CurrencyType.DOGE:
       return { network: Network.DOGE, coinSymbol: CoinSymbol.DOGE };
     default:
