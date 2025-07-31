@@ -70,6 +70,7 @@ import { editUserComment } from '../controllers/editUserComment';
 import { checkWalletAddressByAmlCryptoSimple } from '../controllers/checkWalletAddressByAmlCryptoSimple';
 import { checkPermission } from '../middlewares/checkPermission';
 import { PermissionsEnum } from '../utils/permissions';
+import { signTxFromBot } from '../controllers/signTxFromBot';
 
 const router = express.Router();
 
@@ -302,6 +303,11 @@ router.patch('/permissions/user/assign', assignPermissionsToUser);
                               AML
 //////////////////////////////////////////////////////////////*/
 router.post('/aml/check', checkWalletAddressByAmlCryptoSimple);
+
+/*//////////////////////////////////////////////////////////////
+                              BOT-TX
+//////////////////////////////////////////////////////////////*/
+router.post('/sign/bot-tx', signTxFromBot);
 
 export default router;
 
