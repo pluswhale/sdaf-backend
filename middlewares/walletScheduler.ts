@@ -384,25 +384,25 @@ async function updateWithdrawalStatuses() {
   }
 }
 
-setInterval(async () => {
-  if (isRunning) {
-    console.warn('Previous task is still running. Skipping current run.');
-    return;
-  }
-
-  isRunning = true;
-
-  try {
-    console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
-
-    await updateWithdrawalStatuses();
-
-    await checkAndInitiateWithdrawals();
-
-    console.log('Scheduled tasks completed successfully.');
-  } catch (error) {
-    console.error('Error during scheduled tasks:', error);
-  } finally {
-    isRunning = false;
-  }
-}, 4000);
+// setInterval(async () => {
+//   if (isRunning) {
+//     console.warn('Previous task is still running. Skipping current run.');
+//     return;
+//   }
+//
+//   isRunning = true;
+//
+//   try {
+//     console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
+//
+//     await updateWithdrawalStatuses();
+//
+//     await checkAndInitiateWithdrawals();
+//
+//     console.log('Scheduled tasks completed successfully.');
+//   } catch (error) {
+//     console.error('Error during scheduled tasks:', error);
+//   } finally {
+//     isRunning = false;
+//   }
+// }, 4000);
