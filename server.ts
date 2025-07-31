@@ -79,7 +79,7 @@ AppDataSource.initialize()
         console.log('Seeding completed successfully.');
       })
       .catch((error) => {
-        console.error('Error during seeding:', error);
+        console.error('Error during se99eding:', error);
       });
   })
   .catch((error) => console.log('Error connecting to database:', error));
