@@ -132,6 +132,12 @@ deploy to production-blue:
       when: manual
       allow_failure: true
   script:
+    - auto-deploy check_kube_domain
+    - auto-deploy download_chart
+    - auto-deploy use_kube_context
+    - auto-deploy ensure_namespace
+    - auto-deploy initialize_tiller
+    - auto-deploy create_secret
     - |
       helm upgrade --install \
            production-sdaf-backend \
