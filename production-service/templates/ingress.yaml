@@ -29,7 +29,7 @@ spec:
       paths:
       {{ $data := dict "url" .Values.service.url "path" .Values.ingress.path }}
       - path: {{ include "prependServiceUrlPath" $data | default "/" | printf "%sapp(/|$)(.*)" | quote }}
-        pathType: Prefix
+        pathType: ImplementationSpecific
         backend:
           service:
             name: {{ template "fullname" . }}
