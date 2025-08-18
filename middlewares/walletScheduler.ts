@@ -133,6 +133,7 @@ export const handleSendingWallet = async (wallet: WalletType) => {
 
 export const handleReceivingWallet = async (wallet: WalletType) => {
   try {
+    console.log('DSOJASOIDSJAOIDJDOIJDOIDJDOIj');
     const mapping = getWalletMapping(wallet.currency_type);
     if (!mapping) {
       console.error(`Unknown currency type for wallet ${wallet.id}: ${wallet.currency_type}`);
