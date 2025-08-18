@@ -12,9 +12,6 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-{{- if .Values.service.commonName }}
-    - {{ template "hostname" .Values.service.commonName }}
-{{- end }}
     - {{ template "hostname" .Values.service.url }}
 {{- if .Values.service.additionalHosts }}
 {{- range $host := .Values.service.additionalHosts }}
@@ -35,10 +32,6 @@ spec:
             name: {{ template "fullname" . }}
             port:
               number: 5000
-{{- if .Values.service.commonName }}
-  - host: {{ template "hostname" .Values.service.commonName }}
-    http: *httpRule
-{{- end -}}
 {{- if .Values.service.additionalHosts }}
 {{- range $host := .Values.service.additionalHosts }}
   - host: {{ template "hostname" $host }}
