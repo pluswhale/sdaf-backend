@@ -12,7 +12,10 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
+{{- if .Values.service.url }}
+  - hosts:
     - {{ template "hostname" .Values.service.url }}
+{{- end }}
 {{- if .Values.service.additionalHosts }}
 {{- range $host := .Values.service.additionalHosts }}
     - {{ template "hostname" $host }}
@@ -20,18 +23,18 @@ spec:
 {{- end }}
     secretName: sdaf-secret-backend
   rules:
+{{- if .Values.service.url }}
   - host: {{ template "hostname" .Values.service.url }}
     http:
-      &httpRule
       paths:
-      {{ $data := dict "url" .Values.service.url "path" .Values.ingress.path }}
-      - path: {{ include "prependServiceUrlPath" $data | default "/" | printf "%sapp(/|$)(.*)" | quote }}
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: {{ template "fullname" . }}
-            port:
-              number: 5000
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ template "fullname" . }}
+              port:
+                number: 5000
+{{- end }}
 {{- if .Values.service.additionalHosts }}
 {{- range $host := .Values.service.additionalHosts }}
   - host: {{ template "hostname" $host }}
