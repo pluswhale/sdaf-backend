@@ -32,6 +32,7 @@ export interface WalletType {
   address: string;
   minBalance: string;
   maxBalance: string;
+  path: string;
   rebalancingWallet: string;
   rebalancingPlatform: string;
   price: {
@@ -199,9 +200,12 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
 
       const precision = precisionMap[wallet.currency_type] || 2;
 
+      console.log('wallet path', wallet.path);
+
       const payload = {
         pub_key: wallet.pub_key,
         from: wallet.address,
+        path: wallet.path,
         to: depositAddress,
         amount: parseFloat(amountToWithdrawCrypto.toFixed(precision)),
         currencyType: wallet.currency_type,
