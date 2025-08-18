@@ -144,7 +144,7 @@ deploy to production-blue:
            $HELM_UPGRADE_EXTRA_ARGS \
            production-service \
            --debug \
-           --create-namespace 
+           --create-namespace \
            -n sdaf-cwap-production-services \
            --set service.url=http://sdafcwap.com/ \
            --set ingress.path=/ \
