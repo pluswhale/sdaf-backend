@@ -12,9 +12,10 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-{{- if .Values.service.url }}
-    - {{ template "hostname" .Values.service.url }}
+{{- if .Values.service.commonName }}
+    - {{ template "hostname" .Values.service.commonName }}
 {{- end }}
+    - {{ template "hostname" .Values.service.url }}
 {{- if .Values.service.additionalHosts }}
 {{- range $host := .Values.service.additionalHosts }}
     - {{ template "hostname" $host }}
@@ -22,22 +23,25 @@ spec:
 {{- end }}
     secretName: sdaf-secret-backend
   rules:
-{{- if .Values.service.url }}
   - host: {{ template "hostname" .Values.service.url }}
-    http: &httpRule
+    http:
+      &httpRule
       paths:
-        - path: {{ default "/" | printf "%sapp(/|$)(.*)" | quote }}
-          pathType: ImplementationSpecific
-          backend:
-            service:
-              name: {{ template "fullname" . }}
-              port:
-                number: 5000
-{{- end }}
+      {{ $data := dict "url" .Values.service.url "path" .Values.ingress.path }}
+      - path: {{ include "prependServiceUrlPath" $data | default "/" | printf "%sapp(/|$)(.*)" | quote }}
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ template "fullname" . }}
+            port:
+              number: 5000
+{{- if .Values.service.commonName }}
+  - host: {{ template "hostname" .Values.service.commonName }}
+    http: *httpRule
+{{- end -}}
 {{- if .Values.service.additionalHosts }}
 {{- range $host := .Values.service.additionalHosts }}
   - host: {{ template "hostname" $host }}
-    http:
-      <<: *httpRule
+    http: *httpRule
 {{- end -}}
 {{- end -}}
