@@ -27,8 +27,8 @@ spec:
   - host: {{ template "hostname" .Values.service.url }}
     http:
       paths:
-        - path: /
-          pathType: Prefix
+        - path: {{ include "prependServiceUrlPath" $data | default "/" | printf "%sapp(/|$)(.*)" | quote }}
+          pathType: ImplementationSpecific
           backend:
             service:
               name: {{ template "fullname" . }}
