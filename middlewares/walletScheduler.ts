@@ -400,6 +400,8 @@ setInterval(async () => {
   try {
     console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
 
+    console.log('NEW CONSOLE LOG!!!!!!!!!!!!!');
+
     await updateWithdrawalStatuses();
 
     await checkAndInitiateWithdrawals();
