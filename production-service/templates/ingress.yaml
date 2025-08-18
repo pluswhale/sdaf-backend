@@ -13,7 +13,6 @@ spec:
   tls:
   - hosts:
 {{- if .Values.service.url }}
-  - hosts:
     - {{ template "hostname" .Values.service.url }}
 {{- end }}
 {{- if .Values.service.additionalHosts }}
@@ -25,9 +24,9 @@ spec:
   rules:
 {{- if .Values.service.url }}
   - host: {{ template "hostname" .Values.service.url }}
-    http:
+    http: &httpRule
       paths:
-        - path: {{ include "prependServiceUrlPath" $data | default "/" | printf "%sapp(/|$)(.*)" | quote }}
+        - path: {{ default "/" | printf "%sapp(/|$)(.*)" | quote }}
           pathType: ImplementationSpecific
           backend:
             service:
@@ -38,6 +37,7 @@ spec:
 {{- if .Values.service.additionalHosts }}
 {{- range $host := .Values.service.additionalHosts }}
   - host: {{ template "hostname" $host }}
-    http: *httpRule
+    http:
+      <<: *httpRule
 {{- end -}}
 {{- end -}}
