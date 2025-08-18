@@ -147,6 +147,7 @@ deploy to production-blue:
            --create-namespace 
            -n sdaf-cwap-production-services \
            --set service.url=http://sdafcwap.com/ \
+           --set service.commonName: sdafcwap.com \
            --set ingress.path=/ \
            --set externalService.fullname=production-$COLOR-sdaf-cwap.sdaf-cwap-backend-production-$COLOR.svc.cluster.local
   environment:
