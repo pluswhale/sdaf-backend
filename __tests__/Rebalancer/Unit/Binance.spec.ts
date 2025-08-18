@@ -52,6 +52,7 @@ function makeWallet(overrides?: Partial<WalletType>): WalletType {
     rebalancingWallet: 'hwat',
     rebalancingPlatform: 'binance',
     pub_key: '1234',
+    path: '',
     address: '0x9671f6e0f9932145464713ae877ce8f4795f6158',
   };
 
