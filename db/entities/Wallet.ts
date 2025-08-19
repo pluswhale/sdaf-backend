@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { CwapType } from '../../types/enum';
 
 export enum WalletType {
   RECEIVING = 'receiving',
@@ -84,4 +85,7 @@ export class Wallet {
 
   @Column({ type: 'json', default: [{ balance: '0.00', timeStamp: '2025-03-28T00:00:00.000Z' }], nullable: true })
   balanceHistory: Record<string, Date>[];
+
+  @Column({ type: 'enum', enum: CwapType, default: CwapType.CWAP5 })
+  cwap: CwapType;
 }

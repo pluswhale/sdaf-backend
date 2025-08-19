@@ -47,3 +47,8 @@ export enum Direction {
   BUY = 'BUY',
   SELL = 'SELL',
 }
+
+export enum CwapType {
+  CWAP3 = 'cwap3',
+  CWAP5 = 'cwap5'
+}
