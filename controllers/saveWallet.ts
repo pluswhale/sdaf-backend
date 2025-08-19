@@ -7,7 +7,7 @@ import { backendUrl } from '../config';
 const walletRepository = AppDataSource.getRepository(Wallet);
 
 export const saveWallet = async (req: Request, res: Response): Promise<any> => {
-  const { walletName, walletType, currencyWallet } = req.body;
+  const { walletName, walletType, currencyWallet, cwapType } = req.body;
 
   let walletCount = await walletRepository.count({
     where: {
@@ -33,6 +33,7 @@ export const saveWallet = async (req: Request, res: Response): Promise<any> => {
       wallet.pub_key = wallet_data.publicKeyCompressed;
       wallet.address = wallet_data.address;
       wallet.path = wallet_data.path;
+      wallet.cwap_type = cwapType;
 
       if (wallet_data.address) {
         wallet.address = wallet_data.address;

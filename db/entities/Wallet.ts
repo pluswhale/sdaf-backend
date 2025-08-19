@@ -87,5 +87,5 @@ export class Wallet {
   balanceHistory: Record<string, Date>[];
 
   @Column({ type: 'enum', enum: CwapType, default: CwapType.CWAP5 })
-  cwap: CwapType;
+  cwap_type: CwapType;
 }
