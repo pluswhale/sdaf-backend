@@ -86,6 +86,6 @@ export class Wallet {
   @Column({ type: 'json', default: [{ balance: '0.00', timeStamp: '2025-03-28T00:00:00.000Z' }], nullable: true })
   balanceHistory: Record<string, Date>[];
 
-  @Column({ type: 'enum', enum: CwapType, default: CwapType.CWAP5 })
+  @Column({ type: 'enum', enum: CwapType, default: CwapType.CWAP5, nullable: true })
   cwap_type: CwapType;
 }
