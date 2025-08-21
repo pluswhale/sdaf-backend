@@ -5,22 +5,32 @@ import { AppDataSource } from '../db/AppDataSource';
 const walletRepository = AppDataSource.getRepository(Wallet);
 
 export const duplicateWallet = async (req: Request, res: Response): Promise<any> => {
-  const { duplicateWallets, walletName, currencyWallet } = req.body.values;
+  const { duplicateWallets, walletName, currencyWallet, cwapType } = req.body.values;
 
   try {
     if (duplicateWallets) {
-      const updatedWallets = duplicateWallets.map((wallet: Wallet) => {
+      const updatedWallets = [];
+
+      for (const wallet of duplicateWallets) {
+        const walletsWithType = await walletRepository.find({
+          where: { currency_type: wallet.currency_type }
+        });
+        const walletsCount = walletsWithType.length + 1;
+        const generatePath = wallet.path.replace(/\/[^\/]*$/, `/${walletsCount || 0}`);
+
         const updatedWallet = new Wallet();
         updatedWallet.wallet_name = walletName;
         updatedWallet.wallet_type = wallet.wallet_type;
         updatedWallet.currency_type = currencyWallet;
         updatedWallet.pub_key = wallet.pub_key;
         updatedWallet.address = wallet.address;
+        updatedWallet.path = generatePath;
+        updatedWallet.cwap_type = cwapType;
 
-        return updatedWallet;
-      });
+        updatedWallets.push(updatedWallet);
+      }
 
-      await walletRepository?.save(updatedWallets);
+      await walletRepository.save(updatedWallets);
 
       return res.status(201).send({
         message: 'Wallets duplicated and stored',
@@ -31,6 +41,6 @@ export const duplicateWallet = async (req: Request, res: Response): Promise<any>
     }
   } catch (error) {
     console.error('Error duplicating or storing wallet:', error);
-    res.status(500).send({ error: 'Failed to duplicate or store wallet: ' + error });
+    return res.status(500).send({ error: 'Failed to duplicate or store wallet: ' + error });
   }
 };
