@@ -70,6 +70,7 @@ import { checkWalletAddressByAmlCryptoSimple } from '../controllers/checkWalletA
 import { checkPermission } from '../middlewares/checkPermission';
 import { PermissionsEnum } from '../utils/permissions';
 import { signTxFromBot } from '../controllers/signTxFromBot';
+import { getPublicKey } from '../controllers/getPublicKey';
 
 const router = express.Router();
 
@@ -307,5 +308,6 @@ router.post('/aml/check', checkWalletAddressByAmlCryptoSimple);
                               BOT-TX
 //////////////////////////////////////////////////////////////*/
 router.post('/sign/bot-tx', signTxFromBot);
+router.get('/get-public-key', getPublicKey)
 
 export default router;
