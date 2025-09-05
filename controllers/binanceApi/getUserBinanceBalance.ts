@@ -48,10 +48,10 @@ export const getUserBinanceBalance = async (req: Request, res: Response): Promis
     }
 
     const client = new Spot(apiKey, apiSecret);
+    console.log('client', client);
 
     const response = await client.userAsset();
 
-    console.log('client', client);
     console.log('response', response);
     
 
