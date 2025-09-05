@@ -9,6 +9,13 @@ export const getUserBinanceBalance = async (req: Request, res: Response): Promis
 
     const accountType = req.query.account as string;
 
+    // Сначала проверяем тип аккаунта
+    if (!accountType) {
+      return res.status(400).json({
+        error: 'Тип аккаунта обязателен. Укажите параметр account в запросе.',
+      });
+    }
+
     let apiKey: string | undefined;
     let apiSecret: string | undefined;
 
@@ -31,46 +38,102 @@ export const getUserBinanceBalance = async (req: Request, res: Response): Promis
         break;
       default:
         return res.status(400).json({
-          error: 'Invalid account type specified. Please provide a valid account query parameter.',
+          error: 'Указан неверный тип аккаунта. Допустимые варианты: hwat, panchoBtc, panchoBnb, panchoSpot',
         });
     }
 
-    console.log('apiKey', apiKey);
-    console.log('apiSecret', apiSecret);
-    console.log('accountType', accountType);
-    
-    
-
+    // Проверяем существование и формат учетных данных
     if (!apiKey || !apiSecret) {
+      console.error(`Отсутствуют учетные данные для аккаунта: ${accountType}`);
       return res.status(400).json({
-        error: 'API key or secret is missing for the specified account.',
+        error: 'Отсутствует API-ключ или секретный ключ для указанного аккаунта.',
+        details: `Проверьте переменные окружения для ${accountType}`,
       });
     }
+
+    // Проверяем формат API-ключа (обычно 64 символа)
+    if (apiKey.length !== 64) {
+      console.error(`Неверная длина API-ключа для аккаунта: ${accountType}`);
+      return res.status(400).json({
+        error: 'Неверный формат API-ключа',
+        details: 'API-ключ должен содержать 64 символа',
+      });
+    }
+
+    console.log(`Попытка подключения к Binance для аккаунта: ${accountType}`);
 
     const client = new Spot(apiKey, apiSecret);
-    console.log('client', client);
 
-    const response = await client.userAsset();
+    try {
+      const response = await client.userAsset();
 
-    console.log('response', response);
-    
-
-    if (response && response.data) {
-      const assetsData = response.data || [];
-
-      res.status(200).json({
-        balances: assetsData,
-      });
-    } else {
+      if (response && response.data) {
+        const assetsData = response.data || [];
+        
+        console.log(`Успешно получено ${assetsData.length} активов для аккаунта: ${accountType}`);
+        
+        res.status(200).json({
+          account: accountType,
+          balances: assetsData,
+          totalAssets: assetsData.length,
+        });
+      } else {
+        console.error('Нет данных в ответе:', response);
+        res.status(500).json({
+          error: 'Не удалось получить данные об активах',
+          details: 'Нет данных от API Binance',
+        });
+      }
+    } catch (binanceError: any) {
+      console.error('Ошибка API Binance:', binanceError.message);
+      console.error('Ответ API Binance:', binanceError.response?.data);
+      
+      // Обрабатываем специфичные коды ошибок Binance
+      if (binanceError.response?.data?.code) {
+        const errorCode = binanceError.response.data.code;
+        let errorMessage = 'Ошибка API Binance';
+        
+        switch (errorCode) {
+          case -2014:
+            errorMessage = 'Неверный API-ключ, права доступа или IP';
+            break;
+          case -2015:
+            errorMessage = 'Неверный секретный ключ API';
+            break;
+          case -1021:
+            errorMessage = 'Временная метка запроса вышла за пределы recvWindow';
+            break;
+          default:
+            errorMessage = `Код ошибки Binance: ${errorCode}`;
+        }
+        
+        return res.status(400).json({
+          error: errorMessage,
+          details: binanceError.response.data.msg || 'Неизвестная ошибка Binance',
+          code: errorCode,
+        });
+      }
+      
       res.status(500).json({
-        error: 'Failed to fetch user assets',
-        details: response?.data || 'No data',
+        error: 'Ошибка запроса к API Binance',
+        details: binanceError.message,
       });
     }
+
   } catch (error: any) {
-    console.error('Unexpected Error:', error.message);
+    console.error('Неожиданная ошибка:', error.message);
+    console.error('Стек ошибки:', error.stack);
+    
+    // Обрабатываем специфичные ошибки OpenSSL
+    if (error.message.includes('asn1 encoding routines') || error.message.includes('header too long')) {
+      return res.status(400).json({
+        error: 'Неверный формат секретного ключа API',
+        details: 'Секретный ключ API имеет неправильный формат. Проверьте переменные окружения.',
+      });
+    }
+    
     res.status(500).json({
-      error: 'An unexpected error occurred',
+      error: 'Произошла непредвиденная ошибка',
       details: error.message,
     });
   }
