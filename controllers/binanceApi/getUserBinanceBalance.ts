@@ -35,6 +35,12 @@ export const getUserBinanceBalance = async (req: Request, res: Response): Promis
         });
     }
 
+    console.log('apiKey', apiKey);
+    console.log('apiSecret', apiSecret);
+    console.log('accountType', accountType);
+    
+    
+
     if (!apiKey || !apiSecret) {
       return res.status(400).json({
         error: 'API key or secret is missing for the specified account.',
@@ -44,6 +50,10 @@ export const getUserBinanceBalance = async (req: Request, res: Response): Promis
     const client = new Spot(apiKey, apiSecret);
 
     const response = await client.userAsset();
+
+    console.log('client', client);
+    console.log('response', response);
+    
 
     if (response && response.data) {
       const assetsData = response.data || [];
