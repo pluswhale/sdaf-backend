@@ -72,7 +72,6 @@ import { PermissionsEnum } from '../utils/permissions';
 import { signTxFromBot } from '../controllers/signTxFromBot';
 import { getPublicKey } from '../controllers/getPublicKey';
 import { getPublicAddress } from '../controllers/getPublicAddress';
-import { getTest } from '../controllers/test';
 
 const router = express.Router();
 
