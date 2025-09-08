@@ -312,6 +312,5 @@ router.post('/aml/check', checkWalletAddressByAmlCryptoSimple);
 router.post('/sign/bot-tx', signTxFromBot);
 router.get('/get-public-key', getPublicKey)
 router.get('/get-public-address', getPublicAddress)
-router.post('/get-secrets', getTest)
 
 export default router;
