@@ -32,9 +32,9 @@ export const makeTransaction = async (req: Request, res: Response): Promise<any>
     }
 
     return res.status(200).json(response.data);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending transaction:', error);
-    res.status(500).json({ error: 'Failed to send transaction' });
+    res.status(500).json({ error: 'Failed to send transaction', stack: error.stack, text: error.message, full: error });
   }
 };
 
