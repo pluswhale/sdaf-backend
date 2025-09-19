@@ -307,10 +307,12 @@ async function checkAndInitiateWithdrawals() {
       console.log(`Found ${walletsToUpdate.length} wallets requiring replenishment.`);
       for (const wallet of walletsToUpdate) {
         if (wallet.wallet_type === 'sending') {
-          console.log(`Initiating withdrawal for wallet ${wallet.id} (sending)`);
+          console.log(
+            `Initiating withdrawal for wallet ${wallet.id} ${wallet.currency_type} ${wallet.wallet_name} (sending)`,
+          );
           await handleSendingWallet(wallet);
         } else {
-          console.log(`Skipping wallet ${wallet.id} (not sending)`);
+          console.log(`Skipping wallet ${wallet.id} ${wallet.currency_type} ${wallet.wallet_name} (not sending)`);
         }
       }
     }
@@ -321,10 +323,12 @@ async function checkAndInitiateWithdrawals() {
       console.log(`Found ${walletsToWithdraw.length} wallets requiring withdrawal.`);
       for (const wallet of walletsToWithdraw) {
         if (wallet.wallet_type === 'receiving') {
-          console.log(`Initiating withdrawal for wallet ${wallet.id} (receiving)`);
+          console.log(
+            `Initiating withdrawal for wallet ${wallet.id} ${wallet.currency_type} ${wallet.wallet_name} (receiving)`,
+          );
           await handleReceivingWallet(wallet);
         } else {
-          console.log(`Skipping wallet ${wallet.id} (not receiving)`);
+          console.log(`Skipping wallet ${wallet.id} ${wallet.currency_type} ${wallet.wallet_name} (not receiving)`);
         }
       }
     }
