@@ -45,6 +45,13 @@ export const handleSendingWallet = async (wallet: WalletType) => {
   const minBalance = parseFloat(wallet.minBalance);
   const maxBalance = parseFloat(wallet.maxBalance);
 
+  console.log('--- handleSendingWallet ---');
+  console.log(`Wallet ID: ${wallet.id}`);
+  console.log(`Currency: ${wallet.currency_type}`);
+  console.log(`Wallet type: ${wallet.wallet_type}`);
+  console.log(`MinBalance: ${wallet.minBalance}, MaxBalance: ${wallet.maxBalance}`);
+  console.log('Price object:', wallet.price);
+
   if (isNaN(minBalance) || isNaN(maxBalance) || minBalance === 0 || maxBalance === 0) {
     console.log(`Skipping the wallet ${wallet.id}: minBalance and maxBalance incorrect.`);
     return;
@@ -133,7 +140,13 @@ export const handleSendingWallet = async (wallet: WalletType) => {
 
 export const handleReceivingWallet = async (wallet: WalletType) => {
   try {
-    console.log('DSOJASOIDSJAOIDJDOIJDOIDJDOIj');
+    console.log('--- handleReceivingWallet ---');
+    console.log(`Wallet ID: ${wallet.id}`);
+    console.log(`Currency: ${wallet.currency_type}`);
+    console.log(`Wallet type: ${wallet.wallet_type}`);
+    console.log(`MinBalance: ${wallet.minBalance}, MaxBalance: ${wallet.maxBalance}`);
+    console.log('Price object:', wallet.price);
+
     const mapping = getWalletMapping(wallet.currency_type);
     if (!mapping) {
       console.error(`Unknown currency type for wallet ${wallet.id}: ${wallet.currency_type}`);
@@ -399,8 +412,6 @@ setInterval(async () => {
 
   try {
     console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
-
-    console.log('NEW CONSOLE LOG!!!!!!!!!!!!!');
 
     await updateWithdrawalStatuses();
 
