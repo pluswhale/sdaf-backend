@@ -11,7 +11,7 @@ export enum Network {
   TRX = 'TRX',
   LTC = 'LTC',
   WBTC = 'ETH',
-  POL = 'MATIC',
+  POL = 'POLYGON',
   DOGE = 'DOGE',
 }
 
