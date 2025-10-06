@@ -11,7 +11,7 @@ export enum Network {
   TRX = 'TRX',
   LTC = 'LTC',
   WBTC = 'ETH',
-  POL = 'POL',
+  POL = 'MATIC',
   DOGE = 'DOGE',
 }
 
@@ -28,7 +28,7 @@ export enum CoinSymbol {
   ETH = 'ETH',
   TRX = 'TRX',
   WBTC = 'WBTC',
-  POL = 'POL',
+  POL = 'MATIC',
   DOGE = 'DOGE',
 }
 
