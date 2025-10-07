@@ -115,7 +115,9 @@ export const handleSendingWallet = async (wallet: WalletType) => {
   };
 
   try {
-    const orderViewId = (await initiateBinanceWithdraw(payload, wallet.rebalancingWallet)).data?.id;
+    const orderViewId = (await initiateBinanceWithdraw(payload, wallet.rebalancingWallet))?.data?.id;
+
+    console.log('orderViewId', orderViewId);
 
     const pendingWithdrawal = pendingWithdrawalRepository.create({
       walletId: wallet.id,
@@ -159,7 +161,7 @@ export const handleReceivingWallet = async (wallet: WalletType) => {
       network: mapping.network,
     };
 
-    const depositAddress = (await getBinanceDepositAddress(params, wallet.rebalancingWallet)).data?.address;
+    const depositAddress = (await getBinanceDepositAddress(params, wallet.rebalancingWallet))?.data?.address;
 
     console.log(`Ceffu prime wallet address: ${depositAddress}`);
 
