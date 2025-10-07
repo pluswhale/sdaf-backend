@@ -289,35 +289,55 @@ async function checkAndInitiateWithdrawals() {
 
     const walletsWithPrices: WalletType[] = await takeWalletsWithPrices(filteredWallets);
 
-    // const walletsToUpdate = walletsWithPrices.filter((w: WalletType) => {
-    //   const minBalance = parseFloat(w.minBalance);
-    //   const priceUsd = typeof w?.price?.usd === 'string' ? parseFloat(w?.price?.usd) : w?.price?.usd;
-    //   return priceUsd < minBalance;
-    // });
-    //
-    // const walletsToWithdraw = walletsWithPrices.filter((w: WalletType) => {
-    //   const maxBalance = parseFloat(w.maxBalance);
-    //   const priceUsd = typeof w?.price?.usd === 'string' ? parseFloat(w?.price?.usd) : w?.price?.usd;
-    //   return priceUsd > maxBalance;
-    // });
+    const walletsToUpdate = walletsWithPrices.filter((w: WalletType) => {
+      const minBalance = parseFloat(w.minBalance);
+      const priceUsd = typeof w?.price?.usd === 'string' ? parseFloat(w?.price?.usd) : w?.price?.usd;
+      return priceUsd < minBalance;
+    });
 
-    for (const wallet of walletsWithPrices) {
-      const minBalance = parseFloat(wallet.minBalance);
-      const maxBalance = parseFloat(wallet.maxBalance);
-      const priceUsd = typeof wallet.price.usd === 'string' ? parseFloat(wallet.price.usd) : wallet.price.usd;
+    const walletsToWithdraw = walletsWithPrices.filter((w: WalletType) => {
+      const maxBalance = parseFloat(w.maxBalance);
+      const priceUsd = typeof w?.price?.usd === 'string' ? parseFloat(w?.price?.usd) : w?.price?.usd;
+      return priceUsd > maxBalance;
+    });
 
-      if (wallet.wallet_type === 'sending' && priceUsd < minBalance) {
-        console.log(
-          `Wallet ${wallet.id} ${wallet.wallet_name} ${wallet.currency_type} requires top-up (sending wallet).`,
-        );
-        await handleSendingWallet(wallet);
-      } else if (wallet.wallet_type === 'receiving' && priceUsd > maxBalance) {
-        console.log(
-          `Wallet ${wallet.id} ${wallet.id} ${wallet.wallet_name} ${wallet.currency_type} requires withdrawal (receiving wallet).`,
-        );
-        await handleReceivingWallet(wallet);
-      } else {
-        console.log(`Wallet ${wallet.id} does not require action.`);
+    if (walletsToUpdate.length === 0) {
+      console.log('No wallets requiring replenishment.');
+    } else {
+      console.log(`Found ${walletsToUpdate.length} wallets requiring replenishment.`);
+      for (const wallet of walletsToUpdate) {
+        if (wallet.wallet_type === 'sending') {
+          console.log(
+            `Initiating withdrawal for wallet ${wallet.id} ${wallet.currency_type} ${wallet.wallet_name} (sending)`,
+          );
+          await handleSendingWallet(wallet);
+        } else {
+          console.log(`Skipping wallet ${wallet.id} ${wallet.currency_type} ${wallet.wallet_name} (not sending)`);
+        }
+        // console.log(
+        //   `Wallet ${wallet.id} ${wallet.currency_type} ${wallet.wallet_name}  requires replenishment (price < minBalance).`,
+        // );
+        // await handleSendingWallet(wallet); // or handleReceivingWallet depending on your workflow
+      }
+    }
+
+    if (walletsToWithdraw.length === 0) {
+      console.log('No wallets requiring withdrawal.');
+    } else {
+      console.log(`Found ${walletsToWithdraw.length} wallets requiring withdrawal.`);
+      for (const wallet of walletsToWithdraw) {
+        if (wallet.wallet_type === 'receiving') {
+          console.log(
+            `Initiating withdrawal for wallet ${wallet.id} ${wallet.currency_type} ${wallet.wallet_name} (receiving)`,
+          );
+          await handleReceivingWallet(wallet);
+        } else {
+          console.log(`Skipping wallet ${wallet.id} ${wallet.currency_type} ${wallet.wallet_name} (not receiving)`);
+        }
+        // console.log(
+        //   `Wallet ${wallet.id} ${wallet.currency_type} ${wallet.wallet_name}  requires withdrawal (price > maxBalance).`,
+        // );
+        // await handleReceivingWallet(wallet); // or handleSendingWallet depending on your workflow
       }
     }
   } catch (error) {
