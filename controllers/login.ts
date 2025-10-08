@@ -21,7 +21,7 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
       };
 
       const accessToken = jwt.sign({ user }, secretKey as string, { expiresIn: '40m' });
-      const refreshToken = jwt.sign({ user }, secretKey as string, { expiresIn: '50m' });
+      const refreshToken = jwt.sign({ user }, secretKey as string, { expiresIn: '365d' });
 
       res
         .setHeader('Access-Control-Allow-Credentials', 'true')
