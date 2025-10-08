@@ -308,7 +308,7 @@ router.post('/aml/check', checkWalletAddressByAmlCryptoSimple);
 /*//////////////////////////////////////////////////////////////
                               BOT-TX
 //////////////////////////////////////////////////////////////*/
-router.post('/sign/bot-tx', signTxFromBot);
+router.post('/sign/bot-tx', authenticate, signTxFromBot);
 router.get('/get-public-key', getPublicKey)
 router.get('/get-public-address', getPublicAddress)
 
