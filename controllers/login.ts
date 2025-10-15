@@ -21,12 +21,17 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
       };
 
       const accessToken = jwt.sign({ user }, secretKey as string, { expiresIn: '40m' });
-      const refreshToken = jwt.sign({ user }, secretKey as string, { expiresIn: '365d' });
+      const refreshToken = jwt.sign({ user }, secretKey as string);
 
       res
         .setHeader('Access-Control-Allow-Credentials', 'true')
         .setHeader('Access-Control-Expose-Headers', 'Authorization, Set-Cookie')
-        .cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'lax', secure: false })
+        .cookie('refreshToken', refreshToken, {
+          httpOnly: true,
+          sameSite: 'lax',
+          secure: false,
+          maxAge: 365 * 24 * 60 * 60 * 1000,
+        })
         .header('Authorization', `Bearer ${accessToken}`)
         .status(200)
         .send('Login successful');
