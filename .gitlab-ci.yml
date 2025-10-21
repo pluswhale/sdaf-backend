@@ -75,7 +75,7 @@ deploy to prod-test-onramp:
     COLOR: "blue"
     # DB_HOST: "prod-test-onramp-postgres-postgresql.sdaf-cwap-production-database-backend.svc.cluster.local" 
     POSTGRES_USER: user
-    POSTGRES_VERSION: '15'
+    POSTGRES_VERSION: '13'
     POSTGRES_ENABLED: 'true'
     ENV_SPECIFIC_VALUES_ONRAMP: ${ENV_SPECIFIC_VALUES_ONRAMP}
   before_script:
