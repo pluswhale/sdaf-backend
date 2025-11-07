@@ -281,7 +281,7 @@ async function checkAndInitiateWithdrawals() {
     const filteredWallets = wallets.filter((w: WalletType) => {
       if (walletIdsWithPending.includes(w.id) || walletIdsWithPendingReplenishments.includes(w.id)) return false;
 
-      return w.minBalance !== '0' && w.maxBalance !== '0';
+      return w.minBalance !== '0' && w.maxBalance !== '0' && w.currency_type !== 'DOGE';
     });
 
     if (filteredWallets.length === 0) {
