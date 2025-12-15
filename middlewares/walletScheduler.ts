@@ -13,9 +13,13 @@ import { takeWallets } from '../controllers';
 import { takeWalletsWithPrices } from '../controllers/walletsWithPrices';
 import { takeWithdrawalDetailsBinance } from '../controllers/binanceApi/getWithdrawalDetailsBinance';
 import { takeDepositDetailBinance } from '../controllers/binanceApi/getDepositDetailBinance';
+import { sleep } from '../utils/sleep';
+import { withTimeout } from '../utils/withTimeout';
 
 dotenv.config();
+
 let isRunning: boolean = false;
+const SCHEDULER_INTERVAL_MS = 4000;
 
 export const pendingWithdrawalRepository: Repository<PendingWithdrawal> =
   AppDataSource.getRepository(PendingWithdrawal);
@@ -416,25 +420,31 @@ async function updateWithdrawalStatuses() {
   }
 }
 
-setInterval(async () => {
-  if (isRunning) {
-    console.warn('Previous task is still running. Skipping current run.');
-    return;
+async function schedulerLoop() {
+  while (true) {
+    if (isRunning) {
+      console.warn('Scheduler still running, skipping iteration');
+      await sleep(SCHEDULER_INTERVAL_MS);
+      continue;
+    }
+
+    isRunning = true;
+
+    try {
+      console.log('Scheduler tick started');
+
+      await withTimeout(updateWithdrawalStatuses(), 30_000);
+      await withTimeout(checkAndInitiateWithdrawals(), 30_000);
+
+      console.log('Scheduler tick finished');
+    } catch (err) {
+      console.error('Scheduler error:', err);
+    } finally {
+      isRunning = false;
+    }
+
+    await sleep(SCHEDULER_INTERVAL_MS);
   }
+}
 
-  isRunning = true;
-
-  try {
-    console.log('Starting scheduled tasks: Update Statuses and Check Initiate Withdrawals');
-
-    await updateWithdrawalStatuses();
-
-    await checkAndInitiateWithdrawals();
-
-    console.log('Scheduled tasks completed successfully.');
-  } catch (error) {
-    console.error('Error during scheduled tasks:', error);
-  } finally {
-    isRunning = false;
-  }
-}, 4000);
+schedulerLoop().catch(console.error);
